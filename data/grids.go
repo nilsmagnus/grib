@@ -18,7 +18,7 @@ type BasicAngle struct {
 }
 
 type Grid interface {
-    Export() map[string]string
+	Export() map[string]string
 }
 
 func ReadGrid(f *os.File, templateNumber uint16) (Grid, error) {
@@ -55,9 +55,9 @@ type GridHeader struct {
 }
 
 func (h *GridHeader) Export() (d map[string]string) {
-    return map[string]string {
-        "earth": ReadEarthShape(int(h.EarthShape)),
-    }
+	return map[string]string{
+		"earth": ReadEarthShape(int(h.EarthShape)),
+	}
 }
 
 // Grid Definition Template 3.0: Latitude/longitude (or equidistant cylindrical, or Plate Carree)
@@ -78,20 +78,20 @@ type Grid0 struct {
 }
 
 func (h *Grid0) Export() (d map[string]string) {
-    return map[string]string {
-        "earth": ReadEarthShape(int(h.EarthShape)),
-        "ni": fmt.Sprint(h.Ni),
-        "nj": fmt.Sprint(h.Nj),
-        "basicAngle": fmt.Sprint(h.BasicAngle.BasicAngle),
-        "basicAngleSub": fmt.Sprint(h.BasicAngle.BasicAngleSub),
-        "la1": fmt.Sprint(h.La1),
-        "lo1": fmt.Sprint(h.Lo1),
-        "la2": fmt.Sprint(h.La2),
-        "lo2": fmt.Sprint(h.Lo2),
-        "di": fmt.Sprint(h.Di),
-        "dj": fmt.Sprint(h.Dj),
-        "scanningMode": fmt.Sprint(h.ScanningMode),
-    }
+	return map[string]string{
+		"earth": ReadEarthShape(int(h.EarthShape)),
+		"ni": fmt.Sprint(h.Ni),
+		"nj": fmt.Sprint(h.Nj),
+		"basicAngle": fmt.Sprint(h.BasicAngle.BasicAngle),
+		"basicAngleSub": fmt.Sprint(h.BasicAngle.BasicAngleSub),
+		"la1": fmt.Sprint(h.La1),
+		"lo1": fmt.Sprint(h.Lo1),
+		"la2": fmt.Sprint(h.La2),
+		"lo2": fmt.Sprint(h.Lo2),
+		"di": fmt.Sprint(h.Di),
+		"dj": fmt.Sprint(h.Dj),
+		"scanningMode": fmt.Sprint(h.ScanningMode),
+	}
 }
 
 
@@ -173,24 +173,24 @@ type Grid40 struct {
 type Grid90 struct {
 	//name =  "Space view perspective or orthographic ";
 	GridHeader
-	Nx uint32
-	Ny uint32
+	Nx                          uint32
+	Ny                          uint32
 	//BasicAngle                  BasicAngle
 	Lap                         int32
 	Lop                         int32
 	ResolutionAndComponentFlags uint8
 
-	Dx uint32
-	Dy uint32
+	Dx                          uint32
+	Dy                          uint32
 
-	Xp uint32
-	Yp uint32
+	Xp                          uint32
+	Yp                          uint32
 
 	// fix byte size
-	ScanningMode uint8
-	Orientation  uint32
-	Nr           uint32
+	ScanningMode                uint8
+	Orientation                 uint32
+	Nr                          uint32
 
-	Xo uint32
-	Yo uint32
+	Xo                          uint32
+	Yo                          uint32
 }

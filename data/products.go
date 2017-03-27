@@ -15,8 +15,8 @@ type Product0 struct {
 	TimeUnitIndicator uint8
 	ForecastTime      uint32
 
-	FirstSurface  Surface
-	SecondSurface Surface
+	FirstSurface      Surface
+	SecondSurface     Surface
 }
 
 type Surface struct {
@@ -27,8 +27,8 @@ type Surface struct {
 
 func (p Product0) String() string {
 	return fmt.Sprint(
-        ReadProductDisciplineParameters(0, int(p.ParameterCategory)),
-        " - ",
-        ReadProductDisciplineCategoryParameters(0, int(p.ParameterCategory), int(p.ParameterNumber)),
-    ) //, " ", p.Hours, p.Minutes, p.TimeUnitIndicator, p.ForecastTime)
+		ReadProductDisciplineParameters(0, int(p.ParameterCategory)),
+		" - ",
+		ReadProductDisciplineCategoryParameters(0, int(p.ParameterCategory), int(p.ParameterNumber)),
+	) //, " ", p.Hours, p.Minutes, p.TimeUnitIndicator, p.ForecastTime)
 }

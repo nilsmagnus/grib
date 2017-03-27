@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"os"
-    "errors"
+	"errors"
 )
 
 type Message struct {
@@ -19,31 +19,31 @@ type Message struct {
 
 func ReadMessage(f *os.File) (message Message, err error) {
 
-    //
-    // find header
-    //
-    var header Head
-    found := false
-    for offset := int64(0); true; offset++ {
-        f.Seek(offset, 1)
-        err = binary.Read(f, binary.BigEndian, &header)
-        if err != nil {
-            return message, err
-        }
+	//
+	// find header
+	//
+	var header Head
+	found := false
+	for offset := int64(0); true; offset++ {
+		f.Seek(offset, 1)
+		err = binary.Read(f, binary.BigEndian, &header)
+		if err != nil {
+			return message, err
+		}
 
-        if header.Indicator == 0x47524942 { // GRIB in ascii
-            if header.Edition != 2 {
-                return message, errors.New(fmt.Sprintf("Unknown edition %d", header.Edition))
-            }
-            found = true
-            break
-        }
-    }
+		if header.Indicator == 0x47524942 {
+			// GRIB in ascii
+			if header.Edition != 2 {
+				return message, errors.New(fmt.Sprintf("Unknown edition %d", header.Edition))
+			}
+			found = true
+			break
+		}
+	}
 
-    if !found {
-        return message, errors.New("Head not found")
-    }
-
+	if !found {
+		return message, errors.New("Head not found")
+	}
 
 	for {
 		position, err := f.Seek(0, 1)
@@ -150,7 +150,7 @@ type Section2 struct {
 }
 
 func ReadSection2(f *os.File, len uint32) (section Section2, err error) {
-	section.LocalUse = make([]uint8, len-5)
+	section.LocalUse = make([]uint8, len - 5)
 	return section, read(f, &section.ByteLength, &section.Number, &section.LocalUse)
 }
 
@@ -202,7 +202,7 @@ func ReadSection4(f *os.File, length uint32) (section Section4, err error) {
 		panic(fmt.Sprint("Product definition template number", section.ProductDefinitionTemplateNumber, "not implemented yet"))
 	}
 
-	section.Coordinates = make([]byte, length-9-uint32(binary.Size(section.ProductDefinitionTemplate)))
+	section.Coordinates = make([]byte, length - 9 - uint32(binary.Size(section.ProductDefinitionTemplate)))
 
 	return section, read(f, &section.Coordinates)
 }
@@ -238,7 +238,7 @@ type Section6 struct {
 }
 
 func ReadSection6(f *os.File, length uint32) (section Section6, err error) {
-	section.Bitmap = make([]byte, length-6)
+	section.Bitmap = make([]byte, length - 6)
 
 	return section, read(f, &section.ByteLength, &section.Number, &section.BitmapIndicator, &section.Bitmap)
 }
@@ -246,7 +246,7 @@ func ReadSection6(f *os.File, length uint32) (section Section6, err error) {
 type Section7 struct {
 	SectionHead
 	RawData []byte
-    Data []int64
+	Data    []int64
 }
 
 func ReadSection7(f *os.File, length uint32, template Data3) (section Section7, err error) {
@@ -261,7 +261,7 @@ func ReadSection7(f *os.File, length uint32, template Data3) (section Section7, 
 	//fmt.Println("l", dataLength, template.Bits)
 	//template.Bits
 
-	section.Data = ParseData3(f, length-5, &template)
+	section.Data = ParseData3(f, length - 5, &template)
 
 	return section, err
 }
