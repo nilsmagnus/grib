@@ -6,39 +6,29 @@ import (
 	"os"
 	"encoding/json"
 	"bytes"
+	"flag"
 )
 
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
 
 func main() {
-	category := 0 // temperature
-	product := 6 // temperature
+	//category := flag.Int("category", 0, "Category. Default is temperature") // temperature
+	//product := flag.Int("product", 6, "Product. Default is temperature") // temperature
+	filename := flag.String("file", "", "Grib filename")
 
-	f, err := os.Open("gfs.t00z.pgrb2.0p25.f000")
-	check(err)
+	flag.Parse()
 
-	for {
-		//sections,
-		message, err := data.ReadMessage(f)
-		if err != nil && err.Error() == "EOF" {
-			fmt.Println("END")
-			break
-		}
-		check(err)
+	gribFile, err := os.Open(*filename)
 
-		if message.Section4.ProductDefinitionTemplate.ParameterCategory == uint8(category) && message.Section4.ProductDefinitionTemplate.ParameterNumber == uint8(product) {
-			fmt.Println("Found!")
+	if err != nil {
+		fmt.Printf("\nFile [%s] not found.\n", *filename)
+	}
+	defer gribFile.Close()
 
-			export(&message)
-			break;
-		}
+	messages, err := data.ReadAllMessages(gribFile)
+	for _, message := range messages {
+		fmt.Println(data.ReadDataType(int(message.Section1.Type)))
 	}
 
-	check(f.Close())
 }
 
 func export(m *data.Message) {

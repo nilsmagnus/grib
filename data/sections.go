@@ -17,32 +17,37 @@ type Message struct {
 	Section7 Section7
 }
 
+func ReadAllMessages(gribFile *os.File) (messages[] Message, err error) {
+	for {
+		message, _err := ReadMessage(gribFile)
+		if _err != nil && _err.Error() == "EOF" {
+			fmt.Println("END")
+			break
+		} else {
+			err = _err
+		}
+		messages = append(messages, message)
+	}
+	return
+}
+
 func ReadMessage(f *os.File) (message Message, err error) {
 
 	//
 	// find header
 	//
+	f.Seek(0, 1)
 	var header Head
-	found := false
-	for offset := int64(0); true; offset++ {
-		f.Seek(offset, 1)
-		err = binary.Read(f, binary.BigEndian, &header)
-		if err != nil {
-			return message, err
-		}
-
-		if header.Indicator == 0x47524942 {
-			// GRIB in ascii
-			if header.Edition != 2 {
-				return message, errors.New(fmt.Sprintf("Unknown edition %d", header.Edition))
-			}
-			found = true
-			break
-		}
+	err = binary.Read(f, binary.BigEndian, &header)
+	if err != nil {
+		return message, err
 	}
 
-	if !found {
-		return message, errors.New("Head not found")
+	if header.Indicator == 0x47524942 {
+		// GRIB in ascii
+		if header.Edition != 2 {
+			return message, errors.New(fmt.Sprintf("Unknown edition %d", header.Edition))
+		}
 	}
 
 	for {
