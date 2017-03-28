@@ -56,7 +56,7 @@ func (r *BitReader) ReadInt(nbits int) (int64, error) {
 		if err != nil {
 			return 0, err
 		}
-		if i == (nbits - 1) && bit {
+		if i == (nbits-1) && bit {
 			negative = -1
 		} else if bit {
 			result |= 1 << uint(i)
@@ -117,7 +117,6 @@ func (r *BitReader) readIntsBlock(bits int, count int, compensateByte bool) ([]i
 	}
 	return data, nil
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -214,7 +213,7 @@ func (br *bitReader) ReadBit() bool {
 func (br *bitReader) TryReadBit() (bit byte, ok bool) {
 	if br.bits > 0 {
 		br.bits--
-		return byte(br.n >> br.bits) & 1, true
+		return byte(br.n>>br.bits) & 1, true
 	}
 	return 0, false
 }

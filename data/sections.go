@@ -3,8 +3,7 @@ package data
 import (
 	"encoding/binary"
 	"fmt"
-	"os"
-	"errors"
+	"io"
 )
 
 type Message struct {
@@ -18,96 +17,130 @@ type Message struct {
 }
 
 const (
-	GRIB = 0x47524942
+	GRIB                   = 0x47524942
+	SUPPORTED_GRIB_EDITION = 2
 )
 
-func ReadAllMessages(gribFile *os.File) (messages[] Message, err error) {
+// ReadMessages reads all message from gribFile
+func ReadMessages(gribFile io.Reader) (messages []Message, err error) {
+
 	for {
-		message, _err := ReadMessage(gribFile)
-		if _err != nil && _err.Error() == "EOF" {
-			fmt.Println("END")
-			break
+		message, messageErr := ReadMessage(gribFile)
+		if messageErr != nil {
+			if messageErr.Error() == "EOF" {
+				return
+			} else {
+				fmt.Println("Error when parsing a message, ", messageErr.Error())
+				return messages, err
+			}
 		} else {
-			err = _err
+			messages = append(messages, message)
+			return messages, err
 		}
-		messages = append(messages, message)
 	}
-	return
 }
 
-func ReadMessage(f *os.File) (message Message, err error) {
+func ReadMessage(gribFile io.Reader) (message Message, err error) {
 
-	//
-	// find header
-	//
-	f.Seek(0, 1)
-	var header Head
-	err = binary.Read(f, binary.BigEndian, &header)
-	if err != nil {
-		return message, err
+	section0, headError := ReadSection0(gribFile)
+
+	if headError != nil {
+		return message, headError
 	}
 
-	if header.Indicator == GRIB {
-		// GRIB in ascii
-		if header.Edition != 2 {
-			return message, errors.New(fmt.Sprintf("Unknown edition %d", header.Edition))
-		}
+	messageBytes := make([]byte, section0.MessageLength)
+
+	numBytes, readError := gribFile.Read(messageBytes)
+
+	if readError != nil {
+		fmt.Println("Error reading message")
+		return message, readError
 	}
+
+	if numBytes != int(section0.MessageLength) {
+		fmt.Println("Did not read full message")
+	}
+
+	return
+
+}
+
+func ReadMessage2(gribFile io.Reader) (message Message, err error) {
+
+	messageHead, headError := ReadSection0(gribFile)
+
+	if headError != nil {
+		return message, headError
+	}
+
+	fmt.Println("", messageHead)
 
 	for {
-		position, err := f.Seek(0, 1)
-		check(err)
 
 		// pre-parse section head to decide which struct use
-		var len uint32
-		err = binary.Read(f, binary.BigEndian, &len)
-		check(err)
-
-		if len == 926365495 /* 7777 */ {
-			return message, nil //errors.New("EOF")
+		var sectionHead SectionHead
+		readError := binary.Read(gribFile, binary.BigEndian, &sectionHead)
+		if readError != nil {
+			return message, readError
 		}
 
-		var num uint8
-		err = binary.Read(f, binary.BigEndian, &num)
-		check(err)
+		fmt.Println("", sectionHead)
+		switch sectionHead.Number {
 
-		f.Seek(position, 0)
-
-		switch num {
 		case 1:
-			message.Section1, err = ReadSection1(f, len)
+			message.Section1, err = ReadSection1(gribFile, sectionHead.ByteLength)
 		case 2:
-			message.Section2, err = ReadSection2(f, len)
+			message.Section2, err = ReadSection2(gribFile, sectionHead.ByteLength)
 		case 3:
-			message.Section3, err = ReadSection3(f, len)
+			message.Section3, err = ReadSection3(gribFile, sectionHead.ByteLength)
 		case 4:
-			message.Section4, err = ReadSection4(f, len)
+			message.Section4, err = ReadSection4(gribFile, sectionHead.ByteLength)
 		case 5:
-			message.Section5, err = ReadSection5(f, len)
+			message.Section5, err = ReadSection5(gribFile, sectionHead.ByteLength)
 		case 6:
-			message.Section6, err = ReadSection6(f, len)
+			message.Section6, err = ReadSection6(gribFile, sectionHead.ByteLength)
 		case 7:
-			message.Section7, err = ReadSection7(f, len, message.Section5.DataTemplate)
+			message.Section7, err = ReadSection7(gribFile, sectionHead.ByteLength, message.Section5.DataTemplate)
+		case 8:
+			return message, fmt.Errorf("EOF")
 		default:
-			panic(fmt.Sprint("Wrong section number ", num, " (Something bad with parser or files)"))
+
+			err = fmt.Errorf("Unknown section number %d  (Something bad with parser or files)", sectionHead.Number)
 		}
-		check(err)
+		if err != nil {
+			return message, err
+		}
 	}
 }
 
-func check(e error) {
+func panicIfNotNil(e error) {
 	if e != nil {
 		panic(e)
 	}
 }
 
-type Head struct {
-	Indicator  uint32
-	Reserved1  uint8
-	Reserved2  uint8
-	Discipline uint8
-	Edition    uint8
-	ByteLength uint64
+type Section0 struct {
+	Indicator     uint32
+	Reserved      uint16
+	Discipline    uint8
+	Edition       uint8
+	MessageLength uint64
+}
+
+func ReadSection0(reader io.Reader) (section0 Section0, err error) {
+	err = binary.Read(reader, binary.BigEndian, &section0)
+	if err != nil {
+		return section0, err
+	}
+
+	if section0.Indicator == GRIB {
+		if section0.Edition != 2 {
+			return section0, fmt.Errorf("Unsupported  grib edition %d", section0.Edition)
+		}
+	}
+
+	return
+
 }
 
 type Section interface {
@@ -138,7 +171,6 @@ type Time struct {
 }
 
 type Section1 struct {
-	SectionHead
 	OriginatingCenter         uint16
 	OriginatingSubCenter      uint16
 	MasterTablesVersion       uint8
@@ -149,22 +181,20 @@ type Section1 struct {
 	Type                      uint8
 }
 
-func ReadSection1(f *os.File, len uint32) (section Section1, err error) {
+func ReadSection1(f io.Reader, len uint32) (section Section1, err error) {
 	return section, binary.Read(f, binary.BigEndian, &section)
 }
 
 type Section2 struct {
-	SectionHead
 	LocalUse []uint8
 }
 
-func ReadSection2(f *os.File, len uint32) (section Section2, err error) {
-	section.LocalUse = make([]uint8, len - 5)
-	return section, read(f, &section.ByteLength, &section.Number, &section.LocalUse)
+func ReadSection2(f io.Reader, len uint32) (section Section2, err error) {
+	section.LocalUse = make([]uint8, len-5)
+	return section, read(f, &section.LocalUse)
 }
 
 type Section3 struct {
-	SectionHead
 	Source                   uint8
 	DataPointCount           uint32
 	PointCountOctets         uint8
@@ -177,9 +207,9 @@ func (s Section3) String() string {
 	return fmt.Sprint("Point count: ", s.DataPointCount, " Definition: ", ReadGridDefinitionTemplateNumber(int(s.TemplateNumber)))
 }
 
-func ReadSection3(f *os.File, len uint32) (section Section3, err error) {
+func ReadSection3(f io.Reader, len uint32) (section Section3, err error) {
 
-	err = read(f, &section.ByteLength, &section.Number, &section.Source, &section.DataPointCount, &section.PointCountOctets, &section.PointCountInterpretation, &section.TemplateNumber)
+	err = read(f, &section.Source, &section.DataPointCount, &section.PointCountOctets, &section.PointCountInterpretation, &section.TemplateNumber)
 	if err != nil {
 		return section, err
 	}
@@ -189,7 +219,6 @@ func ReadSection3(f *os.File, len uint32) (section Section3, err error) {
 }
 
 type Section4 struct {
-	SectionHead
 	CoordinatesCount                uint16
 	ProductDefinitionTemplateNumber uint16
 	ProductDefinitionTemplate       Product0 // FIXME
@@ -200,38 +229,35 @@ func (s Section4) String() string {
 	return fmt.Sprint(s.ProductDefinitionTemplate.String())
 }
 
-func ReadSection4(f *os.File, length uint32) (section Section4, err error) {
-	err = read(f, &section.ByteLength, &section.Number, &section.CoordinatesCount, &section.ProductDefinitionTemplateNumber, &section.ProductDefinitionTemplate)
+func ReadSection4(f io.Reader, length uint32) (section Section4, err error) {
+	err = read(f, &section.CoordinatesCount, &section.ProductDefinitionTemplateNumber, &section.ProductDefinitionTemplate)
 	if err != nil {
 		return section, err
 	}
 
 	if section.ProductDefinitionTemplateNumber != 0 {
-		// TODO
-		panic(fmt.Sprint("Product definition template number", section.ProductDefinitionTemplateNumber, "not implemented yet"))
+		return section, fmt.Errorf("Product definition template number %d not implemented yet", section.ProductDefinitionTemplateNumber)
 	}
 
-	section.Coordinates = make([]byte, length - 9 - uint32(binary.Size(section.ProductDefinitionTemplate)))
+	section.Coordinates = make([]byte, length-9-uint32(binary.Size(section.ProductDefinitionTemplate)))
 
 	return section, read(f, &section.Coordinates)
 }
 
 type Section5 struct {
-	SectionHead
 	PointsNumber       uint32
 	DataTemplateNumber uint16
 	DataTemplate       Data3 // FIXME
 }
 
-func ReadSection5(f *os.File, length uint32) (section Section5, err error) {
-	err = read(f, &section.ByteLength, &section.Number, &section.PointsNumber, &section.DataTemplateNumber, &section.DataTemplate)
+func ReadSection5(f io.Reader, length uint32) (section Section5, err error) {
+	err = read(f, &section.PointsNumber, &section.DataTemplateNumber, &section.DataTemplate)
 	if err != nil {
 		return section, err
 	}
 
 	if section.DataTemplateNumber != 3 {
-		// TODO
-		panic(fmt.Sprint("Data template number", section.DataTemplateNumber, "not implemented yet"))
+		return section, fmt.Errorf("Template number not supported: %d", section.DataTemplateNumber)
 	}
 	//f.Seek(int64(length - 11), 1);
 
@@ -241,41 +267,26 @@ func ReadSection5(f *os.File, length uint32) (section Section5, err error) {
 }
 
 type Section6 struct {
-	SectionHead
 	BitmapIndicator uint8
 	Bitmap          []byte
 }
 
-func ReadSection6(f *os.File, length uint32) (section Section6, err error) {
-	section.Bitmap = make([]byte, length - 6)
+func ReadSection6(f io.Reader, length uint32) (section Section6, err error) {
+	section.Bitmap = make([]byte, length-6)
 
-	return section, read(f, &section.ByteLength, &section.Number, &section.BitmapIndicator, &section.Bitmap)
+	return section, read(f, &section.BitmapIndicator, &section.Bitmap)
 }
 
 type Section7 struct {
-	SectionHead
-	RawData []byte
-	Data    []int64
+	Data []int64
 }
 
-func ReadSection7(f *os.File, length uint32, template Data3) (section Section7, err error) {
-	//dataLength := length - 5
-	//section.RawData = make([]byte, dataLength)
-
-	err = read(f, &section.ByteLength, &section.Number) // , &section.RawData)
-	if err != nil {
-		return section, err
-	}
-
-	//fmt.Println("l", dataLength, template.Bits)
-	//template.Bits
-
-	section.Data = ParseData3(f, length - 5, &template)
-
+func ReadSection7(f io.Reader, length uint32, template Data3) (section Section7, err error) {
+	section.Data = ParseData3(f, length-5, &template) // 5 is the length of (octet 1-5)
 	return section, err
 }
 
-func read(f *os.File, data ...interface{}) (err error) {
+func read(f io.Reader, data ...interface{}) (err error) {
 	for _, what := range data {
 		err = binary.Read(f, binary.BigEndian, what)
 		if err != nil {

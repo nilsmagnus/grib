@@ -2,13 +2,13 @@ package data
 
 import (
 	"bytes"
+	"io"
 	//"encoding/binary"
 	"fmt"
 	"math"
-	"os"
 )
 
-// Grid point data - complex packing and spatial differencing
+//Data3 is a Grid point data - complex packing and spatial differencing
 // http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp5-3.shtml
 type Data3 struct {
 	Reference              float32
@@ -31,7 +31,10 @@ type Data3 struct {
 	OctetsNumber           uint8
 }
 
-func ParseData3(d *os.File, dataLength uint32, template *Data3) ([]int64) {
+func ParseData3(dataReader io.Reader, dataLength uint32, template *Data3) []int64 {
+
+	rawData := make([]byte, dataLength)
+	dataReader.Read(rawData)
 
 	var ival1 int64
 	var ival2 int64
@@ -43,19 +46,6 @@ func ParseData3(d *os.File, dataLength uint32, template *Data3) ([]int64) {
 
 	ng := int(template.NG)
 
-	//
-	//  Extract Spatial differencing values, if using DRS Template 5.3
-	//
-
-	//if template.Type == 0 {
-	//    panic("template Type 0 not implemented yet")
-	//}
-	//ng := 5
-
-	//
-	//  Get missing values, if supplied
-	//
-	// TODO implement template.Type 0, see original code
 	if template.MissingValue == 1 {
 		rmiss1 = float64(template.MissingSubstitute1)
 	} else if template.MissingValue == 2 {
@@ -66,8 +56,7 @@ func ParseData3(d *os.File, dataLength uint32, template *Data3) ([]int64) {
 	//
 	// Init reader
 	//
-	rawData := make([]byte, dataLength)
-	d.Read(rawData)
+
 	b := bytes.NewBuffer(rawData)
 
 	r := NewReader(b)
@@ -126,7 +115,7 @@ func ParseData3(d *os.File, dataLength uint32, template *Data3) ([]int64) {
 	for j := 0; j < ng; j++ {
 		lengths[j] = (lengths[j] * uint64(template.GroupLengthIncrement)) + uint64(template.GroupLengthsReference)
 	}
-	lengths[template.NG - 1] = uint64(template.GroupLastLength)
+	lengths[template.NG-1] = uint64(template.GroupLastLength)
 
 	// debug
 	for j := 0; j < ng; j++ {
@@ -151,7 +140,7 @@ func ParseData3(d *os.File, dataLength uint32, template *Data3) ([]int64) {
 	//}
 	//fmt.Println(totBit / 8)
 	//fmt.Println(dataLength)
-	if totBit / 8 > int(dataLength) {
+	if totBit/8 > int(dataLength) {
 		fmt.Println(totLen)
 		panic("Checksum err")
 	}
@@ -184,7 +173,7 @@ func ParseData3(d *os.File, dataLength uint32, template *Data3) ([]int64) {
 			} else {
 
 				//fmt.Println(n)
-				for l := n; l < n + int(lengths[j]); l++ {
+				for l := n; l < n+int(lengths[j]); l++ {
 					ifld = append(ifld, int64(references[j]))
 				}
 				n = n + int(lengths[j])
@@ -222,18 +211,18 @@ func ParseData3(d *os.File, dataLength uint32, template *Data3) ([]int64) {
 				msng1 := math.Pow(2.0, float64(template.Bits)) - 1
 				msng2 := msng1 - 1
 				if references[j] == uint64(msng1) {
-					for l := n; l < n + int(lengths[j]); l++ {
+					for l := n; l < n+int(lengths[j]); l++ {
 						ifldmiss[l] = 1
 					}
 				} else if template.MissingValue == 2 && references[j] == uint64(msng2) {
-					for l := n; l < n + int(lengths[j]); l++ {
+					for l := n; l < n+int(lengths[j]); l++ {
 						ifldmiss[l] = 2
 					}
 				} else {
-					for l := n; l < n + int(lengths[j]); l++ {
+					for l := n; l < n+int(lengths[j]); l++ {
 						ifldmiss[l] = 0
 					}
-					for l := non; l < non + int(lengths[j]); l++ {
+					for l := non; l < non+int(lengths[j]); l++ {
 						ifld[l] = int64(references[j])
 					}
 					non += int(lengths[j])
@@ -267,7 +256,7 @@ func ParseData3(d *os.File, dataLength uint32, template *Data3) ([]int64) {
 
 		for n := 1; n < itemp; n++ {
 			ifld[n] = ifld[n] + int64(minsd)
-			ifld[n] = ifld[n] + ifld[n - 1]
+			ifld[n] = ifld[n] + ifld[n-1]
 		}
 	} else if template.SpatialOrderDifference == 2 {
 		// second order
@@ -279,7 +268,7 @@ func ParseData3(d *os.File, dataLength uint32, template *Data3) ([]int64) {
 
 		for n := 2; n < itemp; n++ {
 			ifld[n] = ifld[n] + int64(minsd)
-			ifld[n] = ifld[n] + (2 * ifld[n - 1]) - ifld[n - 2]
+			ifld[n] = ifld[n] + (2 * ifld[n-1]) - ifld[n-2]
 		}
 	}
 
@@ -315,5 +304,5 @@ func ParseData3(d *os.File, dataLength uint32, template *Data3) ([]int64) {
 		}
 	}
 
-	return ifld;
+	return ifld
 }
