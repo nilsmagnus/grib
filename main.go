@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/nilsmagnus/grib/data"
+	"github.com/nilsmagnus/grib/grib"
 )
 
 func main() {
@@ -25,7 +25,7 @@ func main() {
 	}
 	defer gribFile.Close()
 
-	messages, err := data.ReadMessages(gribFile)
+	messages, err := grib.ReadMessages(gribFile)
 
 	if err != nil {
 		fmt.Printf("Error reading all messages in gribfile: %s", err.Error())
@@ -39,13 +39,13 @@ func main() {
 
 }
 
-func exportJSONConsole(messages []data.Message) {
+func exportJSONConsole(messages []grib.Message) {
 	for _, message := range messages {
 		export(&message)
 	}
 }
 
-func export(m *data.Message) {
+func export(m *grib.Message) {
 	templateNumber := int(m.Section4.ProductDefinitionTemplateNumber)
 	template := m.Section4.ProductDefinitionTemplate
 	category := int(template.ParameterCategory)
@@ -53,15 +53,15 @@ func export(m *data.Message) {
 
 	d := make(map[string]interface{})
 
-	d["type"] = data.ReadDataType(int(m.Section1.Type))
-	d["template"] = data.ReadProductDefinitionTemplateNumber(templateNumber)
-	d["category"] = data.ReadProductDisciplineParameters(templateNumber, category)
-	d["parameter"] = data.ReadProductDisciplineCategoryParameters(templateNumber, category, number)
-	d["grid"] = data.ReadGridDefinitionTemplateNumber(int(m.Section3.TemplateNumber))
-	d["surface1"] = data.ReadSurfaceTypesUnits(int(m.Section4.ProductDefinitionTemplate.FirstSurface.Type))
+	d["type"] = grib.ReadDataType(int(m.Section1.Type))
+	d["template"] = grib.ReadProductDefinitionTemplateNumber(templateNumber)
+	d["category"] = grib.ReadProductDisciplineParameters(templateNumber, category)
+	d["parameter"] = grib.ReadProductDisciplineCategoryParameters(templateNumber, category, number)
+	d["grid"] = grib.ReadGridDefinitionTemplateNumber(int(m.Section3.TemplateNumber))
+	d["surface1"] = grib.ReadSurfaceTypesUnits(int(m.Section4.ProductDefinitionTemplate.FirstSurface.Type))
 	d["surface1value"] = m.Section4.ProductDefinitionTemplate.FirstSurface.Value
 	d["surface1scale"] = m.Section4.ProductDefinitionTemplate.FirstSurface.Scale
-	d["surface2"] = data.ReadSurfaceTypesUnits(int(m.Section4.ProductDefinitionTemplate.SecondSurface.Type))
+	d["surface2"] = grib.ReadSurfaceTypesUnits(int(m.Section4.ProductDefinitionTemplate.SecondSurface.Type))
 	d["surface2value"] = m.Section4.ProductDefinitionTemplate.SecondSurface.Value
 	d["data"] = m.Section7.Data
 
