@@ -2,9 +2,8 @@ package data
 
 import (
 	"bytes"
-	"io"
-	//"encoding/binary"
 	"fmt"
+	"io"
 	"math"
 )
 

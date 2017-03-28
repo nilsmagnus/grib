@@ -14,6 +14,7 @@ func main() {
 	//category := flag.Int("category", 0, "Category. Default is temperature") // temperature
 	//product := flag.Int("product", 6, "Product. Default is temperature") // temperature
 	filename := flag.String("file", "", "Grib filename")
+	exportType := flag.Int("export", 0, "Export format. Valid types are 0 (none) 1 (json) ")
 
 	flag.Parse()
 
@@ -24,16 +25,24 @@ func main() {
 	}
 	defer gribFile.Close()
 
-	messages, err := data.ReadAllMessages(gribFile)
+	messages, err := data.ReadMessages(gribFile)
 
 	if err != nil {
 		fmt.Printf("Error reading all messages in gribfile: %s", err.Error())
 	}
 
-	for _, message := range messages {
-		fmt.Println(data.ReadDataType(int(message.Section1.Type)))
+	switch *exportType {
+	case 0:
+	case 1:
+		exportJSONConsole(messages)
 	}
 
+}
+
+func exportJSONConsole(messages []data.Message) {
+	for _, message := range messages {
+		export(&message)
+	}
 }
 
 func export(m *data.Message) {

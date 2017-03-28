@@ -17,8 +17,8 @@ func Test_read_integrationtest_file(t *testing.T) {
 		t.Fatal("Error reading messages: ", messageParseErr.Error())
 	}
 
-	if len(messages) == 0 {
-		t.Error("should have at least 1 message in testfile")
+	if len(messages) != 77 {
+		t.Error("should have exactly 77 message in testfile")
 	}
 
 }

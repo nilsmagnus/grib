@@ -1,9 +1,12 @@
 package data
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"io"
+	"strings"
+	"unsafe"
 )
 
 type Message struct {
@@ -18,6 +21,7 @@ type Message struct {
 
 const (
 	GRIB                   = 0x47524942
+	ENDSECTION             = 926365495
 	SUPPORTED_GRIB_EDITION = 2
 )
 
@@ -27,15 +31,14 @@ func ReadMessages(gribFile io.Reader) (messages []Message, err error) {
 	for {
 		message, messageErr := ReadMessage(gribFile)
 		if messageErr != nil {
-			if messageErr.Error() == "EOF" {
-				return
+			if strings.Contains(messageErr.Error(), "EOF") {
+				return messages, nil
 			} else {
 				fmt.Println("Error when parsing a message, ", messageErr.Error())
 				return messages, err
 			}
 		} else {
 			messages = append(messages, message)
-			return messages, err
 		}
 	}
 }
@@ -48,7 +51,8 @@ func ReadMessage(gribFile io.Reader) (message Message, err error) {
 		return message, headError
 	}
 
-	messageBytes := make([]byte, section0.MessageLength)
+	fmt.Sprintln("section 0 length is ", unsafe.Sizeof(section0))
+	messageBytes := make([]byte, section0.MessageLength-16)
 
 	numBytes, readError := gribFile.Read(messageBytes)
 
@@ -57,54 +61,46 @@ func ReadMessage(gribFile io.Reader) (message Message, err error) {
 		return message, readError
 	}
 
-	if numBytes != int(section0.MessageLength) {
+	if numBytes != int(section0.MessageLength-16) {
 		fmt.Println("Did not read full message")
 	}
 
-	return
+	return readMessage(bytes.NewReader(messageBytes), section0)
 
 }
 
-func ReadMessage2(gribFile io.Reader) (message Message, err error) {
-
-	messageHead, headError := ReadSection0(gribFile)
-
-	if headError != nil {
-		return message, headError
-	}
-
-	fmt.Println("", messageHead)
+func readMessage(gribFile io.Reader, section0 Section0) (message Message, err error) {
 
 	for {
 
 		// pre-parse section head to decide which struct use
-		var sectionHead SectionHead
-		readError := binary.Read(gribFile, binary.BigEndian, &sectionHead)
-		if readError != nil {
-			return message, readError
+		sectionHead, headErr := ReadSectionHead(gribFile)
+		if headErr != nil {
+			fmt.Println("Error reading header", headErr.Error())
+			return message, headErr
 		}
 
-		fmt.Println("", sectionHead)
 		switch sectionHead.Number {
 
 		case 1:
-			message.Section1, err = ReadSection1(gribFile, sectionHead.ByteLength)
+			message.Section1, err = ReadSection1(gribFile)
+			//gribFile.Read(fooBytes)
 		case 2:
-			message.Section2, err = ReadSection2(gribFile, sectionHead.ByteLength)
+			message.Section2, err = ReadSection2(gribFile, sectionHead.ContentLength())
 		case 3:
-			message.Section3, err = ReadSection3(gribFile, sectionHead.ByteLength)
+			message.Section3, err = ReadSection3(gribFile)
 		case 4:
-			message.Section4, err = ReadSection4(gribFile, sectionHead.ByteLength)
+			message.Section4, err = ReadSection4(gribFile)
 		case 5:
-			message.Section5, err = ReadSection5(gribFile, sectionHead.ByteLength)
+			message.Section5, err = ReadSection5(gribFile)
 		case 6:
-			message.Section6, err = ReadSection6(gribFile, sectionHead.ByteLength)
+			message.Section6, err = ReadSection6(gribFile, sectionHead.ContentLength())
 		case 7:
-			message.Section7, err = ReadSection7(gribFile, sectionHead.ByteLength, message.Section5.DataTemplate)
+			message.Section7, err = ReadSection7(gribFile, sectionHead.ContentLength(), message.Section5.DataTemplate)
 		case 8:
-			return message, fmt.Errorf("EOF")
+			// end-section, return
+			return message, nil
 		default:
-
 			err = fmt.Errorf("Unknown section number %d  (Something bad with parser or files)", sectionHead.Number)
 		}
 		if err != nil {
@@ -153,8 +149,36 @@ type SectionHead struct {
 	Number     uint8
 }
 
+func ReadSectionHead(section io.Reader) (head SectionHead, err error) {
+	var len uint32
+	err = binary.Read(section, binary.BigEndian, &len)
+	if err != nil {
+		return head, fmt.Errorf("Read of Length failed: %s", err.Error())
+	}
+	if len == ENDSECTION {
+		return SectionHead{
+			ByteLength: 4,
+			Number:     8,
+		}, nil
+	}
+	var sectionNumber uint8
+	err = binary.Read(section, binary.BigEndian, &sectionNumber)
+	if err != nil {
+		return head, err
+	}
+
+	return SectionHead{
+		ByteLength: len,
+		Number:     sectionNumber,
+	}, nil
+}
+
 func (s SectionHead) SectionNumber() uint8 {
 	return s.Number
+}
+
+func (s SectionHead) ContentLength() uint32 {
+	return s.ByteLength - uint32(binary.Size(s))
 }
 
 func (s SectionHead) String() string {
@@ -181,7 +205,7 @@ type Section1 struct {
 	Type                      uint8
 }
 
-func ReadSection1(f io.Reader, len uint32) (section Section1, err error) {
+func ReadSection1(f io.Reader) (section Section1, err error) {
 	return section, binary.Read(f, binary.BigEndian, &section)
 }
 
@@ -190,7 +214,7 @@ type Section2 struct {
 }
 
 func ReadSection2(f io.Reader, len uint32) (section Section2, err error) {
-	section.LocalUse = make([]uint8, len-5)
+	section.LocalUse = make([]uint8, len)
 	return section, read(f, &section.LocalUse)
 }
 
@@ -207,7 +231,7 @@ func (s Section3) String() string {
 	return fmt.Sprint("Point count: ", s.DataPointCount, " Definition: ", ReadGridDefinitionTemplateNumber(int(s.TemplateNumber)))
 }
 
-func ReadSection3(f io.Reader, len uint32) (section Section3, err error) {
+func ReadSection3(f io.Reader) (section Section3, err error) {
 
 	err = read(f, &section.Source, &section.DataPointCount, &section.PointCountOctets, &section.PointCountInterpretation, &section.TemplateNumber)
 	if err != nil {
@@ -229,7 +253,7 @@ func (s Section4) String() string {
 	return fmt.Sprint(s.ProductDefinitionTemplate.String())
 }
 
-func ReadSection4(f io.Reader, length uint32) (section Section4, err error) {
+func ReadSection4(f io.Reader) (section Section4, err error) {
 	err = read(f, &section.CoordinatesCount, &section.ProductDefinitionTemplateNumber, &section.ProductDefinitionTemplate)
 	if err != nil {
 		return section, err
@@ -239,7 +263,7 @@ func ReadSection4(f io.Reader, length uint32) (section Section4, err error) {
 		return section, fmt.Errorf("Product definition template number %d not implemented yet", section.ProductDefinitionTemplateNumber)
 	}
 
-	section.Coordinates = make([]byte, length-9-uint32(binary.Size(section.ProductDefinitionTemplate)))
+	section.Coordinates = make([]byte, section.CoordinatesCount)
 
 	return section, read(f, &section.Coordinates)
 }
@@ -250,7 +274,7 @@ type Section5 struct {
 	DataTemplate       Data3 // FIXME
 }
 
-func ReadSection5(f io.Reader, length uint32) (section Section5, err error) {
+func ReadSection5(f io.Reader) (section Section5, err error) {
 	err = read(f, &section.PointsNumber, &section.DataTemplateNumber, &section.DataTemplate)
 	if err != nil {
 		return section, err
@@ -272,7 +296,7 @@ type Section6 struct {
 }
 
 func ReadSection6(f io.Reader, length uint32) (section Section6, err error) {
-	section.Bitmap = make([]byte, length-6)
+	section.Bitmap = make([]byte, length-1)
 
 	return section, read(f, &section.BitmapIndicator, &section.Bitmap)
 }
@@ -282,7 +306,7 @@ type Section7 struct {
 }
 
 func ReadSection7(f io.Reader, length uint32, template Data3) (section Section7, err error) {
-	section.Data = ParseData3(f, length-5, &template) // 5 is the length of (octet 1-5)
+	section.Data = ParseData3(f, length, &template) // 5 is the length of (octet 1-5)
 	return section, err
 }
 
