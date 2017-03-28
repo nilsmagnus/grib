@@ -17,6 +17,10 @@ type Message struct {
 	Section7 Section7
 }
 
+const (
+	GRIB = 0x47524942
+)
+
 func ReadAllMessages(gribFile *os.File) (messages[] Message, err error) {
 	for {
 		message, _err := ReadMessage(gribFile)
@@ -43,7 +47,7 @@ func ReadMessage(f *os.File) (message Message, err error) {
 		return message, err
 	}
 
-	if header.Indicator == 0x47524942 {
+	if header.Indicator == GRIB {
 		// GRIB in ascii
 		if header.Edition != 2 {
 			return message, errors.New(fmt.Sprintf("Unknown edition %d", header.Edition))
