@@ -3,6 +3,23 @@ GRIB2 Golang experimental parser
 
 Unfinished dirty parser for meteo data
 
+### Usage
+
+Install by typing
+
+    go get -u github.com/nilsmagnus/grib
+
+Usage:
+
+    Usage of grib:
+      -export int
+        	Export format. Valid types are 0 (none) 1 (json)
+      -file string
+        	Grib filename
+      -maxmsg int
+        	Maximum number of messages to parse. (default 2147483647)
+
+
 ### What works?
 
 - basic binary parsing of GRIB2 GFS files from NOAA

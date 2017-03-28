@@ -19,14 +19,22 @@ type Message struct {
 	Section7 Section7
 }
 
+type Options struct {
+	Category                int
+	Product                 int
+	Filepath                string
+	ExportType              int
+	MaximumNumberOfMessages int
+}
+
 const (
-	GRIB                   = 0x47524942
-	ENDSECTION             = 926365495
+	GRIB = 0x47524942
+	ENDSECTION = 926365495
 	SUPPORTED_GRIB_EDITION = 2
 )
 
 // ReadMessages reads all message from gribFile
-func ReadMessages(gribFile io.Reader, maxMessageCount int) (messages []Message, err error) {
+func ReadMessages(gribFile io.Reader, options Options) (messages []Message, err error) {
 
 	for {
 		message, messageErr := ReadMessage(gribFile)
@@ -39,7 +47,7 @@ func ReadMessages(gribFile io.Reader, maxMessageCount int) (messages []Message, 
 			}
 		} else {
 			messages = append(messages, message)
-			if len(messages) >= int(maxMessageCount) {
+			if len(messages) >= int(options.MaximumNumberOfMessages) {
 				return messages, nil
 			}
 		}
@@ -55,7 +63,7 @@ func ReadMessage(gribFile io.Reader) (message Message, err error) {
 	}
 
 	fmt.Sprintln("section 0 length is ", unsafe.Sizeof(section0))
-	messageBytes := make([]byte, section0.MessageLength-16)
+	messageBytes := make([]byte, section0.MessageLength - 16)
 
 	numBytes, readError := gribFile.Read(messageBytes)
 
@@ -64,7 +72,7 @@ func ReadMessage(gribFile io.Reader) (message Message, err error) {
 		return message, readError
 	}
 
-	if numBytes != int(section0.MessageLength-16) {
+	if numBytes != int(section0.MessageLength - 16) {
 		fmt.Println("Did not read full message")
 	}
 
@@ -87,7 +95,7 @@ func readMessage(gribFile io.Reader, section0 Section0) (message Message, err er
 
 		case 1:
 			message.Section1, err = ReadSection1(gribFile)
-			//gribFile.Read(fooBytes)
+		//gribFile.Read(fooBytes)
 		case 2:
 			message.Section2, err = ReadSection2(gribFile, sectionHead.ContentLength())
 		case 3:
@@ -299,7 +307,7 @@ type Section6 struct {
 }
 
 func ReadSection6(f io.Reader, length uint32) (section Section6, err error) {
-	section.Bitmap = make([]byte, length-1)
+	section.Bitmap = make([]byte, length - 1)
 
 	return section, read(f, &section.BitmapIndicator, &section.Bitmap)
 }
