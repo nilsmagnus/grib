@@ -1,6 +1,7 @@
 package grib
 
 import (
+	"math"
 	"os"
 	"testing"
 )
@@ -11,7 +12,7 @@ func Test_read_integrationtest_file(t *testing.T) {
 	if fileOpenErr != nil {
 		t.Fatal("Grib file for integration tests not found")
 	}
-	messages, messageParseErr := ReadMessages(testFile)
+	messages, messageParseErr := ReadMessages(testFile, math.MaxInt32)
 
 	if messageParseErr != nil {
 		t.Fatal("Error reading messages: ", messageParseErr.Error())

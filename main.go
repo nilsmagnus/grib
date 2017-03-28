@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"math"
 	"os"
 
 	"github.com/nilsmagnus/grib/grib"
@@ -15,6 +16,7 @@ func main() {
 	//product := flag.Int("product", 6, "Product. Default is temperature") // temperature
 	filename := flag.String("file", "", "Grib filename")
 	exportType := flag.Int("export", 0, "Export format. Valid types are 0 (none) 1 (json) ")
+	maxNum := flag.Int("maxmsg", math.MaxInt32, "Maximum number of messages to parse.")
 
 	flag.Parse()
 
@@ -25,7 +27,7 @@ func main() {
 	}
 	defer gribFile.Close()
 
-	messages, err := grib.ReadMessages(gribFile)
+	messages, err := grib.ReadMessages(gribFile, *maxNum)
 
 	if err != nil {
 		fmt.Printf("Error reading all messages in gribfile: %s", err.Error())

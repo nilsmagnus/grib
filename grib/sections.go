@@ -26,7 +26,7 @@ const (
 )
 
 // ReadMessages reads all message from gribFile
-func ReadMessages(gribFile io.Reader) (messages []Message, err error) {
+func ReadMessages(gribFile io.Reader, maxMessageCount int) (messages []Message, err error) {
 
 	for {
 		message, messageErr := ReadMessage(gribFile)
@@ -39,6 +39,9 @@ func ReadMessages(gribFile io.Reader) (messages []Message, err error) {
 			}
 		} else {
 			messages = append(messages, message)
+			if len(messages) >= int(maxMessageCount) {
+				return messages, nil
+			}
 		}
 	}
 }
