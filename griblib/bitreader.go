@@ -178,13 +178,13 @@ func (br *bitReader) ReadBits64(bits uint) (n uint64) {
 	return
 }
 
-func (r *bitReader) readIntsBlock(bits int, count int, compensateByte bool) ([]int64, error) {
+func (br *bitReader) readIntsBlock(bits int, count int, compensateByte bool) ([]int64, error) {
 	//fmt.Println("Reading", bits, "bits", count, "x")
 	data := make([]int64, count)
 
 	if bits != 0 {
 		for i := 0; i != count; i++ {
-			data[i] = int64(r.ReadBits64(uint(bits)))
+			data[i] = int64(br.ReadBits64(uint(bits)))
 			//fmt.Println(data[i])
 		}
 
@@ -194,7 +194,7 @@ func (r *bitReader) readIntsBlock(bits int, count int, compensateByte bool) ([]i
 			//if rest != 0 {
 			//	r.offset += byte(8 - int64(rest))
 			//}
-			r.n = 0
+			br.n = 0
 		}
 	}
 	return data, nil

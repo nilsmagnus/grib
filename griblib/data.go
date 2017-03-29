@@ -130,7 +130,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 	totLen := 0
 
 	for j := 0; j < ng; j++ {
-		totBit += (int(widths[j]) * int(lengths[j]))
+		totBit += int(widths[j]) * int(lengths[j])
 		totLen += int(lengths[j])
 	}
 

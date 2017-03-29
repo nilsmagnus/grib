@@ -23,7 +23,7 @@ func Test_read_section0(t *testing.T) {
 	}
 
 	if test_data != section0 {
-		t.Errorf("Deserialized struct is not equal to original struct")
+		t.Error("Deserialized struct is not equal to original struct")
 	}
 }
 func Test_read_section1(t *testing.T) {
@@ -53,7 +53,7 @@ func Test_read_section1(t *testing.T) {
 	}
 
 	if test_data != section1 {
-		t.Errorf("Deserialized section1 struct is not equal to original struct")
+		t.Error("Deserialized section1 struct is not equal to original struct")
 	}
 }
 
