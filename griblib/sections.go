@@ -76,11 +76,11 @@ func ReadMessage(gribFile io.Reader) (message Message, err error) {
 		fmt.Println("Did not read full message")
 	}
 
-	return readMessage(bytes.NewReader(messageBytes), section0)
+	return readMessage(bytes.NewReader(messageBytes))
 
 }
 
-func readMessage(gribFile io.Reader, section0 Section0) (message Message, err error) {
+func readMessage(gribFile io.Reader) (message Message, err error) {
 
 	for {
 
@@ -117,12 +117,6 @@ func readMessage(gribFile io.Reader, section0 Section0) (message Message, err er
 		if err != nil {
 			return message, err
 		}
-	}
-}
-
-func panicIfNotNil(e error) {
-	if e != nil {
-		panic(e)
 	}
 }
 
