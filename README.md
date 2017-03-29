@@ -12,12 +12,16 @@ Install by typing
 Usage:
 
     Usage of grib:
+      -category int
+          	Filters on Category within discipline. -1 means all categories (default -1)
+      -discipline int
+          	Filters on Discipline. -1 means all disciplines (default -1)
       -export int
-        	Export format. Valid types are 0 (none) 1 (json)
+          	Export format. Valid types are 0 (none) 1 (json) 
       -file string
-        	Grib filename
+          	Grib filepath
       -maxmsg int
-        	Maximum number of messages to parse. (default 2147483647)
+          	Maximum number of messages to parse. (default 2147483647). Does not work in combination with other filters.
 
 
 ### What works?
@@ -28,10 +32,9 @@ Usage:
 ### TODO?
 
 - use a proper logging framework(zap?) instead of fmt.Print*
-- unit-tests for Section[0-8]
+- unit-tests for Section[2-8]
 - unit-test for Data3
 - implement and test output values
-- add some kind of tool for exporting values for world/place to json
 - support for filtering on geolocations
 
 # Grib Documentation
