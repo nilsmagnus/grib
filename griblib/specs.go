@@ -5,7 +5,7 @@ import "fmt"
 // translated from https://github.com/ArtemisiaSolutions/grib2js/blob/master/lib/grib/Grib2Spec.js
 
 // Discipline (Code table 0.0)
-func ReadDiscipline(value int) string {
+func ReadDiscipline(value uint8) string {
 	switch value {
 	case 0:
 		return "Meteorological"
@@ -109,7 +109,7 @@ func ReadProductionStatus(value int) string {
 }
 
 // Type of data (Code table 1.4)
-func ReadDataType(value int) string {
+func ReadDataType(value uint8) string {
 	switch value {
 	case 0:
 		return "Analysis"
@@ -476,7 +476,7 @@ func ReadVerticalDimensionCoordinateValuesDefinition(value int) string {
 }
 
 // Category Definition Template Number (Code table 4.0)
-func ReadProductDefinitionTemplateNumber(value int) string {
+func ReadProductDefinitionTemplateNumber(value uint16) string {
 	switch value {
 	case 0:
 		return "Analysis or forecast at a horizontal level or in a horizontal layer at a point in time (template 4.0)"
@@ -564,7 +564,7 @@ func ReadProductDefinitionTemplateNumber(value int) string {
 }
 
 // Discipline of parameters by product discipline (Code table 4.1)
-func ReadProductDisciplineParameters(discipline, category int) string {
+func ReadProductDisciplineParameters(discipline uint16, category uint8) string {
 	switch discipline {
 	//Meteorological Products
 	case 0:
@@ -722,7 +722,7 @@ func ReadProductDisciplineParameters(discipline, category int) string {
 }
 
 // Parameter number by product discipline and parameter category (code table 4.2)
-func ReadProductDisciplineCategoryParameters(discipline, category, number int) string {
+func ReadProductDisciplineCategoryParameters(discipline uint16, category uint8, number uint8) string {
 	switch discipline {
 	//Category Discipline 0: Meteorological products
 	case 0:

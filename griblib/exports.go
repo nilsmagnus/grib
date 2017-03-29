@@ -8,34 +8,57 @@ import (
 )
 
 const (
-	ExportNone          = 0
-	ExportJsonToConsole = 1
+	ExportNone              = 0
+	PrintMessageDisciplines = 1
+	PrintMessageCategories  = 2
+	ExportJsonToConsole     = 3
 )
 
 // Export exports messages to the supported formats
 func Export(messages []Message, options Options) {
 	switch options.ExportType {
 	case ExportNone:
+	case PrintMessageDisciplines:
+		printDisciplines(messages)
+	case PrintMessageCategories:
+		printCategories(messages)
 	case ExportJsonToConsole:
-		exportJSONConsole(messages)
+		exportJSONConsole(messages, options)
 	}
 }
 
-func exportJSONConsole(messages []Message) {
+func printDisciplines(messages []Message) {
 	for _, message := range messages {
-		export(&message)
+		fmt.Println(ReadDiscipline(message.Section0.Discipline))
 	}
 }
 
-func export(m *Message) {
-	templateNumber := int(m.Section4.ProductDefinitionTemplateNumber)
+func printCategories(messages []Message) {
+	for _, m := range messages {
+		category := m.Section4.ProductDefinitionTemplate.ParameterCategory
+		templateNumber := m.Section4.ProductDefinitionTemplateNumber
+		fmt.Println(ReadProductDisciplineParameters(templateNumber, category))
+	}
+}
+
+func exportJSONConsole(messages []Message, options Options) {
+	fmt.Println("[")
+	for _, message := range messages {
+		export(&message, options)
+		fmt.Println(",")
+	}
+	fmt.Println("]")
+}
+
+func export(m *Message, options Options) {
+	templateNumber := m.Section4.ProductDefinitionTemplateNumber
 	template := m.Section4.ProductDefinitionTemplate
-	category := int(template.ParameterCategory)
-	number := int(template.ParameterNumber)
+	category := template.ParameterCategory
+	number := template.ParameterNumber
 
 	d := make(map[string]interface{})
 
-	d["type"] = ReadDataType(int(m.Section1.Type))
+	d["type"] = ReadDataType(m.Section1.Type)
 	d["template"] = ReadProductDefinitionTemplateNumber(templateNumber)
 	d["category"] = ReadProductDisciplineParameters(templateNumber, category)
 	d["parameter"] = ReadProductDisciplineCategoryParameters(templateNumber, category, number)
@@ -45,7 +68,9 @@ func export(m *Message) {
 	d["surface1scale"] = m.Section4.ProductDefinitionTemplate.FirstSurface.Scale
 	d["surface2"] = ReadSurfaceTypesUnits(int(m.Section4.ProductDefinitionTemplate.SecondSurface.Type))
 	d["surface2value"] = m.Section4.ProductDefinitionTemplate.SecondSurface.Value
-	d["data"] = m.Section7.Data
+	if options.DataExport {
+		d["data"] = m.Section7.Data
+	}
 
 	for k, v := range m.Section3.Definition.Export() {
 		d[k] = v
@@ -54,7 +79,7 @@ func export(m *Message) {
 	// json print
 	js, _ := json.Marshal(d)
 	var out bytes.Buffer
-	json.Indent(&out, js, "", "\t")
+	json.Compact(&out, js)
 	out.WriteTo(os.Stdout)
 	fmt.Println("")
 }

@@ -20,12 +20,15 @@ type Message struct {
 	Section7 Section7
 }
 
+
 type Options struct {
 	Discipline              int
+	DataExport              bool
 	Category                int
 	Filepath                string
 	ExportType              int
 	MaximumNumberOfMessages int
+	GeoFilter               GeoFilter
 }
 
 const (

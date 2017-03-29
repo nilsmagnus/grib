@@ -27,8 +27,8 @@ type Surface struct {
 
 func (p Product0) String() string {
 	return fmt.Sprint(
-		ReadProductDisciplineParameters(0, int(p.ParameterCategory)),
+		ReadProductDisciplineParameters(0, p.ParameterCategory),
 		" - ",
-		ReadProductDisciplineCategoryParameters(0, int(p.ParameterCategory), int(p.ParameterNumber)),
+		ReadProductDisciplineCategoryParameters(0, p.ParameterCategory, p.ParameterNumber),
 	) //, " ", p.Hours, p.Minutes, p.TimeUnitIndicator, p.ForecastTime)
 }

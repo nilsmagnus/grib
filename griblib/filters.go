@@ -4,15 +4,39 @@ package griblib
 //
 // Currently only supports filtering on discipline and category
 //
+
+type GeoFilter struct {
+	MinLat  float32
+	MaxLat  float32
+	MinLong float32
+	MaxLong float32
+}
+
+func isEmpty(geoFilter GeoFilter) bool {
+	return geoFilter == GeoFilter{}
+}
+
 func Filter(messages []Message, options Options) (filtered []Message) {
 
 	for _, message := range messages {
-		if satisfiesDiscipline(options.Discipline, message) && satisfiesCategory(options.Category, message) {
+		discipline := satisfiesDiscipline(options.Discipline, message)
+		category := satisfiesCategory(options.Category, message)
+		if discipline && category {
 			filtered = append(filtered, message)
 		}
+		if !isEmpty(options.GeoFilter) {
+			filterValuesFromGeoFilter(&message, options.GeoFilter)
+		}
+
 	}
 
 	return filtered
+}
+func filterValuesFromGeoFilter(message *Message, filter GeoFilter) {
+	/*	grid, ok := message.Section3.Definition.(Grid0)
+		if ok {
+			fmt.Printf("should filter grid %v on filter %v", grid, filter)
+		}*/
 }
 
 func satisfiesDiscipline(discipline int, message Message) bool {
