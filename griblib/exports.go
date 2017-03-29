@@ -72,7 +72,8 @@ func export(m *Message, options Options) {
 		d["data"] = m.Section7.Data
 	}
 
-	for k, v := range m.Section3.Definition.Export() {
+	grid, _ := m.Section3.Definition.(Grid)
+	for k, v := range grid.Export() {
 		d[k] = v
 	}
 

@@ -77,7 +77,7 @@ type Grid0 struct {
 	ScanningMode                uint8
 }
 
-func (h *Grid0) Export() (d map[string]string) {
+func (h *Grid0) Export() map[string]string {
 	return map[string]string{
 		"earth":         ReadEarthShape(int(h.EarthShape)),
 		"ni":            fmt.Sprint(h.Ni),

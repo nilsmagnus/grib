@@ -16,6 +16,10 @@ func optionsFromFlag() griblib.Options {
 	discipline := flag.Int("discipline", -1, "Filters on Discipline. -1 means all disciplines")            // metereology ==0
 	category := flag.Int("category", -1, "Filters on Category within discipline. -1 means all categories") // temperature == 6
 	dataExport := flag.Bool("dataExport", true, "Export data values.")                                     // temperature == 6
+	latMin := flag.Int("latMin", 0, "Minimum latitude.")                                     // temperature == 6
+	latMax := flag.Int("latMax", 36000000, "Maximum latitude.")                                     // temperature == 6
+	longMin := flag.Int("longMin", -9000000, "Minimum longitude.")                                     // temperature == 6
+	longMax := flag.Int("longMax", 9000000, "Maximum longitude.")                                     // temperature == 6
 
 	flag.Parse()
 
@@ -26,6 +30,12 @@ func optionsFromFlag() griblib.Options {
 		Discipline:              *discipline,
 		Category:                *category,
 		DataExport:              *dataExport,
+		GeoFilter: griblib.GeoFilter{
+			MinLat:int32(*latMin),
+			MaxLat:int32(*latMax),
+			MinLong:int32(*longMin),
+			MaxLong:int32(*longMax),
+		},
 	}
 }
 

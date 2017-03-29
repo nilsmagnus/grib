@@ -20,7 +20,6 @@ type Message struct {
 	Section7 Section7
 }
 
-
 type Options struct {
 	Discipline              int
 	DataExport              bool
@@ -233,7 +232,7 @@ type Section3 struct {
 	PointCountOctets         uint8
 	PointCountInterpretation uint8
 	TemplateNumber           uint16
-	Definition               Grid
+	Definition               interface{}
 }
 
 func (s Section3) String() string {
