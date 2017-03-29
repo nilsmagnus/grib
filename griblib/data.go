@@ -30,7 +30,7 @@ type Data3 struct {
 	OctetsNumber           uint8
 }
 
-func ParseData3(dataReader io.Reader, dataLength uint32, template *Data3) []int64 {
+func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 
 	rawData := make([]byte, dataLength)
 	dataReader.Read(rawData)

@@ -4398,7 +4398,7 @@ func ReadBitMapIndicator(value int) string {
 	} else if value >= 1 && value <= 253 {
 		return "A bit map pre-determined by the originating/generating Centre applies to this product and is not specified in this Section"
 	} else if value == 254 {
-		return "A bit mapdefined previously in the same \"GRIB\" message applies to this product"
+		return "A bit mapdefined previously in the same \"Grib\" message applies to this product"
 	} else if value == 255 {
 		return "Missing"
 	} else {

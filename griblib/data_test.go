@@ -1,9 +1,9 @@
 package griblib
 
 import (
+	"math"
 	"os"
 	"testing"
-	"math"
 )
 
 func Test_read_integrationtest_file(t *testing.T) {

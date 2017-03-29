@@ -28,9 +28,9 @@ type Options struct {
 }
 
 const (
-	GRIB = 0x47524942
-	ENDSECTION = 926365495
-	SUPPORTED_GRIB_EDITION = 2
+	Grib                 = 0x47524942
+	EndSectionLength     = 926365495
+	SupportedGribEdition = 2
 )
 
 // ReadMessages reads all message from gribFile
@@ -63,7 +63,7 @@ func ReadMessage(gribFile io.Reader) (message Message, err error) {
 	}
 
 	fmt.Sprintln("section 0 length is ", unsafe.Sizeof(section0))
-	messageBytes := make([]byte, section0.MessageLength - 16)
+	messageBytes := make([]byte, section0.MessageLength-16)
 
 	numBytes, readError := gribFile.Read(messageBytes)
 
@@ -72,7 +72,7 @@ func ReadMessage(gribFile io.Reader) (message Message, err error) {
 		return message, readError
 	}
 
-	if numBytes != int(section0.MessageLength - 16) {
+	if numBytes != int(section0.MessageLength-16) {
 		fmt.Println("Did not read full message")
 	}
 
@@ -134,8 +134,8 @@ func ReadSection0(reader io.Reader) (section0 Section0, err error) {
 		return section0, err
 	}
 
-	if section0.Indicator == GRIB {
-		if section0.Edition != 2 {
+	if section0.Indicator == Grib {
+		if section0.Edition != SupportedGribEdition {
 			return section0, fmt.Errorf("Unsupported  grib edition %d", section0.Edition)
 		}
 	}
@@ -155,12 +155,12 @@ type SectionHead struct {
 }
 
 func ReadSectionHead(section io.Reader) (head SectionHead, err error) {
-	var len uint32
-	err = binary.Read(section, binary.BigEndian, &len)
+	var length uint32
+	err = binary.Read(section, binary.BigEndian, &length)
 	if err != nil {
 		return head, fmt.Errorf("Read of Length failed: %s", err.Error())
 	}
-	if len == ENDSECTION {
+	if length == EndSectionLength {
 		return SectionHead{
 			ByteLength: 4,
 			Number:     8,
@@ -173,7 +173,7 @@ func ReadSectionHead(section io.Reader) (head SectionHead, err error) {
 	}
 
 	return SectionHead{
-		ByteLength: len,
+		ByteLength: length,
 		Number:     sectionNumber,
 	}, nil
 }
@@ -182,8 +182,8 @@ func (s SectionHead) SectionNumber() uint8 {
 	return s.Number
 }
 
-func (s SectionHead) ContentLength() uint32 {
-	return s.ByteLength - uint32(binary.Size(s))
+func (s SectionHead) ContentLength() int {
+	return int(s.ByteLength) - binary.Size(s)
 }
 
 func (s SectionHead) String() string {
@@ -218,7 +218,7 @@ type Section2 struct {
 	LocalUse []uint8
 }
 
-func ReadSection2(f io.Reader, len uint32) (section Section2, err error) {
+func ReadSection2(f io.Reader, len int) (section Section2, err error) {
 	section.LocalUse = make([]uint8, len)
 	return section, read(f, &section.LocalUse)
 }
@@ -300,8 +300,8 @@ type Section6 struct {
 	Bitmap          []byte
 }
 
-func ReadSection6(f io.Reader, length uint32) (section Section6, err error) {
-	section.Bitmap = make([]byte, length - 1)
+func ReadSection6(f io.Reader, length int) (section Section6, err error) {
+	section.Bitmap = make([]byte, length-1)
 
 	return section, read(f, &section.BitmapIndicator, &section.Bitmap)
 }
@@ -310,14 +310,14 @@ type Section7 struct {
 	Data []int64
 }
 
-func ReadSection7(f io.Reader, length uint32, template Data3) (section Section7, err error) {
+func ReadSection7(f io.Reader, length int, template Data3) (section Section7, err error) {
 	section.Data = ParseData3(f, length, &template) // 5 is the length of (octet 1-5)
 	return section, err
 }
 
-func read(f io.Reader, data ...interface{}) (err error) {
+func read(reader io.Reader, data ...interface{}) (err error) {
 	for _, what := range data {
-		err = binary.Read(f, binary.BigEndian, what)
+		err = binary.Read(reader, binary.BigEndian, what)
 		if err != nil {
 			return err
 		}
