@@ -12,7 +12,10 @@ func Test_read_integrationtest_file(t *testing.T) {
 	if fileOpenErr != nil {
 		t.Fatal("Grib file for integration tests not found")
 	}
-	messages, messageParseErr := ReadMessages(testFile, Options{MaximumNumberOfMessages: math.MaxInt32})
+	messages, messageParseErr := ReadMessages(testFile, Options{
+		MaximumNumberOfMessages: math.MaxInt32,
+		Discipline:              -1,
+	})
 
 	if messageParseErr != nil {
 		t.Fatal("Error reading messages: ", messageParseErr.Error())

@@ -10,6 +10,7 @@ import (
 )
 
 type Message struct {
+	Section0 Section0
 	Section1 Section1
 	Section2 Section2
 	Section3 Section3
@@ -20,8 +21,8 @@ type Message struct {
 }
 
 type Options struct {
+	Discipline              int
 	Category                int
-	Product                 int
 	Filepath                string
 	ExportType              int
 	MaximumNumberOfMessages int
@@ -76,12 +77,13 @@ func ReadMessage(gribFile io.Reader) (message Message, err error) {
 		fmt.Println("Did not read full message")
 	}
 
-	return readMessage(bytes.NewReader(messageBytes))
+	return readMessage(bytes.NewReader(messageBytes), section0)
 
 }
 
-func readMessage(gribFile io.Reader) (message Message, err error) {
+func readMessage(gribFile io.Reader, section0 Section0) (message Message, err error) {
 
+	message.Section0 = section0
 	for {
 
 		// pre-parse section head to decide which struct use
@@ -95,7 +97,6 @@ func readMessage(gribFile io.Reader) (message Message, err error) {
 
 		case 1:
 			message.Section1, err = ReadSection1(gribFile)
-		//gribFile.Read(fooBytes)
 		case 2:
 			message.Section2, err = ReadSection2(gribFile, sectionHead.ContentLength())
 		case 3:
@@ -265,7 +266,7 @@ func ReadSection4(f io.Reader) (section Section4, err error) {
 	}
 
 	if section.ProductDefinitionTemplateNumber != 0 {
-		return section, fmt.Errorf("Product definition template number %d not implemented yet", section.ProductDefinitionTemplateNumber)
+		return section, fmt.Errorf("Category definition template number %d not implemented yet", section.ProductDefinitionTemplateNumber)
 	}
 
 	section.Coordinates = make([]byte, section.CoordinatesCount)

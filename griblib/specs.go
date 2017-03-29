@@ -475,7 +475,7 @@ func ReadVerticalDimensionCoordinateValuesDefinition(value int) string {
 	}
 }
 
-// Product Definition Template Number (Code table 4.0)
+// Category Definition Template Number (Code table 4.0)
 func ReadProductDefinitionTemplateNumber(value int) string {
 	switch value {
 	case 0:
@@ -563,7 +563,7 @@ func ReadProductDefinitionTemplateNumber(value int) string {
 	}
 }
 
-// Category of parameters by product discipline (Code table 4.1)
+// Discipline of parameters by product discipline (Code table 4.1)
 func ReadProductDisciplineParameters(discipline, category int) string {
 	switch discipline {
 	//Meteorological Products
@@ -724,10 +724,10 @@ func ReadProductDisciplineParameters(discipline, category int) string {
 // Parameter number by product discipline and parameter category (code table 4.2)
 func ReadProductDisciplineCategoryParameters(discipline, category, number int) string {
 	switch discipline {
-	//Product Discipline 0: Meteorological products
+	//Category Discipline 0: Meteorological products
 	case 0:
 		switch category {
-		//Parameter Category 0: Temperature
+		//Parameter Discipline 0: Temperature
 		case 0:
 			switch number {
 			case 0:
@@ -803,7 +803,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 1: Moisture
+		//Parameter Discipline 1: Moisture
 		case 1:
 			switch number {
 			case 0:
@@ -1065,7 +1065,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 2: Momentum
+		//Parameter Discipline 2: Momentum
 		case 2:
 			switch number {
 			case 0:
@@ -1207,7 +1207,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 3: Mass
+		//Parameter Discipline 3: Mass
 		case 3:
 			switch number {
 			case 0:
@@ -1309,7 +1309,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 4: Short-wave Radiation
+		//Parameter Discipline 4: Short-wave Radiation
 		case 4:
 			switch number {
 			case 0:
@@ -1375,7 +1375,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 5: Long-wave Radiation
+		//Parameter Discipline 5: Long-wave Radiation
 		case 5:
 			switch number {
 			case 0:
@@ -1409,7 +1409,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 6: Cloud
+		//Parameter Discipline 6: Cloud
 		case 6:
 			switch number {
 			case 0:
@@ -1505,7 +1505,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 7: Thermodynamic Stability Indices
+		//Parameter Discipline 7: Thermodynamic Stability Indices
 		case 7:
 			switch number {
 			case 0:
@@ -1559,7 +1559,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 13: Aerosols
+		//Parameter Discipline 13: Aerosols
 		case 13:
 			switch number {
 			case 0:
@@ -1577,7 +1577,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 14: Trace Gases
+		//Parameter Discipline 14: Trace Gases
 		case 14:
 			switch number {
 			case 0:
@@ -1615,7 +1615,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 15: Radar
+		//Parameter Discipline 15: Radar
 		case 15:
 			switch number {
 			case 0:
@@ -1653,7 +1653,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 16: Forecast Radar Imagery
+		//Parameter Discipline 16: Forecast Radar Imagery
 		case 16:
 			switch number {
 			case 0:
@@ -1687,7 +1687,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 17: Electrodynamics
+		//Parameter Discipline 17: Electrodynamics
 		case 17:
 			switch number {
 			case 192:
@@ -1697,7 +1697,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 18: Nuclear/radiology
+		//Parameter Discipline 18: Nuclear/radiology
 		case 18:
 			switch number {
 			case 0:
@@ -1731,7 +1731,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown", number)
 			}
-		//Parameter Category 19: Physical atmospheric properties
+		//Parameter Discipline 19: Physical atmospheric properties
 		case 19:
 			switch number {
 			case 0:
@@ -1815,13 +1815,13 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			case 204:
 				return "Number of mixed layers next to surface (integer)"
 			case 205:
-				return "Flight Category"
+				return "Flight Discipline"
 			case 206:
 				return "Confidence - Ceiling"
 			case 207:
 				return "Confidence - Visibility"
 			case 208:
-				return "Confidence - Flight Category"
+				return "Confidence - Flight Discipline"
 			case 209:
 				return "Low-Level aviation interest"
 			case 210:
@@ -1941,7 +1941,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 190: ASCII character string
+		//Parameter Discipline 190: ASCII character string
 		case 190:
 			switch number {
 			case 0:
@@ -1951,7 +1951,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 191: Miscellaneous
+		//Parameter Discipline 191: Miscellaneous
 		case 191:
 			switch number {
 			case 0:
@@ -1977,7 +1977,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 192: Covariance
+		//Parameter Discipline 192: Covariance
 		case 192:
 			switch number {
 			case 1:
@@ -2016,10 +2016,10 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 		default:
 			return fmt.Sprint("Unknown ", category)
 		}
-	//Product Discipline 1: Hydrologic products,
+	//Category Discipline 1: Hydrologic products,
 	case 1:
 		switch category {
-		//Parameter Category 0: Hydrology basic products
+		//Parameter Discipline 0: Hydrology basic products
 		case 0:
 			switch number {
 			case 0:
@@ -2045,7 +2045,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 1: Hydrology probabilities
+		//Parameter Discipline 1: Hydrology probabilities
 		case 1:
 			switch number {
 			case 0:
@@ -2067,7 +2067,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 2: Inland water and sediment properties
+		//Parameter Discipline 2: Inland water and sediment properties
 		case 2:
 			switch number {
 			case 0:
@@ -2104,10 +2104,10 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 		default:
 			return fmt.Sprint("Unknown ", category)
 		}
-	//Product Discipline 2: Land surface products
+	//Category Discipline 2: Land surface products
 	case 2:
 		switch category {
-		//Parameter Category 0: Vegetation/Biomass
+		//Parameter Discipline 0: Vegetation/Biomass
 		case 0:
 			switch number {
 			case 0:
@@ -2259,7 +2259,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 1: Agricultural Special Products
+		//Parameter Discipline 1: Agricultural Special Products
 		case 1:
 			switch number {
 			case 192:
@@ -2269,7 +2269,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 3: Soil Products
+		//Parameter Discipline 3: Soil Products
 		case 3:
 			switch number {
 			case 0:
@@ -2287,7 +2287,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 4: Fire Weather
+		//Parameter Discipline 4: Fire Weather
 		case 4:
 			switch number {
 			case 0:
@@ -2305,10 +2305,10 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			return fmt.Sprint("Unknown ", category)
 
 		}
-	//Product discipline 3: Space products,
+	//Category discipline 3: Space products,
 	case 3:
 		switch category {
-		//Parameter Category 0: Image format
+		//Parameter Discipline 0: Image format
 		case 0:
 			switch number {
 			case 0:
@@ -2336,7 +2336,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 1: Quantitative
+		//Parameter Discipline 1: Quantitative
 		case 1:
 			switch number {
 			case 0:
@@ -2394,7 +2394,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 192: Forecast Satellite imagery
+		//Parameter Discipline 192: Forecast Satellite imagery
 		case 192:
 			switch number {
 			case 0:
@@ -2433,10 +2433,10 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 		default:
 			return fmt.Sprint("Unknown ", category)
 		}
-	//Product discipline 4: Space Weather Products
+	//Category discipline 4: Space Weather Products
 	case 4:
 		switch category {
-		//Parameter Category 0: Temperature
+		//Parameter Discipline 0: Temperature
 		case 0:
 			switch number {
 			case 0:
@@ -2626,10 +2626,10 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 		default:
 			return fmt.Sprint("Unknown ", category)
 		}
-	//Product Discipline 10: Oceanographic products
+	//Category Discipline 10: Oceanographic products
 	case 10:
 		switch category {
-		//Parameter Category 0: Waves
+		//Parameter Discipline 0: Waves
 		case 0:
 			switch number {
 			case 0:
@@ -2765,7 +2765,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 1: Currents
+		//Parameter Discipline 1: Currents
 		case 1:
 			switch number {
 			case 0:
@@ -2789,7 +2789,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 2: Ice
+		//Parameter Discipline 2: Ice
 		case 2:
 			switch number {
 			case 0:
@@ -2817,7 +2817,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 3: Surface Properties
+		//Parameter Discipline 3: Surface Properties
 		case 3:
 			switch number {
 			case 0:
@@ -2869,7 +2869,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 4: Sub-surface Properties
+		//Parameter Discipline 4: Sub-surface Properties
 		case 4:
 			switch number {
 			case 0:
@@ -2915,7 +2915,7 @@ func ReadProductDisciplineCategoryParameters(discipline, category, number int) s
 			default:
 				return fmt.Sprint("Unknown ", number)
 			}
-		//Parameter Category 191: Miscellaneous
+		//Parameter Discipline 191: Miscellaneous
 		case 191:
 			switch number {
 			case 0:
