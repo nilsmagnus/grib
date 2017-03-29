@@ -8,10 +8,10 @@ import (
 	"math"
 	"os"
 
-	"github.com/nilsmagnus/grib/grib"
+	"github.com/nilsmagnus/grib/griblib"
 )
 
-func optionsFromFlag() grib.Options {
+func optionsFromFlag() griblib.Options {
 	filename := flag.String("file", "", "Grib filepath")
 	exportType := flag.Int("export", 0, "Export format. Valid types are 0 (none) 1 (json) ")
 	maxNum := flag.Int("maxmsg", math.MaxInt32, "Maximum number of messages to parse.")
@@ -20,7 +20,7 @@ func optionsFromFlag() grib.Options {
 
 	flag.Parse()
 
-	return grib.Options{
+	return griblib.Options{
 		Filepath:*filename,
 		ExportType:*exportType,
 		MaximumNumberOfMessages:*maxNum,
@@ -47,7 +47,7 @@ func main() {
 	}
 	defer gribFile.Close()
 
-	messages, err := grib.ReadMessages(gribFile, options)
+	messages, err := griblib.ReadMessages(gribFile, options)
 
 	if err != nil {
 		fmt.Printf("Error reading all messages in gribfile: %s", err.Error())
@@ -61,13 +61,13 @@ func main() {
 
 }
 
-func exportJSONConsole(messages []grib.Message) {
+func exportJSONConsole(messages []griblib.Message) {
 	for _, message := range messages {
 		export(&message)
 	}
 }
 
-func export(m *grib.Message) {
+func export(m *griblib.Message) {
 	templateNumber := int(m.Section4.ProductDefinitionTemplateNumber)
 	template := m.Section4.ProductDefinitionTemplate
 	category := int(template.ParameterCategory)
@@ -75,15 +75,15 @@ func export(m *grib.Message) {
 
 	d := make(map[string]interface{})
 
-	d["type"] = grib.ReadDataType(int(m.Section1.Type))
-	d["template"] = grib.ReadProductDefinitionTemplateNumber(templateNumber)
-	d["category"] = grib.ReadProductDisciplineParameters(templateNumber, category)
-	d["parameter"] = grib.ReadProductDisciplineCategoryParameters(templateNumber, category, number)
-	d["grid"] = grib.ReadGridDefinitionTemplateNumber(int(m.Section3.TemplateNumber))
-	d["surface1"] = grib.ReadSurfaceTypesUnits(int(m.Section4.ProductDefinitionTemplate.FirstSurface.Type))
+	d["type"] = griblib.ReadDataType(int(m.Section1.Type))
+	d["template"] = griblib.ReadProductDefinitionTemplateNumber(templateNumber)
+	d["category"] = griblib.ReadProductDisciplineParameters(templateNumber, category)
+	d["parameter"] = griblib.ReadProductDisciplineCategoryParameters(templateNumber, category, number)
+	d["grid"] = griblib.ReadGridDefinitionTemplateNumber(int(m.Section3.TemplateNumber))
+	d["surface1"] = griblib.ReadSurfaceTypesUnits(int(m.Section4.ProductDefinitionTemplate.FirstSurface.Type))
 	d["surface1value"] = m.Section4.ProductDefinitionTemplate.FirstSurface.Value
 	d["surface1scale"] = m.Section4.ProductDefinitionTemplate.FirstSurface.Scale
-	d["surface2"] = grib.ReadSurfaceTypesUnits(int(m.Section4.ProductDefinitionTemplate.SecondSurface.Type))
+	d["surface2"] = griblib.ReadSurfaceTypesUnits(int(m.Section4.ProductDefinitionTemplate.SecondSurface.Type))
 	d["surface2value"] = m.Section4.ProductDefinitionTemplate.SecondSurface.Value
 	d["data"] = m.Section7.Data
 
