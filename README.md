@@ -27,9 +27,12 @@ Usage:
 
 ### TODO?
 
+- use a proper logging framework(zap?) instead of fmt.Print*
+- unit-tests for Section[0-8]
+- unit-test for Data3
 - implement and test output values
-- refactor
 - add some kind of tool for exporting values for world/place to json
+- support for filtering on geolocations
 
 # Grib Documentation
 
