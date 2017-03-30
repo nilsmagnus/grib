@@ -17,10 +17,10 @@ func optionsFromFlag() griblib.Options {
 	discipline := flag.Int("discipline", -1, "Filters on Discipline. -1 means all disciplines")
 	category := flag.Int("category", -1, "Filters on Category within discipline. -1 means all categories")
 	dataExport := flag.Bool("dataExport", true, "Export data values.")
-	latMin := flag.Int("latMin", 0, "Minimum latitude.")
-	latMax := flag.Int("latMax", 36000000, "Maximum latitude.")
-	longMin := flag.Int("longMin", -9000000, "Minimum longitude.")
-	longMax := flag.Int("longMax", 9000000, "Maximum longitude.")
+	latMin := flag.Int("latMin", 0, "Minimum latitude multiplied with 100000.")
+	latMax := flag.Int("latMax", 36000000, "Maximum latitude multiplied with 100000.")
+	longMin := flag.Int("longMin", -9000000, "Minimum longitude multiplied with 100000.")
+	longMax := flag.Int("longMax", 9000000, "Maximum longitude multiplied with 100000.")
 
 	flag.Parse()
 
