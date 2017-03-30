@@ -29,13 +29,14 @@ Usage:
 - basic binary parsing of GRIB2 GFS files from NOAA
 - implemented only "Grid point data - complex packing and spatial differencing"
 
-### TODO?
+### TODOs
 
 - use a proper logging framework(zap?) instead of fmt.Print*
 - unit-tests for Section[2-8]
 - unit-test for Data3
 - implement and test output values
-- support for filtering on geolocations
+- support for filtering on geolocations to work on southern hemisphere(currently only works for northern hemishpere)
+- support for message-extraction per discipline( and category)
 
 # Grib Documentation
 

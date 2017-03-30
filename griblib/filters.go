@@ -1,65 +1,79 @@
 package griblib
 
-import "fmt"
-
-// Filter filters messages based on flags in options.
-//
-// Currently only supports filtering on discipline and category
-//
+import (
+	"fmt"
+	"reflect"
+)
 
 type GeoFilter struct {
-	MinLat  int32
-	MaxLat  int32
-	MinLong int32
-	MaxLong int32
+	MinLat  int32 `json:"minLat"`
+	MaxLat  int32 `json:"maxLat"`
+	MinLong int32 `json:"minLong"`
+	MaxLong int32 `json:"maxLong"`
 }
 
-func isEmpty(geoFilter GeoFilter) bool {
-	return geoFilter == GeoFilter{MinLat:0, MaxLat:360, MinLong:-90, MaxLong:90}
-}
+const (
+	LatitudeNorth  = 90000000
+	LatitudeSouth  = -90000000
+	LongitudeStart = 0
+	LongitudeEnd   = 360000000
+)
 
 func Filter(messages []Message, options Options) (filtered []Message) {
 
 	for _, message := range messages {
 		discipline := satisfiesDiscipline(options.Discipline, message)
 		category := satisfiesCategory(options.Category, message)
+		if !isEmpty(options.GeoFilter) {
+			if data, err := filterValuesFromGeoFilter(message, options.GeoFilter); err == nil {
+				message.Section7.Data = *data
+			} else {
+				fmt.Println(err.Error())
+			}
+		}
 		if discipline && category {
 			filtered = append(filtered, message)
-		}
-		if !isEmpty(options.GeoFilter) {
-			filterValuesFromGeoFilter(&message, options.GeoFilter)
 		}
 
 	}
 
 	return filtered
 }
-func filterValuesFromGeoFilter(message *Message, filter GeoFilter) {
-	grid, ok := message.Section3.Definition.(Grid0)
+
+func isEmpty(geoFilter GeoFilter) bool {
+	return geoFilter == GeoFilter{MinLong: LongitudeStart, MaxLong: LongitudeEnd, MinLat: LatitudeNorth, MaxLat: LatitudeSouth}
+}
+
+func filterValuesFromGeoFilter(message Message, filter GeoFilter) (*[]int64, error) {
+	grid, ok := message.Section3.Definition.(*Grid0)
 	if ok {
-		fmt.Println(grid)
+		startNi, stopNi, startNj, stopNj := startStopIndexes(filter, *grid)
 
-		startNi, stopNi, startNj, stopNj := startStopIndexes(filter, grid)
-
-		filteredValues := make([]int64, (stopNi - startNi) * (stopNj - startNj))
+		data := make([]int64, (stopNi-startNi)*(stopNj-startNj))
 
 		filteredIndex := 0
 		for i := startNj; i < stopNj; i++ {
 			for j := startNi; j < stopNi; j++ {
-				filteredValues[filteredIndex] = message.Section7.Data[i + j * grid.Nj]
+				data[filteredIndex] = message.Section7.Data[i*grid.Nj+j]
 				filteredIndex++
 			}
 		}
-
-		message.Section7.Data = filteredValues
+		return &data, nil
+	} else {
+		return &message.Section7.Data, fmt.Errorf("grid not of wanted type (wanted Grid0), was %s", reflect.TypeOf(message.Section3.Definition))
 	}
 }
 
 func startStopIndexes(filter GeoFilter, grid Grid0) (uint32, uint32, uint32, uint32) {
-	startNi := uint32(filter.MinLat / grid.Di)
-	stopNi := uint32(filter.MaxLat / grid.Di)
-	startNj := uint32(filter.MinLong / grid.Dj)
-	stopNj := uint32(filter.MaxLong / grid.Dj)
+
+	// ni is number of points west-east
+	startNi := uint32(filter.MinLong/grid.Di) + 1
+	stopNi := uint32(filter.MaxLong/grid.Di) + 1
+
+	// nj is number of points north-south
+	startNj := uint32((LatitudeNorth - filter.MaxLat) / grid.Dj)
+	stopNj := uint32((LatitudeNorth - filter.MinLat) / grid.Dj)
+
 	return startNi, stopNi, startNj, stopNj
 }
 

@@ -21,13 +21,13 @@ type Message struct {
 }
 
 type Options struct {
-	Discipline              int
-	DataExport              bool
-	Category                int
-	Filepath                string
-	ExportType              int
-	MaximumNumberOfMessages int
-	GeoFilter               GeoFilter
+	Discipline              int       `json:"discipline"`
+	DataExport              bool      `json:"dataExport"`
+	Category                int       `json:"category"`
+	Filepath                string    `json:"filePath"`
+	ExportType              int       `json:"exportType"`
+	MaximumNumberOfMessages int       `json:"maximumNumberOfMessages"`
+	GeoFilter               GeoFilter `json:"geoFilter"`
 }
 
 const (
