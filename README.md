@@ -21,7 +21,7 @@ Usage:
     -discipline int
         	Filters on Discipline. -1 means all disciplines (default -1)
     -export int
-        	Export format. Valid types are 0 (none) 1(print discipline names) 2 (json) 
+        	Export format. Valid types are 0 (none) 1(print discipline names) 2(print categories) 3(json) 
     -file string
         	Grib filepath
     -latMax int
@@ -35,7 +35,7 @@ Usage:
     -maxmsg int
         	Maximum number of messages to parse. Does not work in combination with filters. (default 2147483647)
 
-###Examples:
+### Examples:
 
 Filter on area on size of norway+sweden, output to json:
       

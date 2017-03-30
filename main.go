@@ -12,7 +12,7 @@ import (
 
 func optionsFromFlag() griblib.Options {
 	filename := flag.String("file", "", "Grib filepath")
-	exportType := flag.Int("export", griblib.ExportNone, "Export format. Valid types are 0 (none) 1(print discipline names) 2 (json) ")
+	exportType := flag.Int("export", griblib.ExportNone, "Export format. Valid types are 0 (none) 1(print discipline names) 2(print categories) 3(json) ")
 	maxNum := flag.Int("maxmsg", math.MaxInt32, "Maximum number of messages to parse. Does not work in combination with filters.")
 	discipline := flag.Int("discipline", -1, "Filters on Discipline. -1 means all disciplines")
 	category := flag.Int("category", -1, "Filters on Category within discipline. -1 means all categories")
