@@ -257,18 +257,21 @@ type Section4 struct {
 	Coordinates                     []byte
 }
 
-func (s Section4) String() string {
-	return fmt.Sprint(s.ProductDefinitionTemplate.String())
-}
-
 func ReadSection4(f io.Reader) (section Section4, err error) {
-	err = read(f, &section.CoordinatesCount, &section.ProductDefinitionTemplateNumber, &section.ProductDefinitionTemplate)
+	err = read(f, &section.CoordinatesCount, &section.ProductDefinitionTemplateNumber)
 	if err != nil {
 		return section, err
 	}
 
-	if section.ProductDefinitionTemplateNumber != 0 {
+	switch section.ProductDefinitionTemplateNumber {
+	case 0:
+		err = read(f, &section.ProductDefinitionTemplate)
+	default:
 		return section, fmt.Errorf("Category definition template number %d not implemented yet", section.ProductDefinitionTemplateNumber)
+	}
+
+	if err != nil {
+		return section, err
 	}
 
 	section.Coordinates = make([]byte, section.CoordinatesCount)
