@@ -1,7 +1,5 @@
 package griblib
 
-import "fmt"
-
 // http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-0.shtml
 // Analysis or forecast at a horizontal level or in a horizontal layer at a point in time
 type Product0 struct {
@@ -51,6 +49,11 @@ type Product6 struct {
 	PercentileValue uint8 // 0-100
 }
 
+// http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-7.shtml
+type Product7 struct {
+	Product0
+}
+
 // http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-8.shtml
 type Product8 struct {
 	Product0
@@ -61,6 +64,7 @@ type Product8 struct {
 	TimeRangeSpecification2           TimeRangeSpecification   // 59-70
 	AdditionalTimeRangeSpecifications []TimeRangeSpecification // 71-n
 }
+
 type TimeRangeSpecification struct {
 	StatisticalFieldCalculationProcess                     uint8  // 47
 	IncrementBetweenSuccessiveFieldsType                   uint8  // 48
@@ -74,12 +78,4 @@ type Surface struct {
 	Type  uint8
 	Scale uint8
 	Value uint32
-}
-
-func (p Product0) String() string {
-	return fmt.Sprint(
-		ReadProductDisciplineParameters(0, p.ParameterCategory),
-		" - ",
-		ReadProductDisciplineCategoryParameters(0, p.ParameterCategory, p.ParameterNumber),
-	) //, " ", p.Hours, p.Minutes, p.TimeUnitIndicator, p.ForecastTime)
 }
