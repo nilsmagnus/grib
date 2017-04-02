@@ -45,6 +45,10 @@ Filter on temperature only:
 
     grib -file testdata/gfs.t00z.pgrb2.2p50.f003 -discipline 0 -category 0 
 
+Reduce input file to default output-file with discipline 0 (Meteorology):
+
+    grib -operation reduce -file testdata/reduced.grib2 -discipline 0
+
 ## What works?
 
 - basic binary parsing of GRIB2 GFS files from NOAA
