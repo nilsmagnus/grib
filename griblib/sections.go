@@ -21,10 +21,12 @@ type Message struct {
 }
 
 type Options struct {
+	Operation               string    `json:"operation"`
 	Discipline              int       `json:"discipline"`
 	DataExport              bool      `json:"dataExport"`
 	Category                int       `json:"category"`
 	Filepath                string    `json:"filePath"`
+	ReduceFilePath          string    `json:"reduceFilePath"`
 	ExportType              int       `json:"exportType"`
 	MaximumNumberOfMessages int       `json:"maximumNumberOfMessages"`
 	GeoFilter               GeoFilter `json:"geoFilter"`

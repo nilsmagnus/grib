@@ -8,10 +8,14 @@ import (
 
 	"encoding/json"
 	"github.com/nilsmagnus/grib/griblib"
+	"io"
+	"io/ioutil"
 )
 
 func optionsFromFlag() griblib.Options {
 	filename := flag.String("file", "", "Grib filepath")
+	reducedFile := flag.String("reducefile", "reduced.grib2", "Destination for reduced file.")
+	operation := flag.String("operation", "parse", "Operation. Valid values: 'parse', 'reduce'.")
 	exportType := flag.Int("export", griblib.ExportNone, "Export format. Valid types are 0 (none) 1(print discipline names) 2(print categories) 3(json) ")
 	maxNum := flag.Int("maxmsg", math.MaxInt32, "Maximum number of messages to parse. Does not work in combination with filters.")
 	discipline := flag.Int("discipline", -1, "Filters on Discipline. -1 means all disciplines")
@@ -25,7 +29,9 @@ func optionsFromFlag() griblib.Options {
 	flag.Parse()
 
 	return griblib.Options{
+		Operation:               string(*operation),
 		Filepath:                string(*filename),
+		ReduceFilePath:          string(*reducedFile),
 		ExportType:              int(*exportType),
 		MaximumNumberOfMessages: int(*maxNum),
 		Discipline:              int(*discipline),
@@ -61,6 +67,33 @@ func main() {
 	}
 	defer gribFile.Close()
 
+	switch options.Operation {
+	case "parse":
+		parse(gribFile, options)
+	case "reduce":
+		reduce(gribFile, options)
+	default:
+		fmt.Printf("Operation '%s' not supported. Valid values are 'parse' and 'reduce'.", options.Operation)
+		os.Exit(1)
+	}
+
+}
+func reduce(gribFile io.Reader, options griblib.Options) {
+	fmt.Println("should reduce file ")
+
+	gribContent, err := ioutil.ReadAll(gribFile)
+
+	if err != nil {
+		fmt.Printf("Could not read content of gribfile: ", err.Error())
+	}
+
+	writeErr := ioutil.WriteFile(options.ReduceFilePath, gribContent, os.ModeAppend)
+	if writeErr != nil {
+		fmt.Printf("Could not create reduced file: %s", err.Error())
+	}
+
+}
+func parse(gribFile io.Reader, options griblib.Options) {
 	messages, err := griblib.ReadMessages(gribFile, options)
 
 	if err != nil {
