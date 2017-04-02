@@ -22,7 +22,7 @@ type Message struct {
 
 type Options struct {
 	Operation               string    `json:"operation"`
-	Discipline              int       `json:"discipline"`
+	Discipline              int     `json:"discipline"`
 	DataExport              bool      `json:"dataExport"`
 	Category                int       `json:"category"`
 	Filepath                string    `json:"filePath"`

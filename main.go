@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"github.com/nilsmagnus/grib/griblib"
 	"io"
-	"io/ioutil"
 )
 
 func optionsFromFlag() griblib.Options {
@@ -50,7 +49,7 @@ func main() {
 	options := optionsFromFlag()
 
 	if js, err := json.Marshal(options); err == nil {
-		fmt.Printf("Input parameters : %s", string(js))
+		fmt.Printf("Input parameters : %s \n", string(js))
 	}
 
 	if options.Filepath == "" {
@@ -71,28 +70,37 @@ func main() {
 	case "parse":
 		parse(gribFile, options)
 	case "reduce":
-		reduce(gribFile, options)
+		reduceToFile(gribFile, options)
 	default:
 		fmt.Printf("Operation '%s' not supported. Valid values are 'parse' and 'reduce'.", options.Operation)
 		os.Exit(1)
 	}
-
 }
-func reduce(gribFile io.Reader, options griblib.Options) {
-	fmt.Println("should reduce file ")
+func reduceToFile(gribFile io.ReadSeeker, options griblib.Options) {
 
-	gribContent, err := ioutil.ReadAll(gribFile)
-
+	file, err := os.Create(options.ReduceFilePath)
 	if err != nil {
-		fmt.Printf("Could not read content of gribfile: ", err.Error())
+		fmt.Printf("Error creating reduced file: %s", err.Error())
+		os.Exit(1)
 	}
 
-	writeErr := ioutil.WriteFile(options.ReduceFilePath, gribContent, os.ModeAppend)
-	if writeErr != nil {
-		fmt.Printf("Could not create reduced file: %s", err.Error())
+	defer file.Close()
+
+	end := make(chan bool)
+	content := make(chan []byte)
+
+	go griblib.Reduce(gribFile, options, content, end)
+
+	select {
+	case <-end:
+		fmt.Println("reduce done")
+		return
+	case bytesRead := <-content:
+		file.Write(bytesRead)
 	}
 
 }
+
 func parse(gribFile io.Reader, options griblib.Options) {
 	messages, err := griblib.ReadMessages(gribFile, options)
 
