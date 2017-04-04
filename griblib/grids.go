@@ -8,13 +8,13 @@ import (
 )
 
 type ScaledValue struct {
-	Scale uint8
-	Value uint32
+	Scale uint8  `json:"scale"`
+	Value uint32 `json:"value"`
 }
 
 type BasicAngle struct {
-	BasicAngle    uint32
-	BasicAngleSub uint32
+	BasicAngle    uint32 `json:"basicAngle"`
+	BasicAngleSub uint32 `json:"basicAngleSub"`
 }
 
 type Grid interface {
@@ -48,10 +48,10 @@ func ReadGrid(f io.Reader, templateNumber uint16) (Grid, error) {
 }
 
 type GridHeader struct {
-	EarthShape      uint8
-	SphericalRadius ScaledValue
-	MajorAxis       ScaledValue
-	MinorAxis       ScaledValue
+	EarthShape      uint8       `json:"earthShape"`
+	SphericalRadius ScaledValue `json:"sphericalRadius"`
+	MajorAxis       ScaledValue `json:"majorAxis"`
+	MinorAxis       ScaledValue `json:"minorAxis"`
 }
 
 func (h *GridHeader) Export() (d map[string]string) {
@@ -64,17 +64,17 @@ func (h *GridHeader) Export() (d map[string]string) {
 type Grid0 struct {
 	//Name :=  "Latitude/longitude (or equidistant cylindrical, or Plate Carree) "
 	GridHeader
-	Ni                          uint32
-	Nj                          uint32
-	BasicAngle                  BasicAngle
-	La1                         int32
-	Lo1                         int32
-	ResolutionAndComponentFlags uint8
-	La2                         int32
-	Lo2                         int32
-	Di                          int32
-	Dj                          int32
-	ScanningMode                uint8
+	Ni                          uint32     `json:"ni"`
+	Nj                          uint32     `json:"nj"`
+	BasicAngle                  BasicAngle `json:"basicAngle"`
+	La1                         int32      `json:"la1"`
+	Lo1                         int32      `json:"lo1"`
+	ResolutionAndComponentFlags uint8      `json:"resolutionAndComponentFlags"`
+	La2                         int32      `json:"la2"`
+	Lo2                         int32      `json:"lo2"`
+	Di                          int32      `json:"di"`
+	Dj                          int32      `json:"dj"`
+	ScanningMode                uint8      `json:"scanningMode"`
 }
 
 func (h *Grid0) Export() map[string]string {
@@ -98,73 +98,73 @@ func (h *Grid0) Export() map[string]string {
 type Grid10 struct {
 	//name :=  "Mercator"
 	GridHeader
-	Ni                          uint32
-	Nj                          int32
-	La1                         int32
-	Lo1                         int32
-	ResolutionAndComponentFlags uint8
-	Lad                         int32
-	La2                         int32
-	Lo2                         int32
-	ScanningMode                uint8
-	GridOrientation             uint32
-	Di                          int32
-	Dj                          int32
+	Ni                          uint32 `json:"ni"`
+	Nj                          int32  `json:"nj"`
+	La1                         int32  `json:"la1"`
+	Lo1                         int32  `json:"lo1"`
+	ResolutionAndComponentFlags uint8  `json:"resolutionAndComponentFlags"`
+	Lad                         int32  `json:"lad"`
+	La2                         int32  `json:"la2"`
+	Lo2                         int32  `json:"lo2"`
+	ScanningMode                uint8  `json:"scanningMode"`
+	GridOrientation             uint32 `json:"gridOrientation"`
+	Di                          int32  `json:"di"`
+	Dj                          int32  `json:"dj"`
 }
 
 // Grid Definition Template 3.20: Polar stereographic projection
 type Grid20 struct {
 	//name =  "Polar stereographic projection ";
 	GridHeader
-	Nx                          uint32
-	Ny                          uint32
-	La1                         int32
-	Lo1                         int32
-	ResolutionAndComponentFlags uint8
-	Lad                         int32
-	Lov                         int32
-	Dx                          int32
-	Dy                          int32
-	ProjectionCenter            uint8
-	ScanningMode                uint8
+	Nx                          uint32 `json:"Nx"`
+	Ny                          uint32 `json:"ny"`
+	La1                         int32  `json:"na1"`
+	Lo1                         int32  `json:"lo1"`
+	ResolutionAndComponentFlags uint8  `json:"resolutionAndComponentFlags"`
+	Lad                         int32  `json:"lad"`
+	Lov                         int32  `json:"lov"`
+	Dx                          int32  `json:"dx"`
+	Dy                          int32  `json:"dy"`
+	ProjectionCenter            uint8  `json:"projectionCenter"`
+	ScanningMode                uint8  `json:"scanningMode"`
 }
 
 // Grid Definition Template 3.30: Lambert conformal
 type Grid30 struct {
 	//name =  "Polar stereographic projection ";
 	GridHeader
-	Nx                          uint32
-	Ny                          uint32
-	La1                         int32
-	Lo1                         int32
-	ResolutionAndComponentFlags uint8
-	Lad                         int32
-	Lov                         int32
-	Dx                          int32
-	Dy                          int32
-	ProjectionCenter            uint8
-	ScanningMode                uint8
-	Latin1                      uint32
-	Latin2                      uint32
-	LaSouthPole                 uint32
-	LoSouthPole                 uint32
+	Nx                          uint32 `json:"nx"`
+	Ny                          uint32 `json:"ny"`
+	La1                         int32  `json:"la1"`
+	Lo1                         int32  `json:"lo1"`
+	ResolutionAndComponentFlags uint8  `json:"resolutionAndComponentFlags"`
+	Lad                         int32  `json:"lad"`
+	Lov                         int32  `json:"lov"`
+	Dx                          int32  `json:"dx"`
+	Dy                          int32  `json:"dy"`
+	ProjectionCenter            uint8  `json:"projectionCenter"`
+	ScanningMode                uint8  `json:"scanningMode"`
+	Latin1                      uint32 `json:"latin1"`
+	Latin2                      uint32 `json:"latin2"`
+	LaSouthPole                 uint32 `json:"laSouthPole"`
+	LoSouthPole                 uint32 `json:"loSouthPole"`
 }
 
 // Grid Definition Template 3.40: Gaussian latitude/longitude
 type Grid40 struct {
 	//name =  "Gaussian latitude/longitude ";
 	GridHeader
-	Ni                          uint32
-	Nj                          uint32
-	BasicAngle                  uint32
-	La1                         int32
-	Lo1                         int32
-	ResolutionAndComponentFlags uint8
-	La2                         int32
-	Lo2                         int32
-	Di                          int32
-	N                           uint32
-	ScanningMode                uint8
+	Ni                          uint32 `json:"ni"`
+	Nj                          uint32 `json:"nj"`
+	BasicAngle                  uint32 `json:"basicAngle"`
+	La1                         int32  `json:"la1"`
+	Lo1                         int32  `json:"lo1"`
+	ResolutionAndComponentFlags uint8  `json:"resolutionAndComponentFlags"`
+	La2                         int32  `json:"la2"`
+	Lo2                         int32  `json:"lo2"`
+	Di                          int32  `json:"di"`
+	N                           uint32 `json:"n"`
+	ScanningMode                uint8  `json:"scanningMode"`
 }
 
 // Grid Definition Template 3.90: Space view perspective or orthographic
@@ -172,24 +172,19 @@ type Grid40 struct {
 type Grid90 struct {
 	//name =  "Space view perspective or orthographic ";
 	GridHeader
-	Nx uint32
-	Ny uint32
+	Nx uint32 `json:"nx"`
+	Ny uint32 `json:"ny"`
 	//BasicAngle                  BasicAngle
-	Lap                         int32
-	Lop                         int32
-	ResolutionAndComponentFlags uint8
-
-	Dx uint32
-	Dy uint32
-
-	Xp uint32
-	Yp uint32
-
-	// fix byte size
-	ScanningMode uint8
-	Orientation  uint32
-	Nr           uint32
-
-	Xo uint32
-	Yo uint32
+	Lap                         int32  `json:"lap"`
+	Lop                         int32  `json:"lop"`
+	ResolutionAndComponentFlags uint8  `json:"resolutionAndComponentFlags"`
+	Dx                          uint32 `json:"dx"`
+	Dy                          uint32 `json:"dy"`
+	Xp                          uint32 `json:"xp"`
+	Yp                          uint32 `json:"yp"`
+	ScanningMode                uint8  `json:"scanningMode"`
+	Orientation                 uint32 `json:"orientation"`
+	Nr                          uint32 `json:"nr"`
+	Xo                          uint32 `json:"xo"`
+	Yo                          uint32 `json:"yo"`
 }

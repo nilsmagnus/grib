@@ -10,24 +10,24 @@ import (
 //Data3 is a Grid point data - complex packing and spatial differencing
 // http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp5-3.shtml
 type Data3 struct {
-	Reference              float32
-	BinaryScale            uint16
-	DecimalScale           uint16
-	Bits                   uint8
-	Type                   uint8
-	GroupMethod            uint8
-	MissingValue           uint8
-	MissingSubstitute1     uint32
-	MissingSubstitute2     uint32
-	NG                     uint32
-	GroupWidths            uint8
-	GroupWidthsBits        uint8
-	GroupLengthsReference  uint32 // 13
-	GroupLengthIncrement   uint8  // 14
-	GroupLastLength        uint32 // 15
-	GroupScaledLengthsBits uint8
-	SpatialOrderDifference uint8
-	OctetsNumber           uint8
+	Reference              float32 `json:"reference"`
+	BinaryScale            uint16  `json:"binaryScale"`
+	DecimalScale           uint16  `json:"decimalScale"`
+	Bits                   uint8   `json:"bits"`
+	Type                   uint8   `json:"type"`
+	GroupMethod            uint8   `json:"groupMethod"`
+	MissingValue           uint8   `json:"missingValue"`
+	MissingSubstitute1     uint32  `json:"missingSubstitute1"`
+	MissingSubstitute2     uint32  `json:"missingSubstitute2"`
+	NG                     uint32  `json:"ng"`
+	GroupWidths            uint8   `json:"groupWidths"`
+	GroupWidthsBits        uint8   `json:"groupWidthsBits"`
+	GroupLengthsReference  uint32  `json:"groupLengthsReference"` // 13
+	GroupLengthIncrement   uint8   `json:"groupLengthIncrement"`  // 14
+	GroupLastLength        uint32  `json:"groupLastLength"`       // 15
+	GroupScaledLengthsBits uint8   `json:"groupScaledLengthsBits"`
+	SpatialOrderDifference uint8   `json:"spatialOrderDifference"`
+	OctetsNumber           uint8   `json:"octetsNumber"`
 }
 
 func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {

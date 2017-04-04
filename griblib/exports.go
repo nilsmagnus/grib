@@ -23,7 +23,9 @@ func Export(messages []Message, options Options) {
 	case PrintMessageCategories:
 		printCategories(messages)
 	case ExportJsonToConsole:
-		exportJSONConsole(messages, options)
+		exportJSONConsole(messages)
+	default:
+		fmt.Printf("Error: Export type %d not supported. \n", options.ExportType)
 	}
 }
 
@@ -41,44 +43,19 @@ func printCategories(messages []Message) {
 	}
 }
 
-func exportJSONConsole(messages []Message, options Options) {
+func exportJSONConsole(messages []Message) {
 	fmt.Println("[")
 	for _, message := range messages {
-		export(&message, options)
+		export(&message)
 		fmt.Println(",")
 	}
 	fmt.Println("]")
 }
 
-func export(m *Message, options Options) {
-	templateNumber := m.Section4.ProductDefinitionTemplateNumber
-	template := m.Section4.ProductDefinitionTemplate
-	category := template.ParameterCategory
-	number := template.ParameterNumber
-
-	d := make(map[string]interface{})
-
-	d["type"] = ReadDataType(m.Section1.Type)
-	d["template"] = ReadProductDefinitionTemplateNumber(templateNumber)
-	d["category"] = ReadProductDisciplineParameters(templateNumber, category)
-	d["parameter"] = ReadProductDisciplineCategoryParameters(templateNumber, category, number)
-	d["grid"] = ReadGridDefinitionTemplateNumber(int(m.Section3.TemplateNumber))
-	d["surface1"] = ReadSurfaceTypesUnits(int(m.Section4.ProductDefinitionTemplate.FirstSurface.Type))
-	d["surface1value"] = m.Section4.ProductDefinitionTemplate.FirstSurface.Value
-	d["surface1scale"] = m.Section4.ProductDefinitionTemplate.FirstSurface.Scale
-	d["surface2"] = ReadSurfaceTypesUnits(int(m.Section4.ProductDefinitionTemplate.SecondSurface.Type))
-	d["surface2value"] = m.Section4.ProductDefinitionTemplate.SecondSurface.Value
-	if options.DataExport {
-		d["data"] = m.Section7.Data
-	}
-
-	grid, _ := m.Section3.Definition.(Grid)
-	for k, v := range grid.Export() {
-		d[k] = v
-	}
+func export(m *Message) {
 
 	// json print
-	js, _ := json.Marshal(d)
+	js, _ := json.Marshal(m)
 	var out bytes.Buffer
 	json.Compact(&out, js)
 	out.WriteTo(os.Stdout)

@@ -22,7 +22,7 @@ type Message struct {
 
 type Options struct {
 	Operation               string    `json:"operation"`
-	Discipline              int     `json:"discipline"`
+	Discipline              int       `json:"discipline"`
 	DataExport              bool      `json:"dataExport"`
 	Category                int       `json:"category"`
 	Filepath                string    `json:"filePath"`
@@ -126,11 +126,11 @@ func readMessage(gribFile io.Reader, section0 Section0) (message Message, err er
 }
 
 type Section0 struct {
-	Indicator     uint32
-	Reserved      uint16
-	Discipline    uint8
-	Edition       uint8
-	MessageLength uint64
+	Indicator     uint32 `json:"indicator"`
+	Reserved      uint16 `json:"reserved"`
+	Discipline    uint8  `json:"discipline"`
+	Edition       uint8  `json:"edition"`
+	MessageLength uint64 `json:"messageLength"`
 }
 
 func ReadSection0(reader io.Reader) (section0 Section0, err error) {
@@ -155,8 +155,8 @@ type Section interface {
 }
 
 type SectionHead struct {
-	ByteLength uint32
-	Number     uint8
+	ByteLength uint32 `json:"byteLength"`
+	Number     uint8  `json:"number"`
 }
 
 func ReadSectionHead(section io.Reader) (head SectionHead, err error) {
@@ -196,23 +196,23 @@ func (s SectionHead) String() string {
 }
 
 type Time struct {
-	Year   uint16 // year
-	Month  uint8  // month + 1
-	Day    uint8  // day
-	Hour   uint8  // hour
-	Minute uint8  // minute
-	Second uint8  // second
+	Year   uint16 `json:"year"`   // year
+	Month  uint8  `json:"month"`  // month + 1
+	Day    uint8  `json:"day"`    // day
+	Hour   uint8  `json:"hour"`   // hour
+	Minute uint8  `json:"minute"` // minute
+	Second uint8  `json:"second"` // second
 }
 
 type Section1 struct {
-	OriginatingCenter         uint16
-	OriginatingSubCenter      uint16
-	MasterTablesVersion       uint8
-	LocalTablesVersion        uint8
-	ReferenceTimeSignificance uint8
-	ReferenceTime             Time
-	ProductionStatus          uint8
-	Type                      uint8
+	OriginatingCenter         uint16 `json:"ooriginatingCenter"`
+	OriginatingSubCenter      uint16 `json:"originatingSubCenter"`
+	MasterTablesVersion       uint8  `json:"masterTablesVersion"`
+	LocalTablesVersion        uint8  `json:"localTablesVersion"`
+	ReferenceTimeSignificance uint8  `json:"referenceTimeSignificance"`
+	ReferenceTime             Time   `json:"referenceTime"`
+	ProductionStatus          uint8  `json:"productionStatus"`
+	Type                      uint8  `json:"type"`
 }
 
 func ReadSection1(f io.Reader) (section Section1, err error) {
@@ -220,7 +220,7 @@ func ReadSection1(f io.Reader) (section Section1, err error) {
 }
 
 type Section2 struct {
-	LocalUse []uint8
+	LocalUse []uint8 `json:"localUse"`
 }
 
 func ReadSection2(f io.Reader, len int) (section Section2, err error) {
@@ -229,12 +229,12 @@ func ReadSection2(f io.Reader, len int) (section Section2, err error) {
 }
 
 type Section3 struct {
-	Source                   uint8
-	DataPointCount           uint32
-	PointCountOctets         uint8
-	PointCountInterpretation uint8
-	TemplateNumber           uint16
-	Definition               interface{}
+	Source                   uint8       `json:"source"`
+	DataPointCount           uint32      `json:"datapointCount"`
+	PointCountOctets         uint8       `json:"pointCountOctets"`
+	PointCountInterpretation uint8       `json:"pointCountInterpretation"`
+	TemplateNumber           uint16      `json:"templateNumber"`
+	Definition               interface{} `json:"definition"`
 }
 
 func (s Section3) String() string {
@@ -253,10 +253,10 @@ func ReadSection3(f io.Reader) (section Section3, err error) {
 }
 
 type Section4 struct {
-	CoordinatesCount                uint16
-	ProductDefinitionTemplateNumber uint16
-	ProductDefinitionTemplate       Product0 // FIXME
-	Coordinates                     []byte
+	CoordinatesCount                uint16   `json:"coordinatesCount"`
+	ProductDefinitionTemplateNumber uint16   `json:"productDefinitionTemplateNumber"`
+	ProductDefinitionTemplate       Product0 `json:"productDefinitionTemplate"` // FIXME
+	Coordinates                     []byte   `json:"coordinates"`
 }
 
 func ReadSection4(f io.Reader) (section Section4, err error) {
@@ -282,9 +282,9 @@ func ReadSection4(f io.Reader) (section Section4, err error) {
 }
 
 type Section5 struct {
-	PointsNumber       uint32
-	DataTemplateNumber uint16
-	DataTemplate       Data3 // FIXME
+	PointsNumber       uint32 `json:"pointsNumber"`
+	DataTemplateNumber uint16 `json:"dataTemplateNumber"`
+	DataTemplate       Data3  `json:"dataTemplate"` // FIXME
 }
 
 func ReadSection5(f io.Reader) (section Section5, err error) {
@@ -304,8 +304,8 @@ func ReadSection5(f io.Reader) (section Section5, err error) {
 }
 
 type Section6 struct {
-	BitmapIndicator uint8
-	Bitmap          []byte
+	BitmapIndicator uint8  `json:"bitmapIndicator"`
+	Bitmap          []byte `json:"bitmap"`
 }
 
 func ReadSection6(f io.Reader, length int) (section Section6, err error) {
@@ -315,7 +315,7 @@ func ReadSection6(f io.Reader, length int) (section Section6, err error) {
 }
 
 type Section7 struct {
-	Data []int64
+	Data []int64 `json:"data"`
 }
 
 func ReadSection7(f io.Reader, length int, template Data3) (section Section7, err error) {

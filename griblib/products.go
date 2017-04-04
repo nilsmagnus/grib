@@ -3,50 +3,50 @@ package griblib
 // http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-0.shtml
 // Analysis or forecast at a horizontal level or in a horizontal layer at a point in time
 type Product0 struct {
-	ParameterCategory uint8
-	ParameterNumber   uint8
-	ProcessType       uint8
-	BackgroundProcess uint8
-	AnalysisProcess   uint8
-	Hours             uint16
-	Minutes           uint8
-	TimeUnitIndicator uint8
-	ForecastTime      uint32
-	FirstSurface      Surface
-	SecondSurface     Surface
+	ParameterCategory uint8   `json:"parameterCategory"`
+	ParameterNumber   uint8   `json:"parameterNumber"`
+	ProcessType       uint8   `json:"processType"`
+	BackgroundProcess uint8   `json:"backgroundProcess"`
+	AnalysisProcess   uint8   `json:"analysisProcess"`
+	Hours             uint16  `json:"hours"`
+	Minutes           uint8   `json:"minutes"`
+	TimeUnitIndicator uint8   `json:"timeUnitIndicator"`
+	ForecastTime      uint32  `json:"forecastTime"`
+	FirstSurface      Surface `json:"firstSurface"`
+	SecondSurface     Surface `json:"secondSurface"`
 }
 
 // http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-1.shtml
 type Product1 struct {
 	Product0
-	EnsembleForecastType    uint8
-	PertubationNumber       uint8
-	ForecastInEnsembleCount uint8
+	EnsembleForecastType    uint8 `json:"ensembleForecastType"`
+	PertubationNumber       uint8 `json:"pertubationNumber"`
+	ForecastInEnsembleCount uint8 `json:"forecastInEnsembleCount"`
 }
 
 // http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-2.shtml
 type Product2 struct {
 	Product0
-	DerivedForecast         uint8
-	ForecastInEnsembleCount uint8
+	DerivedForecast         uint8 `json:"derivedForecast"`
+	ForecastInEnsembleCount uint8 `json:"forecastInEnsembleCount"`
 }
 
 // http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-5.shtml
 type Product5 struct {
 	Product0
-	ForecastProbabilityNumber  uint8
-	TotalForecastProbabilities uint8
-	ProbabilityType            uint8
-	ScaleFactorLowerLimit      uint8
-	ScaleValueLowerLimit       uint32
-	ScaleFactorUpperLimit      uint8
-	ScaleValueUpperLimit       uint32
+	ForecastProbabilityNumber  uint8  `json:"forecastProbabilityNumber"`
+	TotalForecastProbabilities uint8  `json:"totalForecastProbabilities"`
+	ProbabilityType            uint8  `json:"probabilityType"`
+	ScaleFactorLowerLimit      uint8  `json:"scaleFactorLowerLimit"`
+	ScaleValueLowerLimit       uint32 `json:"scaleValueLowerLimit"`
+	ScaleFactorUpperLimit      uint8  `json:"scaleFactorUpperLimit"`
+	ScaleValueUpperLimit       uint32 `json:"scaleValueUpperLimit"`
 }
 
 // http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-6.shtml
 type Product6 struct {
 	Product0
-	PercentileValue uint8 // 0-100
+	PercentileValue uint8 `json:"percentileValue"` // 0-100
 }
 
 // http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-7.shtml
@@ -57,25 +57,25 @@ type Product7 struct {
 // http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-8.shtml
 type Product8 struct {
 	Product0
-	Time                              Time
-	NumberOfIntervalTimeRanges        uint8 // length of last datatype
-	TotalMissingDataValuesCount       uint32
-	TimeRangeSpecification1           TimeRangeSpecification
-	TimeRangeSpecification2           TimeRangeSpecification   // 59-70
-	AdditionalTimeRangeSpecifications []TimeRangeSpecification // 71-n
+	Time                              Time                     `json:"time"`
+	NumberOfIntervalTimeRanges        uint8                    `json:"numberOfIntervalTimeRanges"` // length of last datatype
+	TotalMissingDataValuesCount       uint32                   `json:"totalMissingDataValuesCount"`
+	TimeRangeSpecification1           TimeRangeSpecification   `json:"timeRangeSpecification1"`
+	TimeRangeSpecification2           TimeRangeSpecification   `json:"timeRangeSpecification2"`           // 59-70
+	AdditionalTimeRangeSpecifications []TimeRangeSpecification `json:"additionalTimeRangeSpecifications"` // 71-n
 }
 
 type TimeRangeSpecification struct {
-	StatisticalFieldCalculationProcess                     uint8  // 47
-	IncrementBetweenSuccessiveFieldsType                   uint8  // 48
-	IncrementBetweenSuccessiveFieldsRangeTimeUnitIndicator uint8  // 49
-	StatististicalProcessTimeLength                        uint32 // 50-53
-	IncrementBetweenSuccessiveFieldsTimeUnitIndicator      uint8  // 54
-	TimeIncrementBetweenSuccessiveField                    uint32 // 55-58
+	StatisticalFieldCalculationProcess                     uint8  `json:"statisticalFieldCalculationProcess"`                     // 47
+	IncrementBetweenSuccessiveFieldsType                   uint8  `json:"incrementBetweenSuccessiveFieldsType"`                   // 48
+	IncrementBetweenSuccessiveFieldsRangeTimeUnitIndicator uint8  `json:"incrementBetweenSuccessiveFieldsRangeTimeUnitIndicator"` // 49
+	StatististicalProcessTimeLength                        uint32 `json:"statististicalProcessTimeLength"`                        // 50-53
+	IncrementBetweenSuccessiveFieldsTimeUnitIndicator      uint8  `json:"incrementBetweenSuccessiveFieldsTimeUnitIndicator"`      // 54
+	TimeIncrementBetweenSuccessiveField                    uint32 `json:"timeIncrementBetweenSuccessiveField"`                    // 55-58
 }
 
 type Surface struct {
-	Type  uint8
-	Scale uint8
-	Value uint32
+	Type  uint8  `json:"type"`
+	Scale uint8  `json:"scale"`
+	Value uint32 `json:"value"`
 }
