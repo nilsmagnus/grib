@@ -134,6 +134,7 @@ type Section0 struct {
 }
 
 func ReadSection0(reader io.Reader) (section0 Section0, err error) {
+	section0.Indicator=255
 	err = binary.Read(reader, binary.BigEndian, &section0)
 	if err != nil {
 		return section0, err

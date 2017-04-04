@@ -8,32 +8,45 @@ import (
 )
 
 func Reduce(readSeeker io.ReadSeeker, options Options, content chan []byte, end chan bool) {
-
+	if options.Discipline == -1 {
+		fmt.Println("No disciplines defined for reduce.")
+		end <- true
+	}
 	for {
 		section0Bytes := make([]byte, 16)
 		readSeeker.Read(section0Bytes)
 		section0, err := ReadSection0(bytes.NewReader(section0Bytes))
 
 		if err != nil {
-			fmt.Println("got eof:", err.Error())
-			end <- isEOF(err)
+			if !isEOF(err) {
+				fmt.Println("section0 read err: ", err.Error())
+			}
+			end <- true
+			return
+
+		}
+
+		if section0.Indicator == 0 {
+			end <- true
 			return
 		}
 
 		if section0.Discipline == uint8(options.Discipline) {
-			fmt.Printf("Found discipline %d \n", options.Discipline)
-			readSeeker.Seek(-16, io.SeekCurrent)
-			messsageBytes := make([]byte, section0.MessageLength)
-			readSeeker.Read(messsageBytes)
-			content <- messsageBytes
+			messsage := make([]byte, section0.MessageLength-16)
+			_, err = readSeeker.Read(messsage)
+			if err != nil {
+				fmt.Printf("read2 err: ", err.Error())
+				end <- true
+			}
+			content <- append(section0Bytes, messsage...)
 		} else {
-			fmt.Printf("Skipping discipline %d \n", options.Discipline)
-			readSeeker.Seek(16+int64(section0.MessageLength), io.SeekCurrent)
+			readSeeker.Seek(int64(section0.MessageLength)-16, io.SeekCurrent)
 		}
 
 	}
 }
 
 func isEOF(err error) bool {
+	fmt.Printf("Error:: %s", err.Error())
 	return strings.Contains(err.Error(), "EOF")
 }

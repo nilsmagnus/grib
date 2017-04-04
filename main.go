@@ -48,8 +48,8 @@ func optionsFromFlag() griblib.Options {
 func main() {
 	options := optionsFromFlag()
 
-	if js, err := json.Marshal(options); err == nil {
-		fmt.Printf("Input parameters : %s \n", string(js))
+	if _, err := json.Marshal(options); err == nil {
+		//fmt.Printf("Input parameters : %s \n", string(js))
 	}
 
 	if options.Filepath == "" {
@@ -77,26 +77,33 @@ func main() {
 	}
 }
 func reduceToFile(gribFile io.ReadSeeker, options griblib.Options) {
+	if options.Discipline == -1 {
+		fmt.Println("No discipline defined.")
+		flag.Usage()
+		os.Exit(0)
+	}
 
-	file, err := os.Create(options.ReduceFilePath)
+	reduceFile, err := os.Create(options.ReduceFilePath)
 	if err != nil {
-		fmt.Printf("Error creating reduced file: %s", err.Error())
+		fmt.Printf("Error creating reduced reduceFile: %s", err.Error())
 		os.Exit(1)
 	}
 
-	defer file.Close()
+	defer reduceFile.Close()
 
 	end := make(chan bool)
 	content := make(chan []byte)
 
 	go griblib.Reduce(gribFile, options, content, end)
 
-	select {
-	case <-end:
-		fmt.Println("reduce done")
-		return
-	case bytesRead := <-content:
-		file.Write(bytesRead)
+	for {
+		select {
+		case <-end:
+			fmt.Printf("reduce done to file '%s'. \n", options.ReduceFilePath)
+			return
+		case bytesRead := <-content:
+			reduceFile.Write(bytesRead)
+		}
 	}
 
 }
