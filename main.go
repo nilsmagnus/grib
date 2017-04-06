@@ -76,6 +76,7 @@ func main() {
 		os.Exit(1)
 	}
 }
+
 func reduceToFile(gribFile io.ReadSeeker, options griblib.Options) {
 	if options.Discipline == -1 {
 		fmt.Println("No discipline defined.")

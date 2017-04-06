@@ -1,7 +1,9 @@
-GRIB2 Golang experimental parser
+GRIB2 Golang parser application and library
 ================================
 
-Unfinished dirty parser for meteo data
+Parser and library for grib2 file format. 
+
+Forked from github.com/analogic/grib which is now abandoned by the author.
 
 ## Usage
 
@@ -9,33 +11,42 @@ Install by typing
 
     go get -u github.com/nilsmagnus/grib
 
-Usage:
+
+### Application Usage:
 
     $ grib -h 
     
     Usage of grib:
-    -category int
-        	Filters on Category within discipline. -1 means all categories (default -1)
-    -dataExport
-        	Export data values. (default true)
-    -discipline int
-        	Filters on Discipline. -1 means all disciplines (default -1)
-    -export int
-        	Export format. Valid types are 0 (none) 1(print discipline names) 2(print categories) 3(json) 
-    -file string
-        	Grib filepath
-    -latMax int
-        	Maximum latitude multiplied with 100000. (default 36000000)
-    -latMin int
-        	Minimum latitude multiplied with 100000.
-    -longMax int
-        	Maximum longitude multiplied with 100000. (default 9000000)
-    -longMin int
-        	Minimum longitude multiplied with 100000. (default -9000000)
-    -maxmsg int
-        	Maximum number of messages to parse. Does not work in combination with filters. (default 2147483647)
+     -category int
+       	Filters on Category within discipline. -1 means all categories (default -1)
+     -dataExport
+       	Export data values. (default true)
+     -discipline int
+       	Filters on Discipline. -1 means all disciplines (default -1)
+     -export int
+       	Export format. Valid types are 0 (none) 1(print discipline names) 2(print categories) 3(json) 
+     -file string
+       	Grib filepath
+     -latMax int
+       	Maximum latitude multiplied with 100000. (default 36000000)
+     -latMin int
+       	Minimum latitude multiplied with 100000.
+     -longMax int
+       	Maximum longitude multiplied with 100000. (default 9000000)
+     -longMin int
+       	Minimum longitude multiplied with 100000. (default -9000000)
+     -maxmsg int
+       	Maximum number of messages to parse. Does not work in combination with filters. (default 2147483647)
+     -operation string
+       	Operation. Valid values: 'parse', 'reduce'. (default "parse")
+     -reducefile string
+       	Destination for reduced file. (default "reduced.grib2")
 
-### Examples:
+#### Examples:
+
+Reduce input file to default output-file with discipline 0 (Meteorology):
+
+    grib -operation reduce -file testdata/reduced.grib2 -discipline 0
 
 Filter on area on size of norway+sweden, output to json:
       
@@ -45,9 +56,9 @@ Filter on temperature only:
 
     grib -file testdata/gfs.t00z.pgrb2.2p50.f003 -discipline 0 -category 0 
 
-Reduce input file to default output-file with discipline 0 (Meteorology):
+## Library examples
 
-    grib -operation reduce -file testdata/reduced.grib2 -discipline 0
+Have a look at 'main.go' for main usage. 
 
 ## What works?
 
@@ -56,12 +67,14 @@ Reduce input file to default output-file with discipline 0 (Meteorology):
 
 ## TODOs
 
-- use a proper logging framework(zap?) instead of fmt.Print*
-- unit-tests for Section[2-8]
-- unit-test for Data3
-- implement and test output values
-- support for filtering on geolocations to work on southern hemisphere(currently only works for northern hemishpere)
-- support for message-extraction per discipline( and category)
+- Support different types of grids, not only grid0
+- Support different types of products, not only product0
+- Tests for reduction
+- Tests for reading all sections
+
+## Help appreciated
+
+Feel free to fork and submit pull requests or simply create issues for improvements :)
 
 # Grib Documentation
 
