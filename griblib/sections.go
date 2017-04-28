@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"strings"
-	"unsafe"
 )
 
 type Message struct {
@@ -67,7 +66,7 @@ func ReadMessage(gribFile io.Reader) (message Message, err error) {
 		return message, headError
 	}
 
-	fmt.Sprintln("section 0 length is ", unsafe.Sizeof(section0))
+	fmt.Sprintln("section 0 length is ", binary.Size(section0))
 	messageBytes := make([]byte, section0.MessageLength-16)
 
 	numBytes, readError := gribFile.Read(messageBytes)
