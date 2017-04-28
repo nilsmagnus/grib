@@ -48,8 +48,10 @@ func optionsFromFlag() griblib.Options {
 func main() {
 	options := optionsFromFlag()
 
-	if _, err := json.Marshal(options); err == nil {
-		//fmt.Printf("Input parameters : %s \n", string(js))
+	if js, err := json.Marshal(options); err == nil {
+		fmt.Printf("Input parameters : %s \n", string(js))
+	} else {
+		fmt.Println(err.Error())
 	}
 
 	if options.Filepath == "" {
@@ -77,7 +79,7 @@ func main() {
 	}
 }
 
-func reduceToFile(gribFile io.ReadSeeker, options griblib.Options) {
+func reduceToFile(gribFile io.Reader, options griblib.Options) {
 	if options.Discipline == -1 {
 		fmt.Println("No discipline defined.")
 		flag.Usage()

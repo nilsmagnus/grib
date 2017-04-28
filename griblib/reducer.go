@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func Reduce(readSeeker io.ReadSeeker, options Options, content chan []byte, end chan bool) {
+func Reduce(readSeeker io.Reader, options Options, content chan []byte, end chan bool) {
 	if options.Discipline == -1 {
 		fmt.Println("No disciplines defined for reduce.")
 		end <- true
@@ -41,7 +41,7 @@ func Reduce(readSeeker io.ReadSeeker, options Options, content chan []byte, end 
 			content <- messageSection0Bytes
 			content <- messageContentBytes
 		} else {
-			readSeeker.Seek(int64(section0.MessageLength)-16, io.SeekCurrent)
+			readSeeker.Read(make([]byte, int64(section0.MessageLength)-16))
 		}
 
 	}
