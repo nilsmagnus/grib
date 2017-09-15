@@ -58,7 +58,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 
 	b := bytes.NewBuffer(rawData)
 
-	r := NewReader(b)
+	r := newReader(b)
 
 	//
 	//  Extract Spatial differencing values, if using DRS Template 5.3

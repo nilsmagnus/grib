@@ -35,7 +35,7 @@ func Reduce(readSeeker io.Reader, options Options, content chan []byte, end chan
 			messageContentBytes := make([]byte, section0.MessageLength-16)
 			_, err = readSeeker.Read(messageContentBytes)
 			if err != nil {
-				fmt.Printf("read2 err: ", err.Error())
+				fmt.Printf("read2 err: %v", err.Error())
 				end <- true
 			}
 			content <- messageSection0Bytes

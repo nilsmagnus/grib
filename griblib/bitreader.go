@@ -6,13 +6,14 @@ import (
 	"io"
 )
 
+// BitReader
 type BitReader struct {
 	reader io.ByteReader
 	byte   byte
 	offset byte
 }
 
-func NewReader(r io.ByteReader) *BitReader {
+func newReader(r io.ByteReader) *BitReader {
 	return &BitReader{r, 0, 0}
 }
 
@@ -141,10 +142,10 @@ func newBitReader(r io.Reader) bitReader {
 	return bitReader{r: byter}
 }
 
-// ReadBits64 reads the given number of bits and returns them in the
+// readBits64 reads the given number of bits and returns them in the
 // least-significant part of a uint64. In the event of an error, it returns 0
 // and the error can be obtained by calling Err().
-func (br *bitReader) ReadBits64(bits uint) (n uint64) {
+func (br *bitReader) readBits64(bits uint) (n uint64) {
 	for bits > br.bits {
 		b, err := br.r.ReadByte()
 		if err == io.EOF {
@@ -184,7 +185,7 @@ func (br *bitReader) readIntsBlock(bits int, count int, compensateByte bool) ([]
 
 	if bits != 0 {
 		for i := 0; i != count; i++ {
-			data[i] = int64(br.ReadBits64(uint(bits)))
+			data[i] = int64(br.readBits64(uint(bits)))
 			//fmt.Println(data[i])
 		}
 
@@ -200,17 +201,17 @@ func (br *bitReader) readIntsBlock(bits int, count int, compensateByte bool) ([]
 	return data, nil
 }
 
-func (br *bitReader) ReadBits(bits uint) (n int) {
-	n64 := br.ReadBits64(bits)
+func (br *bitReader) readBits(bits uint) (n int) {
+	n64 := br.readBits64(bits)
 	return int(n64)
 }
 
-func (br *bitReader) ReadBit() bool {
-	n := br.ReadBits(1)
+func (br *bitReader) readBit() bool {
+	n := br.readBits(1)
 	return n != 0
 }
 
-func (br *bitReader) TryReadBit() (bit byte, ok bool) {
+func (br *bitReader) tryReadBit() (bit byte, ok bool) {
 	if br.bits > 0 {
 		br.bits--
 		return byte(br.n>>br.bits) & 1, true
