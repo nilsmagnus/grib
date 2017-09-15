@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-// BitReader
+// BitReader is undocomented
 type BitReader struct {
 	reader io.ByteReader
 	byte   byte
@@ -17,7 +17,7 @@ func newReader(r io.ByteReader) *BitReader {
 	return &BitReader{r, 0, 0}
 }
 
-func (r *BitReader) ReadBit() (bool, error) {
+func (r *BitReader) readBit() (bool, error) {
 	if r.offset == 8 {
 		r.offset = 0
 	}
@@ -32,10 +32,10 @@ func (r *BitReader) ReadBit() (bool, error) {
 	return bit, nil
 }
 
-func (r *BitReader) ReadUint(nbits int) (uint64, error) {
+func (r *BitReader) readUint(nbits int) (uint64, error) {
 	var result uint64
 	for i := nbits - 1; i >= 0; i-- {
-		bit, err := r.ReadBit()
+		bit, err := r.readBit()
 
 		if err != nil {
 			return 0, err
@@ -48,11 +48,11 @@ func (r *BitReader) ReadUint(nbits int) (uint64, error) {
 	return result, nil
 }
 
-func (r *BitReader) ReadInt(nbits int) (int64, error) {
+func (r *BitReader) readInt(nbits int) (int64, error) {
 	var result int64
 	var negative int64 = 1
 	for i := nbits - 1; i >= 0; i-- {
-		bit, err := r.ReadBit()
+		bit, err := r.readBit()
 
 		if err != nil {
 			return 0, err
@@ -73,7 +73,7 @@ func (r *BitReader) readUintsBlock(bits int, count int, compensateByte bool) ([]
 
 	if bits != 0 {
 		for i := 0; i != count; i++ {
-			data[i], err = r.ReadUint(bits)
+			data[i], err = r.readUint(bits)
 			if err != nil {
 				return data, err
 			}
@@ -100,7 +100,7 @@ func (r *BitReader) readIntsBlock(bits int, count int, compensateByte bool) ([]i
 
 	if bits != 0 {
 		for i := 0; i != count; i++ {
-			data[i], err = r.ReadInt(bits)
+			data[i], err = r.readInt(bits)
 			if err != nil {
 				return data, err
 			}

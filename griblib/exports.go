@@ -8,10 +8,14 @@ import (
 )
 
 const (
-	ExportNone              = 0
+	//ExportNone - do not export anything
+	ExportNone = 0
+	// PrintMessageDisciplines - only print disciplines for the sections
 	PrintMessageDisciplines = 1
-	PrintMessageCategories  = 2
-	ExportJsonToConsole     = 3
+	// PrintMessageCategories - only print categories
+	PrintMessageCategories = 2
+	// ExportJSONToConsole - export json to console
+	ExportJSONToConsole = 3
 )
 
 // Export exports messages to the supported formats
@@ -22,7 +26,7 @@ func Export(messages []Message, options Options) {
 		printDisciplines(messages)
 	case PrintMessageCategories:
 		printCategories(messages)
-	case ExportJsonToConsole:
+	case ExportJSONToConsole:
 		exportJSONConsole(messages)
 	default:
 		fmt.Printf("Error: Export type %d not supported. \n", options.ExportType)

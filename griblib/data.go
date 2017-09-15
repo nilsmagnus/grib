@@ -30,6 +30,7 @@ type Data3 struct {
 	OctetsNumber           uint8   `json:"octetsNumber"`
 }
 
+// ParseData3 parses data3 struct from the reader into the template
 func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 
 	rawData := make([]byte, dataLength)
@@ -65,13 +66,13 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 	//
 	rc := int(template.OctetsNumber) * 8
 	if rc != 0 {
-		ival1, err = r.ReadInt(rc)
+		ival1, err = r.readInt(rc)
 
 		if template.SpatialOrderDifference == 2 {
-			ival2, err = r.ReadInt(rc)
+			ival2, err = r.readInt(rc)
 		}
 
-		minsd, err = r.ReadUint(rc)
+		minsd, err = r.readUint(rc)
 	}
 
 	//fmt.Println(" ival1", ival1, "ival2", ival2, "minsd", minsd, "octed bytes", rc/8)
