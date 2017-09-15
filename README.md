@@ -64,6 +64,25 @@ Have a look at 'main.go' for main usage.
 
 - basic binary parsing of GRIB2 GFS files from NOAA
 - implemented only "Grid point data - complex packing and spatial differencing"
+- 
+## Development
+
+### Dependencies
+
+grib itself has _no dependencies_ and wants to stay that way to keep it simple. Therefore, there is no dep/glide and no dependency-configuration-files.
+
+### Build
+
+Grib uses make to build. You probably need go-lint installed in order to build.
+
+To build, simply type
+
+    $ make
+    
+to test:
+
+    $ make test
+
 
 ## TODOs
 
