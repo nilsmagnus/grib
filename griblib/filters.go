@@ -5,6 +5,7 @@ import (
 	"reflect"
 )
 
+// GeoFilter is used to filter values. Only values inside the filter is returned when using this filter
 type GeoFilter struct {
 	MinLat  int32 `json:"minLat"`
 	MaxLat  int32 `json:"maxLat"`
@@ -13,12 +14,17 @@ type GeoFilter struct {
 }
 
 const (
-	LatitudeNorth  = 90000000
-	LatitudeSouth  = -90000000
+	// LatitudeNorth is the north-most latitude value
+	LatitudeNorth = 90000000
+	// LatitudeSouth is the south-most latitude value
+	LatitudeSouth = -90000000
+	// LongitudeStart is the minimum value for longitude
 	LongitudeStart = 0
-	LongitudeEnd   = 360000000
+	// LongitudeEnd is the maximum value for longitude
+	LongitudeEnd = 360000000
 )
 
+// Filter messages with values from options
 func Filter(messages []Message, options Options) (filtered []Message) {
 
 	for _, message := range messages {
@@ -34,7 +40,6 @@ func Filter(messages []Message, options Options) (filtered []Message) {
 		if discipline && category {
 			filtered = append(filtered, message)
 		}
-
 	}
 
 	return filtered
@@ -59,9 +64,8 @@ func filterValuesFromGeoFilter(message Message, filter GeoFilter) (*[]int64, err
 			}
 		}
 		return &data, nil
-	} else {
-		return &message.Section7.Data, fmt.Errorf("grid not of wanted type (wanted Grid0), was %s", reflect.TypeOf(message.Section3.Definition))
 	}
+	return &message.Section7.Data, fmt.Errorf("grid not of wanted type (wanted Grid0), was %s", reflect.TypeOf(message.Section3.Definition))
 }
 
 func startStopIndexes(filter GeoFilter, grid Grid0) (uint32, uint32, uint32, uint32) {
