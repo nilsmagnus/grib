@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+//Message is poorly documented other than code
 type Message struct {
 	Section0 Section0
 	Section1 Section1
@@ -19,6 +20,7 @@ type Message struct {
 	Section7 Section7
 }
 
+//Options is poorly documented other than code
 type Options struct {
 	Operation               string    `json:"operation"`
 	Discipline              int       `json:"discipline"`
@@ -32,12 +34,15 @@ type Options struct {
 }
 
 const (
-	Grib                 = 0x47524942
-	EndSectionLength     = 926365495
+	//Grib is a magic-number specifying the grib2-format
+	Grib = 0x47524942
+	//EndSectionLength is the binary length of the end-section. Fixed number.
+	EndSectionLength = 926365495
+	//SupportedGribEdition is 2
 	SupportedGribEdition = 2
 )
 
-// ReadMessages reads all message from gribFile
+//ReadMessages reads all message from gribFile
 func ReadMessages(gribFile io.Reader, options Options) (messages []Message, err error) {
 
 	for {
@@ -45,19 +50,18 @@ func ReadMessages(gribFile io.Reader, options Options) (messages []Message, err 
 		if messageErr != nil {
 			if strings.Contains(messageErr.Error(), "EOF") {
 				return messages, nil
-			} else {
-				fmt.Println("Error when parsing a message, ", messageErr.Error())
-				return messages, err
 			}
-		} else {
-			messages = append(messages, message)
-			if len(messages) >= int(options.MaximumNumberOfMessages) {
-				return messages, nil
-			}
+			fmt.Println("Error when parsing a message, ", messageErr.Error())
+			return messages, err
+		}
+		messages = append(messages, message)
+		if len(messages) >= int(options.MaximumNumberOfMessages) {
+			return messages, nil
 		}
 	}
 }
 
+//ReadMessage is poorly documented other than code
 func ReadMessage(gribFile io.Reader) (message Message, err error) {
 
 	section0, headError := ReadSection0(gribFile)
@@ -84,6 +88,7 @@ func ReadMessage(gribFile io.Reader) (message Message, err error) {
 
 }
 
+//readMessage is poorly documented other than code
 func readMessage(gribFile io.Reader, section0 Section0) (message Message, err error) {
 
 	message.Section0 = section0
@@ -124,6 +129,7 @@ func readMessage(gribFile io.Reader, section0 Section0) (message Message, err er
 	}
 }
 
+//Section0 is poorly documented other than code
 type Section0 struct {
 	Indicator     uint32 `json:"indicator"`
 	Reserved      uint16 `json:"reserved"`
@@ -132,8 +138,9 @@ type Section0 struct {
 	MessageLength uint64 `json:"messageLength"`
 }
 
+//ReadSection0 is poorly documented other than code
 func ReadSection0(reader io.Reader) (section0 Section0, err error) {
-	section0.Indicator=255
+	section0.Indicator = 255
 	err = binary.Read(reader, binary.BigEndian, &section0)
 	if err != nil {
 		return section0, err
@@ -149,16 +156,19 @@ func ReadSection0(reader io.Reader) (section0 Section0, err error) {
 
 }
 
+//Section is poorly documented other than code
 type Section interface {
 	SectionNumber() uint8
 	String() string
 }
 
+//SectionHead is poorly documented other than code
 type SectionHead struct {
 	ByteLength uint32 `json:"byteLength"`
 	Number     uint8  `json:"number"`
 }
 
+//ReadSectionHead is poorly documented other than code
 func ReadSectionHead(section io.Reader) (head SectionHead, err error) {
 	var length uint32
 	err = binary.Read(section, binary.BigEndian, &length)
@@ -183,10 +193,12 @@ func ReadSectionHead(section io.Reader) (head SectionHead, err error) {
 	}, nil
 }
 
+//SectionNumber returns the number of the sectionhead
 func (s SectionHead) SectionNumber() uint8 {
 	return s.Number
 }
 
+//ContentLength returns the binary length of the sectionhead
 func (s SectionHead) ContentLength() int {
 	return int(s.ByteLength) - binary.Size(s)
 }
@@ -195,6 +207,7 @@ func (s SectionHead) String() string {
 	return fmt.Sprint("Section ", s.Number)
 }
 
+//Time is poorly documented other than code
 type Time struct {
 	Year   uint16 `json:"year"`   // year
 	Month  uint8  `json:"month"`  // month + 1
@@ -204,6 +217,7 @@ type Time struct {
 	Second uint8  `json:"second"` // second
 }
 
+//Section1 is poorly documented other than code
 type Section1 struct {
 	OriginatingCenter         uint16 `json:"ooriginatingCenter"`
 	OriginatingSubCenter      uint16 `json:"originatingSubCenter"`
@@ -215,19 +229,23 @@ type Section1 struct {
 	Type                      uint8  `json:"type"`
 }
 
+//ReadSection1 is poorly documented other than code
 func ReadSection1(f io.Reader) (section Section1, err error) {
 	return section, binary.Read(f, binary.BigEndian, &section)
 }
 
+//Section2 is poorly documented other than code
 type Section2 struct {
 	LocalUse []uint8 `json:"localUse"`
 }
 
+//ReadSection2 is poorly documented other than code
 func ReadSection2(f io.Reader, len int) (section Section2, err error) {
 	section.LocalUse = make([]uint8, len)
 	return section, read(f, &section.LocalUse)
 }
 
+//Section3 is poorly documented other than code
 type Section3 struct {
 	Source                   uint8       `json:"source"`
 	DataPointCount           uint32      `json:"datapointCount"`
@@ -241,6 +259,7 @@ func (s Section3) String() string {
 	return fmt.Sprint("Point count: ", s.DataPointCount, " Definition: ", GridDefinitionTemplateDescription(int(s.TemplateNumber)))
 }
 
+//ReadSection3 is poorly documented other than code
 func ReadSection3(f io.Reader) (section Section3, err error) {
 
 	err = read(f, &section.Source, &section.DataPointCount, &section.PointCountOctets, &section.PointCountInterpretation, &section.TemplateNumber)
@@ -252,6 +271,7 @@ func ReadSection3(f io.Reader) (section Section3, err error) {
 	return section, err
 }
 
+//Section4 is poorly documented other than code
 type Section4 struct {
 	CoordinatesCount                uint16   `json:"coordinatesCount"`
 	ProductDefinitionTemplateNumber uint16   `json:"productDefinitionTemplateNumber"`
@@ -259,6 +279,7 @@ type Section4 struct {
 	Coordinates                     []byte   `json:"coordinates"`
 }
 
+//ReadSection4 is poorly documented other than code
 func ReadSection4(f io.Reader) (section Section4, err error) {
 	err = read(f, &section.CoordinatesCount, &section.ProductDefinitionTemplateNumber)
 	if err != nil {
@@ -281,12 +302,14 @@ func ReadSection4(f io.Reader) (section Section4, err error) {
 	return section, read(f, &section.Coordinates)
 }
 
+//Section5 is poorly documented other than code
 type Section5 struct {
 	PointsNumber       uint32 `json:"pointsNumber"`
 	DataTemplateNumber uint16 `json:"dataTemplateNumber"`
 	DataTemplate       Data3  `json:"dataTemplate"` // FIXME
 }
 
+//ReadSection5 is poorly documented other than code
 func ReadSection5(f io.Reader) (section Section5, err error) {
 	err = read(f, &section.PointsNumber, &section.DataTemplateNumber, &section.DataTemplate)
 	if err != nil {
@@ -303,26 +326,31 @@ func ReadSection5(f io.Reader) (section Section5, err error) {
 	return section, nil
 }
 
+//Section6 is poorly documented other than code
 type Section6 struct {
 	BitmapIndicator uint8  `json:"bitmapIndicator"`
 	Bitmap          []byte `json:"bitmap"`
 }
 
+//ReadSection6 is poorly documented other than code
 func ReadSection6(f io.Reader, length int) (section Section6, err error) {
 	section.Bitmap = make([]byte, length-1)
 
 	return section, read(f, &section.BitmapIndicator, &section.Bitmap)
 }
 
+//Section7 is poorly documented other than code
 type Section7 struct {
 	Data []int64 `json:"data"`
 }
 
+//ReadSection7 is poorly documented other than code
 func ReadSection7(f io.Reader, length int, template Data3) (section Section7, err error) {
 	section.Data = ParseData3(f, length, &template) // 5 is the length of (octet 1-5)
 	return section, err
 }
 
+//read is poorly documented other than code
 func read(reader io.Reader, data ...interface{}) (err error) {
 	for _, what := range data {
 		err = binary.Read(reader, binary.BigEndian, what)

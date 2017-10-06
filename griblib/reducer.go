@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+//Reduce the file in readseeker with the given options, omitting all other products and areas
 func Reduce(readSeeker io.Reader, options Options, content chan []byte, end chan bool) {
 	if options.Discipline == -1 {
 		fmt.Println("No disciplines defined for reduce.")
