@@ -4,8 +4,8 @@ import "fmt"
 
 // translated from https://github.com/ArtemisiaSolutions/grib2js/blob/master/lib/grib/Grib2Spec.js
 
-// Discipline (Code table 0.0)
-func ReadDiscipline(value uint8) string {
+// DisciplineDescription(Code table 0.0)
+func DisciplineDescription(value uint8) string {
 	switch value {
 	case 0:
 		return "Meteorological"
@@ -26,8 +26,8 @@ func ReadDiscipline(value uint8) string {
 	}
 }
 
-// Master tables version number (Code table 1.0)
-func ReadMasterTableVersionNumber(value int) string {
+// MasterTableDescription version number (Code table 1.0)
+func MasterTableDescription(value int) string {
 	switch value {
 	case 0:
 		return "Experimental"
@@ -56,8 +56,8 @@ func ReadMasterTableVersionNumber(value int) string {
 	}
 }
 
-// Local tables version number (Code table 1.1)
-func ReadLocalTableVersionNumber(value int) string {
+// LocalTableVersionNumber (Code table 1.1)
+func LocalTableVersionNumber(value int) string {
 	switch value {
 	case 0:
 		return "Local tables not used. Only table entries and templates from the current master table are valid."
@@ -136,8 +136,8 @@ func ReadDataType(value uint8) string {
 	}
 }
 
-// Source of Grid Definition (Code table 3.0)
-func ReadGridDefinitionSource(value int) string {
+//GridDefinitionSourceDescription Source of Grid Definition (Code table 3.0)
+func GridDefinitionSourceDescription(value int) string {
 	switch value {
 	case 0:
 		return "Specified in Code table 3.1"
@@ -150,8 +150,8 @@ func ReadGridDefinitionSource(value int) string {
 	}
 }
 
-// Grid Definition Template Number (Code table 3.1)
-func ReadGridDefinitionTemplateNumber(value int) string {
+// GridDefinitionTemplateDescription Grid Definition Template Number (Code table 3.1)
+func GridDefinitionTemplateDescription(value int) string {
 	switch value {
 	case 0:
 		return "Latitude/longitude (See template 3.0)"
@@ -218,8 +218,8 @@ func ReadGridDefinitionTemplateNumber(value int) string {
 	}
 }
 
-// Shape of the earth (Code table 3.2)
-func ReadEarthShape(value int) string {
+//EarthShapeDescription Shape of the earth (Code table 3.2)
+func EarthShapeDescription(value int) string {
 	switch value {
 	case 0:
 		return "Earth assumed spherical with radius = 6,367,470.0m"
@@ -312,8 +312,8 @@ return flags
 }
 */
 
-// Spectral data representation type (Code table 3.6)
-func ReadSpectralDataRepresentationType(value int) string {
+//SpectralDataRepresentationTypeDescription Spectral data representation type (Code table 3.6)
+func SpectralDataRepresentationTypeDescription(value int) string {
 	switch value {
 	case 1:
 		return "Legendre functions"
@@ -322,7 +322,7 @@ func ReadSpectralDataRepresentationType(value int) string {
 	}
 }
 
-// Spectral data representation mode (Code table 3.7)
+//SpectralDataRepresentationModeDescription Spectral data representation mode (Code table 3.7)
 func ReadSpectralDataRepresentationMode(value int) string {
 	switch value {
 	case 1:
@@ -335,7 +335,7 @@ func ReadSpectralDataRepresentationMode(value int) string {
 }
 
 // Grid point position (code table 3.8)
-func ReadGridPointPosition(value int) string {
+func GridPointPositionDescription(value int) string {
 	switch value {
 	case 0:
 		return "Grid points at triangle vertices"

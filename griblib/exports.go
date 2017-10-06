@@ -35,7 +35,7 @@ func Export(messages []Message, options Options) {
 
 func printDisciplines(messages []Message) {
 	for _, message := range messages {
-		fmt.Println(ReadDiscipline(message.Section0.Discipline))
+		fmt.Println(DisciplineDescription(message.Section0.Discipline))
 	}
 }
 

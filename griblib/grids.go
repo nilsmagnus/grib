@@ -56,7 +56,7 @@ type GridHeader struct {
 
 func (h *GridHeader) Export() (d map[string]string) {
 	return map[string]string{
-		"earth": ReadEarthShape(int(h.EarthShape)),
+		"earth": EarthShapeDescription(int(h.EarthShape)),
 	}
 }
 
@@ -79,7 +79,7 @@ type Grid0 struct {
 
 func (h *Grid0) Export() map[string]string {
 	return map[string]string{
-		"earth":         ReadEarthShape(int(h.EarthShape)),
+		"earth":         EarthShapeDescription(int(h.EarthShape)),
 		"ni":            fmt.Sprint(h.Ni),
 		"nj":            fmt.Sprint(h.Nj),
 		"basicAngle":    fmt.Sprint(h.BasicAngle.BasicAngle),

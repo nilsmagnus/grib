@@ -238,7 +238,7 @@ type Section3 struct {
 }
 
 func (s Section3) String() string {
-	return fmt.Sprint("Point count: ", s.DataPointCount, " Definition: ", ReadGridDefinitionTemplateNumber(int(s.TemplateNumber)))
+	return fmt.Sprint("Point count: ", s.DataPointCount, " Definition: ", GridDefinitionTemplateDescription(int(s.TemplateNumber)))
 }
 
 func ReadSection3(f io.Reader) (section Section3, err error) {
