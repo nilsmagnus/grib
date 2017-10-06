@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/nilsmagnus/grib/tree/master.svg?style=svg)](https://circleci.com/gh/nilsmagnus/grib/tree/master)
+
 GRIB2 Golang parser application and library
 ================================
 
