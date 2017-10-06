@@ -1,11 +1,11 @@
-[![CircleCI](https://circleci.com/gh/nilsmagnus/grib/tree/master.svg?style=svg)](https://circleci.com/gh/nilsmagnus/grib/tree/master)
+Circle-ci build: [![CircleCI](https://circleci.com/gh/nilsmagnus/grib/tree/master.svg?style=svg)](https://circleci.com/gh/nilsmagnus/grib/tree/master)
 
 GRIB2 Golang parser application and library
 ================================
 
 Parser and library for grib2 file format. 
 
-Forked from github.com/analogic/grib which is now abandoned by the author (see comment on pull request [https://github.com/analogic/grib/pull/1]).
+Forked from github.com/analogic/grib which is now abandoned by the author (see [comment on my pull request](https://github.com/analogic/grib/pull/1)).
 
 ## Usage
 
