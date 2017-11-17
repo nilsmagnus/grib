@@ -564,7 +564,7 @@ func ReadProductDefinitionTemplateNumber(value uint16) string {
 }
 
 //ReadProductDisciplineParameters  Discipline of parameters by product discipline (Code table 4.1)
-func ReadProductDisciplineParameters(discipline uint16, category uint8) string {
+func ReadProductDisciplineParameters(discipline uint8, category uint8) string {
 	switch discipline {
 	//Meteorological Products
 	case 0:

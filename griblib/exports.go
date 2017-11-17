@@ -42,8 +42,8 @@ func printDisciplines(messages []Message) {
 func printCategories(messages []Message) {
 	for _, m := range messages {
 		category := m.Section4.ProductDefinitionTemplate.ParameterCategory
-		templateNumber := m.Section4.ProductDefinitionTemplateNumber
-		fmt.Println(ReadProductDisciplineParameters(templateNumber, category))
+		discipline := m.Section0.Discipline
+		fmt.Println(ReadProductDisciplineParameters(discipline, category))
 	}
 }
 
