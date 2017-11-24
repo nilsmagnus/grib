@@ -239,13 +239,13 @@ type Section2 struct {
 	LocalUse []uint8 `json:"localUse"`
 }
 
-//ReadSection2 is poorly documented other than code
+//ReadSection2 is for "Local use"
 func ReadSection2(f io.Reader, len int) (section Section2, err error) {
 	section.LocalUse = make([]uint8, len)
 	return section, read(f, &section.LocalUse)
 }
 
-//Section3 is poorly documented other than code
+//Section3 contains information of the grid(earth shape, long, lat, etc)
 type Section3 struct {
 	Source                   uint8       `json:"source"`
 	DataPointCount           uint32      `json:"datapointCount"`
@@ -271,7 +271,7 @@ func ReadSection3(f io.Reader) (section Section3, err error) {
 	return section, err
 }
 
-//Section4 is poorly documented other than code
+//Section4 is the Product Definition Section
 type Section4 struct {
 	CoordinatesCount                uint16   `json:"coordinatesCount"`
 	ProductDefinitionTemplateNumber uint16   `json:"productDefinitionTemplateNumber"`
@@ -279,7 +279,7 @@ type Section4 struct {
 	Coordinates                     []byte   `json:"coordinates"`
 }
 
-//ReadSection4 is poorly documented other than code
+//ReadSection4 reads section4 from an io.Reader
 func ReadSection4(f io.Reader) (section Section4, err error) {
 	err = read(f, &section.CoordinatesCount, &section.ProductDefinitionTemplateNumber)
 	if err != nil {
@@ -302,7 +302,7 @@ func ReadSection4(f io.Reader) (section Section4, err error) {
 	return section, read(f, &section.Coordinates)
 }
 
-//Section5 is poorly documented other than code
+//Section5 is "Data Representation Section"
 type Section5 struct {
 	PointsNumber       uint32 `json:"pointsNumber"`
 	DataTemplateNumber uint16 `json:"dataTemplateNumber"`
@@ -339,7 +339,7 @@ func ReadSection6(f io.Reader, length int) (section Section6, err error) {
 	return section, read(f, &section.BitmapIndicator, &section.Bitmap)
 }
 
-//Section7 is poorly documented other than code
+//Section7 is the "Data Section"
 type Section7 struct {
 	Data []int64 `json:"data"`
 }

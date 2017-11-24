@@ -101,13 +101,13 @@ Feel free to fork and submit pull requests or simply create issues for improveme
 
 Grib specification:
 
-http://www.wmo.int/pages/prog/www/WMOCodes/Guides/GRIB/GRIB2_062006.pdf
+http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc.shtml
 
 Documentation from noaa.gov :
 
 http://www.nco.ncep.noaa.gov/pmb/docs/on388/
 
 
-Examples can be found at
+Daily grib2 files from NOAA can be found at
 
 http://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/
