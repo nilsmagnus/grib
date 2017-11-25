@@ -217,16 +217,16 @@ type Time struct {
 	Second uint8  `json:"second"` // second
 }
 
-//Section1 is poorly documented other than code
+//Section1 is the Identification section
 type Section1 struct {
 	OriginatingCenter         uint16 `json:"ooriginatingCenter"`
 	OriginatingSubCenter      uint16 `json:"originatingSubCenter"`
 	MasterTablesVersion       uint8  `json:"masterTablesVersion"`
 	LocalTablesVersion        uint8  `json:"localTablesVersion"`
-	ReferenceTimeSignificance uint8  `json:"referenceTimeSignificance"`
+	ReferenceTimeSignificance uint8  `json:"referenceTimeSignificance"` // Table 1.2, value 1 is start of forecast
 	ReferenceTime             Time   `json:"referenceTime"`
 	ProductionStatus          uint8  `json:"productionStatus"`
-	Type                      uint8  `json:"type"`
+	Type                      uint8  `json:"type"` // data type, Table 1.4, value 1 is forecast products
 }
 
 //ReadSection1 is poorly documented other than code
