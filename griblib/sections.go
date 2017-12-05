@@ -55,7 +55,7 @@ func ReadMessages(gribFile io.Reader, options Options) (messages []Message, err 
 			return messages, err
 		}
 		messages = append(messages, message)
-		if len(messages) >= int(options.MaximumNumberOfMessages) {
+		if options.MaximumNumberOfMessages > 0 && len(messages) >= int(options.MaximumNumberOfMessages) {
 			return messages, nil
 		}
 	}
