@@ -23,6 +23,7 @@ func Test_calculcate_startStopIndexes(t *testing.T) {
 	}
 
 }
+
 func Test_filter_values_on_geofilter(t *testing.T) {
 	filter := GeoFilter{MinLong: 4400000, MaxLong: 32000000, MinLat: 57000000, MaxLat: 71000000}
 	grid := Grid0{Di: 2500000, Dj: 2500000, Lo1: 0, Lo2: 357500000, La1: 90000000, La2: -2057483648, Ni: 144, Nj: 73}

@@ -30,9 +30,18 @@ func Filter(messages []Message, options Options) (filtered []Message) {
 	for _, message := range messages {
 		discipline := satisfiesDiscipline(options.Discipline, message)
 		category := satisfiesCategory(options.Category, message)
+		if !discipline || !category {
+			continue
+		}
 		if !isEmpty(options.GeoFilter) {
 			if data, err := filterValuesFromGeoFilter(message, options.GeoFilter); err == nil {
 				message.Section7.Data = *data
+				if grid0, ok := message.Section3.Definition.(*Grid0); ok {
+					updatedGrid := filteredGrid(grid0, options.GeoFilter)
+					message.Section3.Definition = updatedGrid
+					message.Section3.DataPointCount = uint32(len(*data))
+				}
+
 			} else {
 				fmt.Println(err.Error())
 			}
@@ -43,6 +52,15 @@ func Filter(messages []Message, options Options) (filtered []Message) {
 	}
 
 	return filtered
+
+}
+
+func filteredGrid(grid0 *Grid0, filter GeoFilter) *Grid0 {
+	grid0.La1 = filter.MinLat
+	grid0.La2 = filter.MaxLat
+	grid0.Lo1 = filter.MinLong
+	grid0.Lo2 = filter.MaxLong
+	return grid0
 }
 
 func isEmpty(geoFilter GeoFilter) bool {
@@ -50,22 +68,22 @@ func isEmpty(geoFilter GeoFilter) bool {
 }
 
 func filterValuesFromGeoFilter(message Message, filter GeoFilter) (*[]int64, error) {
-	grid, ok := message.Section3.Definition.(*Grid0)
+	grid0, ok := message.Section3.Definition.(*Grid0)
 	if ok {
-		startNi, stopNi, startNj, stopNj := startStopIndexes(filter, *grid)
+		startNi, stopNi, startNj, stopNj := startStopIndexes(filter, *grid0)
 
 		data := make([]int64, (stopNi-startNi)*(stopNj-startNj))
 
 		filteredIndex := 0
 		for i := startNj; i < stopNj; i++ {
 			for j := startNi; j < stopNi; j++ {
-				data[filteredIndex] = message.Section7.Data[i*grid.Nj+j]
+				data[filteredIndex] = message.Section7.Data[i*grid0.Nj+j]
 				filteredIndex++
 			}
 		}
 		return &data, nil
 	}
-	return &message.Section7.Data, fmt.Errorf("grid not of wanted type (wanted Grid0), was %s", reflect.TypeOf(message.Section3.Definition))
+	return &message.Section7.Data, fmt.Errorf("grid not of wanted type (wanted Grid0), was %v", reflect.TypeOf(message.Section3.Definition))
 }
 
 func startStopIndexes(filter GeoFilter, grid Grid0) (uint32, uint32, uint32, uint32) {
