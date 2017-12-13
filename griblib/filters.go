@@ -30,7 +30,8 @@ func Filter(messages []Message, options Options) (filtered []Message) {
 	for _, message := range messages {
 		discipline := satisfiesDiscipline(options.Discipline, message)
 		category := satisfiesCategory(options.Category, message)
-		if !discipline || !category {
+		surface := satisfiesSurface(options.Surface, message)
+		if !surface || !discipline || !category {
 			continue
 		}
 		if !isEmpty(options.GeoFilter) {
@@ -54,6 +55,11 @@ func Filter(messages []Message, options Options) (filtered []Message) {
 	return filtered
 
 }
+func satisfiesSurface(s Surface, message Message) bool {
+	return s == Surface{} ||
+		(message.Section4.ProductDefinitionTemplate.FirstSurface.Type == s.Type &&
+		message.Section4.ProductDefinitionTemplate.FirstSurface.Value == s.Value)
+}
 
 func filteredGrid(grid0 *Grid0, filter GeoFilter) *Grid0 {
 	grid0.La1 = filter.MinLat
@@ -64,8 +70,12 @@ func filteredGrid(grid0 *Grid0, filter GeoFilter) *Grid0 {
 }
 
 func isEmpty(geoFilter GeoFilter) bool {
-	return geoFilter == GeoFilter{MinLong: LongitudeStart, MaxLong: LongitudeEnd, MinLat: LatitudeNorth, MaxLat: LatitudeSouth} ||
-		geoFilter == GeoFilter{}
+	return geoFilter == GeoFilter{
+		MinLong: LongitudeStart,
+		MaxLong: LongitudeEnd,
+		MinLat:  LatitudeNorth,
+		MaxLat:  LatitudeSouth,
+	} || geoFilter == GeoFilter{}
 }
 
 func filterValuesFromGeoFilter(message Message, filter GeoFilter) (*[]int64, error) {

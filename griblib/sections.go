@@ -25,12 +25,14 @@ type Options struct {
 	Operation               string    `json:"operation"`
 	Discipline              int       `json:"discipline"` // -1 means all disciplines
 	DataExport              bool      `json:"dataExport"`
-	Category                int       `json:"category"`   // -1 means all categories
+	Category                int       `json:"category"` // -1 means all categories
 	Filepath                string    `json:"filePath"`
 	ReduceFilePath          string    `json:"reduceFilePath"`
 	ExportType              int       `json:"exportType"`
 	MaximumNumberOfMessages int       `json:"maximumNumberOfMessages"`
-	GeoFilter               GeoFilter `json:"geoFilter"`  // empty filter , GeoFilter{},  means no filter
+	GeoFilter               GeoFilter `json:"geoFilter"`
+	Surface                 Surface   `json:"surfaceFilter"`
+	// empty filter , GeoFilter{},  means no filter
 }
 
 const (
@@ -151,7 +153,6 @@ func ReadSection0(reader io.Reader) (section0 Section0, err error) {
 	return
 
 }
-
 
 //SectionHead is the common header for each section1-8
 type SectionHead struct {

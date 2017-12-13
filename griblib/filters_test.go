@@ -108,22 +108,20 @@ func Test_temperature_layers(t *testing.T) {
 		t.Errorf("expected 77 messages, got %d\n", len(messages))
 	}
 
-	filtered := Filter(messages, Options{Discipline: 0 , Category: 0})
+	filtered := Filter(messages, Options{Discipline: 0, Category: 0, Surface: Surface{Value: 200, Type: 100}})
 
-	if len(filtered) != 11 {
-		t.Errorf("expected 11 messages, got %d\n", len(filtered))
+	if len(filtered) != 1 {
+		t.Errorf("expected 1 messages, got %d\n", len(filtered))
 	}
 
-	fmt.Println("layers for temperature ")
+	fmt.Println("layers for ")
 	for _, f := range filtered {
-		fmt.Printf("s1:%d\ts2:%d\tt1:%d\tt2:%d\tv1:%d(meter over sea-level?)\tv2:%d\n",
+		fmt.Printf("c: %d\ts1: %d\t\tt1: %d\tv1: %d (meter over sea-level?)\n",
+			f.Section4.ProductDefinitionTemplate.ParameterCategory,
 			f.Section4.ProductDefinitionTemplate.FirstSurface.Scale,
-			f.Section4.ProductDefinitionTemplate.SecondSurface.Scale,
 			f.Section4.ProductDefinitionTemplate.FirstSurface.Type,
-			f.Section4.ProductDefinitionTemplate.SecondSurface.Type,
 			f.Section4.ProductDefinitionTemplate.FirstSurface.Value,
-			f.Section4.ProductDefinitionTemplate.SecondSurface.Value,
-				)
+		)
 	}
 
 }
