@@ -75,9 +75,9 @@ type TimeRangeSpecification struct {
 	TimeIncrementBetweenSuccessiveField                    uint32 `json:"timeIncrementBetweenSuccessiveField"`                    // 55-58
 }
 
-//Surface describes a surface for a product
+//Surface describes a surface for a product, see http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-5.shtml
 type Surface struct {
-	Type  uint8  `json:"type"`
+	Type  uint8  `json:"type"` // type 220: Planetary Boundary Layer
 	Scale uint8  `json:"scale"`
-	Value uint32 `json:"value"`
+	Value uint32 `json:"value"` // e.g. meters above sea-level
 }

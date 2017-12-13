@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-//Message is poorly documented other than code
+//Message is the entire message for a data-layer
 type Message struct {
 	Section0 Section0
 	Section1 Section1
@@ -20,17 +20,17 @@ type Message struct {
 	Section7 Section7
 }
 
-//Options is poorly documented other than code
+//Options is used to filter messages.
 type Options struct {
 	Operation               string    `json:"operation"`
-	Discipline              int       `json:"discipline"`
+	Discipline              int       `json:"discipline"` // -1 means all disciplines
 	DataExport              bool      `json:"dataExport"`
-	Category                int       `json:"category"`
+	Category                int       `json:"category"`   // -1 means all categories
 	Filepath                string    `json:"filePath"`
 	ReduceFilePath          string    `json:"reduceFilePath"`
 	ExportType              int       `json:"exportType"`
 	MaximumNumberOfMessages int       `json:"maximumNumberOfMessages"`
-	GeoFilter               GeoFilter `json:"geoFilter"`
+	GeoFilter               GeoFilter `json:"geoFilter"`  // empty filter , GeoFilter{},  means no filter
 }
 
 const (
@@ -43,7 +43,7 @@ const (
 )
 
 //ReadMessages reads all message from gribFile
-func ReadMessages(gribFile io.Reader, options Options) (messages []Message, err error) {
+func ReadMessages(gribFile io.Reader) (messages []Message, err error) {
 
 	for {
 		message, messageErr := ReadMessage(gribFile)
@@ -55,13 +55,10 @@ func ReadMessages(gribFile io.Reader, options Options) (messages []Message, err 
 			return messages, err
 		}
 		messages = append(messages, message)
-		if options.MaximumNumberOfMessages > 0 && len(messages) >= int(options.MaximumNumberOfMessages) {
-			return messages, nil
-		}
 	}
 }
 
-//ReadMessage is poorly documented other than code
+//ReadMessage reads the actual messages from a gribfile-reader (io.Reader from either file, http or any other io.Reader)
 func ReadMessage(gribFile io.Reader) (message Message, err error) {
 
 	section0, headError := ReadSection0(gribFile)
@@ -88,7 +85,6 @@ func ReadMessage(gribFile io.Reader) (message Message, err error) {
 
 }
 
-//readMessage is poorly documented other than code
 func readMessage(gribFile io.Reader, section0 Section0) (message Message, err error) {
 
 	message.Section0 = section0
@@ -129,7 +125,7 @@ func readMessage(gribFile io.Reader, section0 Section0) (message Message, err er
 	}
 }
 
-//Section0 is poorly documented other than code
+//Section0 is the indicator section http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_sect0.shtml
 type Section0 struct {
 	Indicator     uint32 `json:"indicator"`
 	Reserved      uint16 `json:"reserved"`
@@ -138,7 +134,7 @@ type Section0 struct {
 	MessageLength uint64 `json:"messageLength"`
 }
 
-//ReadSection0 is poorly documented other than code
+//ReadSection0 reads Section0 from an io.reader
 func ReadSection0(reader io.Reader) (section0 Section0, err error) {
 	section0.Indicator = 255
 	err = binary.Read(reader, binary.BigEndian, &section0)
@@ -156,13 +152,8 @@ func ReadSection0(reader io.Reader) (section0 Section0, err error) {
 
 }
 
-//Section is poorly documented other than code
-type Section interface {
-	SectionNumber() uint8
-	String() string
-}
 
-//SectionHead is poorly documented other than code
+//SectionHead is the common header for each section1-8
 type SectionHead struct {
 	ByteLength uint32 `json:"byteLength"`
 	Number     uint8  `json:"number"`
@@ -275,7 +266,7 @@ func ReadSection3(f io.Reader) (section Section3, err error) {
 type Section4 struct {
 	CoordinatesCount                uint16   `json:"coordinatesCount"`
 	ProductDefinitionTemplateNumber uint16   `json:"productDefinitionTemplateNumber"`
-	ProductDefinitionTemplate       Product0 `json:"productDefinitionTemplate"` // FIXME
+	ProductDefinitionTemplate       Product0 `json:"productDefinitionTemplate"` // FIXME, support more products
 	Coordinates                     []byte   `json:"coordinates"`
 }
 
@@ -306,7 +297,7 @@ func ReadSection4(f io.Reader) (section Section4, err error) {
 type Section5 struct {
 	PointsNumber       uint32 `json:"pointsNumber"`
 	DataTemplateNumber uint16 `json:"dataTemplateNumber"`
-	DataTemplate       Data3  `json:"dataTemplate"` // FIXME
+	DataTemplate       Data3  `json:"dataTemplate"` // FIXME, support more data-types
 }
 
 //ReadSection5 is poorly documented other than code

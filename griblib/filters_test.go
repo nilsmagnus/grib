@@ -2,6 +2,8 @@ package griblib
 
 import (
 	"testing"
+	"os"
+	"fmt"
 )
 
 func Test_calculcate_startStopIndexes(t *testing.T) {
@@ -90,4 +92,38 @@ func Test_filter_on_category(t *testing.T) {
 	if len(filtered) != len(messages)-1 {
 		t.Error("should have filtered when option is different from message")
 	}
+}
+
+func Test_temperature_layers(t *testing.T) {
+	file, err := os.Open("integrationtestdata/gfs.t00z.pgrb2.2p50.f006")
+	if err != nil {
+		t.Fatal("Could not open testfile")
+	}
+	messages, msgErr := ReadMessages(file)
+
+	if msgErr != nil {
+		t.Fatal("Error reading messages from testfile")
+	}
+	if len(messages) != 77 {
+		t.Errorf("expected 77 messages, got %d\n", len(messages))
+	}
+
+	filtered := Filter(messages, Options{Discipline: 0 , Category: 0})
+
+	if len(filtered) != 11 {
+		t.Errorf("expected 11 messages, got %d\n", len(filtered))
+	}
+
+	fmt.Println("layers for temperature ")
+	for _, f := range filtered {
+		fmt.Printf("s1:%d\ts2:%d\tt1:%d\tt2:%d\tv1:%d(meter over sea-level?)\tv2:%d\n",
+			f.Section4.ProductDefinitionTemplate.FirstSurface.Scale,
+			f.Section4.ProductDefinitionTemplate.SecondSurface.Scale,
+			f.Section4.ProductDefinitionTemplate.FirstSurface.Type,
+			f.Section4.ProductDefinitionTemplate.SecondSurface.Type,
+			f.Section4.ProductDefinitionTemplate.FirstSurface.Value,
+			f.Section4.ProductDefinitionTemplate.SecondSurface.Value,
+				)
+	}
+
 }

@@ -112,7 +112,7 @@ func reduceToFile(gribFile io.Reader, options griblib.Options) {
 }
 
 func parse(gribFile io.Reader, options griblib.Options) {
-	messages, err := griblib.ReadMessages(gribFile, options)
+	messages, err := griblib.ReadMessages(gribFile)
 
 	if err != nil {
 		fmt.Printf("Error reading all messages in gribfile: %s", err.Error())

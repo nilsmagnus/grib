@@ -64,7 +64,8 @@ func filteredGrid(grid0 *Grid0, filter GeoFilter) *Grid0 {
 }
 
 func isEmpty(geoFilter GeoFilter) bool {
-	return geoFilter == GeoFilter{MinLong: LongitudeStart, MaxLong: LongitudeEnd, MinLat: LatitudeNorth, MaxLat: LatitudeSouth}
+	return geoFilter == GeoFilter{MinLong: LongitudeStart, MaxLong: LongitudeEnd, MinLat: LatitudeNorth, MaxLat: LatitudeSouth} ||
+		geoFilter == GeoFilter{}
 }
 
 func filterValuesFromGeoFilter(message Message, filter GeoFilter) (*[]int64, error) {
