@@ -58,7 +58,7 @@ func Filter(messages []Message, options Options) (filtered []Message) {
 func satisfiesSurface(s Surface, message Message) bool {
 	return s == Surface{} ||
 		(message.Section4.ProductDefinitionTemplate.FirstSurface.Type == s.Type &&
-		message.Section4.ProductDefinitionTemplate.FirstSurface.Value == s.Value)
+			message.Section4.ProductDefinitionTemplate.FirstSurface.Value == s.Value)
 }
 
 func filteredGrid(grid0 *Grid0, filter GeoFilter) *Grid0 {
@@ -66,6 +66,9 @@ func filteredGrid(grid0 *Grid0, filter GeoFilter) *Grid0 {
 	grid0.La2 = filter.MaxLat
 	grid0.Lo1 = filter.MinLong
 	grid0.Lo2 = filter.MaxLong
+	startnj, stopnj, startni, stopni := startStopIndexes(filter, *grid0)
+	grid0.Ni = stopni - startni
+	grid0.Nj = stopnj - startnj
 	return grid0
 }
 
@@ -86,9 +89,9 @@ func filterValuesFromGeoFilter(message Message, filter GeoFilter) (*[]int64, err
 		data := make([]int64, (stopNi-startNi)*(stopNj-startNj))
 
 		filteredIndex := 0
-		for i := startNj; i < stopNj; i++ {
-			for j := startNi; j < stopNi; j++ {
-				data[filteredIndex] = message.Section7.Data[i*grid0.Nj+j]
+		for j := startNj; j < stopNj; j++ {
+			for i := startNi; i < stopNi; i++ {
+				data[filteredIndex] = message.Section7.Data[j*grid0.Nj+i]
 				filteredIndex++
 			}
 		}
