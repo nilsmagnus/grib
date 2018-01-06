@@ -69,7 +69,6 @@ func ReadMessage(gribFile io.Reader) (message Message, err error) {
 		return message, headError
 	}
 
-	fmt.Sprintln("section 0 length is ", binary.Size(section0))
 	messageBytes := make([]byte, section0.MessageLength-16)
 
 	numBytes, readError := gribFile.Read(messageBytes)
@@ -336,10 +335,15 @@ type Section7 struct {
 	Data []int64 `json:"data"`
 }
 
-//ReadSection7 is poorly documented other than code
-func ReadSection7(f io.Reader, length int, template Data3) (section Section7, err error) {
+//ReadSection7 reads the actual data
+func ReadSection7(f io.Reader, length int, template Data3) (section Section7, sectionError error) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("Corrupt message %q\n", err)
+		}
+	}()
 	section.Data = ParseData3(f, length, &template) // 5 is the length of (octet 1-5)
-	return section, err
+	return section, sectionError
 }
 
 //read is poorly documented other than code

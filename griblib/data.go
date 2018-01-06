@@ -57,22 +57,22 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 	// Init reader
 	//
 
-	b := bytes.NewBuffer(rawData)
+	buffer := bytes.NewBuffer(rawData)
 
-	r := newReader(b)
+	bitReader := newReader(buffer)
 
 	//
 	//  Extract Spatial differencing values, if using DRS Template 5.3
 	//
 	rc := int(template.OctetsNumber) * 8
 	if rc != 0 {
-		ival1, err = r.readInt(rc)
+		ival1, err = bitReader.readInt(rc)
 
 		if template.SpatialOrderDifference == 2 {
-			ival2, err = r.readInt(rc)
+			ival2, err = bitReader.readInt(rc)
 		}
 
-		minsd, err = r.readUint(rc)
+		minsd, err = bitReader.readUint(rc)
 	}
 
 	//fmt.Println(" ival1", ival1, "ival2", ival2, "minsd", minsd, "octed bytes", rc/8)
@@ -85,7 +85,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 	//  Extract Each Group's reference value
 	//
 	// fmt.Println("groups", template.NG)
-	references, err := r.readUintsBlock(int(template.Bits), ng, true)
+	references, err := bitReader.readUintsBlock(int(template.Bits), ng, true)
 	if err != nil {
 		panic(err)
 	}
@@ -95,7 +95,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 	//
 	//  Extract Each Group's bit width
 	//
-	widths, err := r.readUintsBlock(int(template.GroupWidthsBits), ng, true)
+	widths, err := bitReader.readUintsBlock(int(template.GroupWidthsBits), ng, true)
 	if err != nil {
 		panic(err)
 	}
@@ -107,7 +107,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 	//
 	//  Extract Each Group's length (number of values in each group)
 	//
-	lengths, err := r.readUintsBlock(int(template.GroupScaledLengthsBits), ng, true)
+	lengths, err := bitReader.readUintsBlock(int(template.GroupScaledLengthsBits), ng, true)
 	if err != nil {
 		panic(err)
 	}
@@ -149,7 +149,6 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 	//  For each group, unpack data values
 	//
 	non := 0
-	//ifld := make([]int64, template.NG) // ndpts originalne
 	var ifld []int64
 	var ifldmiss []int64
 
@@ -157,22 +156,14 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 		n := 0
 		for j := 0; j < ng; j++ {
 			if widths[j] != 0 {
-
-				//fmt.Println("reading", int(widths[j]), "bits", int(lengths[j]), "times")
-				tmp, _ := r.readIntsBlock(int(widths[j]), int(lengths[j]), false)
+				tmp, _ := bitReader.readIntsBlock(int(widths[j]), int(lengths[j]), false)
 				ifld = append(ifld, tmp...)
-
-				//fmt.Println("----> ")
-				//fmt.Println(int(widths[j]), int(lengths[j]))
-				//fmt.Println(ifld)
 
 				for k := 0; k < int(lengths[j]); k++ {
 					ifld[n] = ifld[n] + int64(references[j])
 					n++
 				}
 			} else {
-
-				//fmt.Println(n)
 				for l := n; l < n+int(lengths[j]); l++ {
 					ifld = append(ifld, int64(references[j]))
 				}
@@ -182,17 +173,13 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 
 	} else if template.MissingValue == 1 || template.MissingValue == 2 {
 		// missing values included
-
 		n := 0
-
 		for j := 0; j < ng; j++ {
-			//printf(" SAGNGP %d %d %d %d\n",j,widths[j],lengths[j],references[j]);
-
 			if widths[j] != 0 {
 				msng1 := math.Pow(2.0, float64(widths[j])) - 1
 				msng2 := msng1 - 1
 
-				ifldmiss, err = r.readIntsBlock(int(widths[j]), int(lengths[j]), false)
+				ifldmiss, err = bitReader.readIntsBlock(int(widths[j]), int(lengths[j]), false)
 
 				for k := 0; k < int(lengths[j]); k++ {
 					if ifld[n] == int64(msng1) {
