@@ -41,16 +41,15 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 	var minsd uint64
 	var err error
 
-	var rmiss1 float64
-	var rmiss2 float64
+	var missingValueSubstitute1 float64
+	var missingValueSubstitute2 float64
 
 	ng := int(template.NG)
-
 	if template.MissingValue == 1 {
-		rmiss1 = float64(template.MissingSubstitute1)
+		missingValueSubstitute1 = float64(template.MissingSubstitute1)
 	} else if template.MissingValue == 2 {
-		rmiss1 = float64(template.MissingSubstitute1)
-		rmiss2 = float64(template.MissingSubstitute1)
+		missingValueSubstitute1 = float64(template.MissingSubstitute1)
+		missingValueSubstitute2 = float64(template.MissingSubstitute1)
 	}
 
 	//
@@ -149,7 +148,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 	//  For each group, unpack data values
 	//
 	non := 0
-	var ifld []int64
+	var section7Data []int64
 	var ifldmiss []int64
 
 	if template.MissingValue == 0 {
@@ -157,15 +156,15 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 		for j := 0; j < ng; j++ {
 			if widths[j] != 0 {
 				tmp, _ := bitReader.readIntsBlock(int(widths[j]), int(lengths[j]), false)
-				ifld = append(ifld, tmp...)
+				section7Data = append(section7Data, tmp...)
 
 				for k := 0; k < int(lengths[j]); k++ {
-					ifld[n] = ifld[n] + int64(references[j])
+					section7Data[n] = section7Data[n] + int64(references[j])
 					n++
 				}
 			} else {
 				for l := n; l < n+int(lengths[j]); l++ {
-					ifld = append(ifld, int64(references[j]))
+					section7Data = append(section7Data, int64(references[j]))
 				}
 				n = n + int(lengths[j])
 			}
@@ -182,15 +181,15 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 				ifldmiss, err = bitReader.readIntsBlock(int(widths[j]), int(lengths[j]), false)
 
 				for k := 0; k < int(lengths[j]); k++ {
-					if ifld[n] == int64(msng1) {
+					if section7Data[n] == int64(msng1) {
 						ifldmiss[n] = 1
-						//ifld[n]=0;
-					} else if template.MissingValue == 2 && ifld[n] == int64(msng2) {
+						//section7Data[n]=0;
+					} else if template.MissingValue == 2 && section7Data[n] == int64(msng2) {
 						ifldmiss[n] = 2
-						//ifld[n]=0;
+						//section7Data[n]=0;
 					} else {
 						ifldmiss[n] = 0
-						//ifld[non++]=ifld[n]+references[j];
+						//section7Data[non++]=section7Data[n]+references[j];
 					}
 					n++
 				}
@@ -210,7 +209,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 						ifldmiss[l] = 0
 					}
 					for l := non; l < non+int(lengths[j]); l++ {
-						ifld[l] = int64(references[j])
+						section7Data[l] = int64(references[j])
 					}
 					non += int(lengths[j])
 				}
@@ -235,34 +234,30 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 
 	if template.SpatialOrderDifference == 1 {
 		// first order
-		ifld[0] = int64(ival1)
+		section7Data[0] = int64(ival1)
 
 		if template.MissingValue == 0 {
 			itemp = ndpts // no missing values
 		}
 
 		for n := 1; n < itemp; n++ {
-			ifld[n] = ifld[n] + int64(minsd)
-			ifld[n] = ifld[n] + ifld[n-1]
+			section7Data[n] = section7Data[n] + int64(minsd)
+			section7Data[n] = section7Data[n] + section7Data[n-1]
 		}
 	} else if template.SpatialOrderDifference == 2 {
 		// second order
-		ifld[0] = int64(ival1)
-		ifld[1] = int64(ival2)
+		section7Data[0] = int64(ival1)
+		section7Data[1] = int64(ival2)
 		if template.MissingValue == 0 {
 			itemp = ndpts
 		}
 
 		for n := 2; n < itemp; n++ {
-			ifld[n] = ifld[n] + int64(minsd)
-			ifld[n] = ifld[n] + (2 * ifld[n-1]) - ifld[n-2]
+			section7Data[n] = section7Data[n] + int64(minsd)
+			section7Data[n] = section7Data[n] + (2 * section7Data[n-1]) - section7Data[n-2]
 		}
 	}
 
-	//
-	//  Scale data back to original form
-	//
-	//printf("SAGT: %f %f %f\n",ref,bscale,dscale);
 	fld := make([]float64, ng)
 	bscale := math.Pow(2.0, float64(template.BinaryScale))
 	dscale := math.Pow(10.0, -float64(template.DecimalScale))
@@ -270,7 +265,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 	if template.MissingValue == 0 {
 		// no missing values
 		for n := 0; n < ndpts; n++ {
-			fld[n] = ((float64(ifld[n]) * float64(bscale)) + float64(template.Reference)) * dscale
+			fld[n] = ((float64(section7Data[n]) * float64(bscale)) + float64(template.Reference)) * dscale
 		}
 	} else if template.MissingValue == 1 || template.MissingValue == 2 {
 		// missing values included
@@ -279,17 +274,17 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 
 			if ifldmiss[n] == 0 {
 				non++
-				fld[n] = ((float64(ifld[non]) * float64(bscale)) + float64(template.Reference)) * dscale
+				fld[n] = ((float64(section7Data[non]) * float64(bscale)) + float64(template.Reference)) * dscale
 
-				//printf(" SAG %d %f %d %f %f %f\n",n,fld[n],ifld[non-1],bscale,ref,dscale);
+				//printf(" SAG %d %f %d %f %f %f\n",n,fld[n],section7Data[non-1],bscale,ref,dscale);
 			} else if ifldmiss[n] == 1 {
-				fld[n] = rmiss1
+				fld[n] = missingValueSubstitute1
 			} else if ifldmiss[n] == 2 {
-				fld[n] = rmiss2
+				fld[n] = missingValueSubstitute2
 			}
 
 		}
 	}
 
-	return ifld
+	return section7Data
 }
