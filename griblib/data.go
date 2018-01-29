@@ -31,7 +31,7 @@ type Data3 struct {
 }
 
 // ParseData3 parses data3 struct from the reader into the template
-func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64 {
+func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 
 	rawData := make([]byte, dataLength)
 	dataReader.Read(rawData)
@@ -286,5 +286,5 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 		}
 	}
 
-	return fld
+	return section7Data
 }

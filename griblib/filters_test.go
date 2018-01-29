@@ -31,9 +31,9 @@ func Test_filter_values_on_geofilter(t *testing.T) {
 	grid := Grid0{Di: 2500000, Dj: 2500000, Lo1: 0, Lo2: 357500000, La1: 90000000, La2: -2057483648, Ni: 144, Nj: 73}
 
 	// create monotonically increasing values in test-map
-	testData := make([]float64, grid.Ni*grid.Nj)
+	testData := make([]int64, grid.Ni*grid.Nj)
 	for k := range testData {
-		testData[k] = float64(k)
+		testData[k] = int64(k)
 	}
 
 	message := Message{
