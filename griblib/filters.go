@@ -81,12 +81,12 @@ func isEmpty(geoFilter GeoFilter) bool {
 	} || geoFilter == GeoFilter{}
 }
 
-func filterValuesFromGeoFilter(message Message, filter GeoFilter) (*[]int64, error) {
+func filterValuesFromGeoFilter(message Message, filter GeoFilter) (*[]float64, error) {
 	grid0, ok := message.Section3.Definition.(*Grid0)
 	if ok {
 		startNi, stopNi, startNj, stopNj := startStopIndexes(filter, *grid0)
 
-		data := make([]int64, (stopNi-startNi)*(stopNj-startNj))
+		data := make([]float64, (stopNi-startNi)*(stopNj-startNj))
 
 		filteredIndex := 0
 		for j := startNj; j < stopNj; j++ {

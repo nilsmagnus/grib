@@ -31,7 +31,7 @@ type Data3 struct {
 }
 
 // ParseData3 parses data3 struct from the reader into the template
-func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
+func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64 {
 
 	rawData := make([]byte, dataLength)
 	dataReader.Read(rawData)
@@ -155,7 +155,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 		n := 0
 		for j := 0; j < ng; j++ {
 			if widths[j] != 0 {
-				tmp, _ := bitReader.readIntsBlock(int(widths[j]), int(lengths[j]), false)
+				tmp, _ := bitReader.readIntsBlock(int(widths[j]), int(lengths[j]))
 				section7Data = append(section7Data, tmp...)
 
 				for k := 0; k < int(lengths[j]); k++ {
@@ -178,7 +178,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 				msng1 := math.Pow(2.0, float64(widths[j])) - 1
 				msng2 := msng1 - 1
 
-				ifldmiss, err = bitReader.readIntsBlock(int(widths[j]), int(lengths[j]), false)
+				ifldmiss, err = bitReader.readIntsBlock(int(widths[j]), int(lengths[j]))
 
 				for k := 0; k < int(lengths[j]); k++ {
 					if section7Data[n] == int64(msng1) {
@@ -286,5 +286,5 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 		}
 	}
 
-	return section7Data
+	return fld
 }
