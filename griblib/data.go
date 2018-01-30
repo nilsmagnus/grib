@@ -273,7 +273,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 		for n, dataValue := range section7Data {
 			if ifldmiss[n] == 0 {
 				non++
-				fld[n] = ((float64(dataValue) * float64(bscale)) + float64(template.Reference)) * dscale
+				fld[n] = ((float64(dataValue) * float64(bscale)) + float64(template.Reference)) / dscale
 
 				//printf(" SAG %d %f %d %f %f %f\n",n,fld[n],section7Data[non-1],bscale,ref,dscale);
 			} else if ifldmiss[n] == 1 {
