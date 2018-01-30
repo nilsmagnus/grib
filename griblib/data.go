@@ -265,7 +265,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 	if template.MissingValue == 0 {
 		// no missing values
 		for i, dataValue := range section7Data {
-			fld[i] = ((float64(dataValue) * float64(bscale)) + float64(template.Reference)) * dscale
+			fld[i] = ((float64(dataValue) * float64(bscale)) + float64(template.Reference)) / dscale
 		}
 	} else if template.MissingValue == 1 || template.MissingValue == 2 {
 		// missing values included
