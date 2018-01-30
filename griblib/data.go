@@ -31,7 +31,7 @@ type Data3 struct {
 }
 
 // ParseData3 parses data3 struct from the reader into the template
-func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
+func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64 {
 
 	rawData := make([]byte, dataLength)
 	dataReader.Read(rawData)
@@ -258,23 +258,22 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 		}
 	}
 
-	fld := make([]float64, ng)
+	fld := make([]float64, len(section7Data))
 	bscale := math.Pow(2.0, float64(template.BinaryScale))
 	dscale := math.Pow(10.0, -float64(template.DecimalScale))
 
 	if template.MissingValue == 0 {
 		// no missing values
-		for n := 0; n < ndpts; n++ {
-			fld[n] = ((float64(section7Data[n]) * float64(bscale)) + float64(template.Reference)) * dscale
+		for i, dataValue := range section7Data {
+			fld[i] = ((float64(dataValue) * float64(bscale)) + float64(template.Reference)) * dscale
 		}
 	} else if template.MissingValue == 1 || template.MissingValue == 2 {
 		// missing values included
 		non := 0
-		for n := 0; n < ndpts; n++ {
-
+		for n, dataValue := range section7Data {
 			if ifldmiss[n] == 0 {
 				non++
-				fld[n] = ((float64(section7Data[non]) * float64(bscale)) + float64(template.Reference)) * dscale
+				fld[n] = ((float64(dataValue) * float64(bscale)) + float64(template.Reference)) * dscale
 
 				//printf(" SAG %d %f %d %f %f %f\n",n,fld[n],section7Data[non-1],bscale,ref,dscale);
 			} else if ifldmiss[n] == 1 {
@@ -286,5 +285,5 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []int64 {
 		}
 	}
 
-	return section7Data
+	return fld
 }

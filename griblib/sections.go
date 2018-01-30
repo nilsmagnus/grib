@@ -332,7 +332,7 @@ func ReadSection6(f io.Reader, length int) (section Section6, err error) {
 
 //Section7 is the "Data Section"
 type Section7 struct {
-	Data []int64 `json:"data"`
+	Data []float64 `json:"data"`
 }
 
 //ReadSection7 reads the actual data
