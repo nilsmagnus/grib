@@ -3,7 +3,6 @@ package griblib
 import (
 	"os"
 	"testing"
-	"fmt"
 )
 
 func Test_read_integrationtest_file(t *testing.T) {
@@ -23,14 +22,17 @@ func Test_read_integrationtest_file(t *testing.T) {
 	}
 
 	for _, m := range messages {
-//		if m.Section4.ProductDefinitionTemplate.ParameterCategory == 0 {
-			fmt.Printf("category %d   \tparameter number %d ",
-				m.Section4.ProductDefinitionTemplate.ParameterCategory,
-				m.Section4.ProductDefinitionTemplate.ParameterNumber)
-			fmt.Printf("surface: type %d\t value %d\n",
-				m.Section4.ProductDefinitionTemplate.FirstSurface.Type,
-				m.Section4.ProductDefinitionTemplate.FirstSurface.Value)
-//		}
+		// isobaric temperatures at level 100Pa
+		if m.Section4.ProductDefinitionTemplate.ParameterCategory == 0 &&
+			m.Section4.ProductDefinitionTemplate.FirstSurface.Type == 100 &&
+			m.Section4.ProductDefinitionTemplate.FirstSurface.Value == 100 {
+			for _, kelvin := range m.Section7.Data {
+				if kelvin < 237.5 || kelvin > 269.9 {
+					t.Errorf("Got kelvin out of range: %f\n", kelvin)
+				}
+			}
+
+		}
 	}
 
 }

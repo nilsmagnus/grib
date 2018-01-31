@@ -66,7 +66,7 @@ func (r *BitReader) readInt(nbits int) (int64, error) {
 	return negative * result, nil
 }
 
-func (r *BitReader) readUintsBlock(bits int, count int, compensateByte bool) ([]uint64, error) {
+func (r *BitReader) readUintsBlock(bits int, count int) ([]uint64, error) {
 	//fmt.Println("Reading", bits, "bits", count, "x")
 	data := make([]uint64, count)
 	var err error
@@ -81,14 +81,13 @@ func (r *BitReader) readUintsBlock(bits int, count int, compensateByte bool) ([]
 			//fmt.Println(data[i])
 		}
 
-		if compensateByte {
-			// if we are not fitting last byte seek to byte end
-			//rest := (bits * count) % 8
-			//if rest != 0 {
-			//	r.offset += byte(8 - int64(rest))
-			//}
-			r.offset = 0
-		}
+		// if we are not fitting last byte seek to byte end
+		//rest := (bits * count) % 8
+		//if rest != 0 {
+		//	r.offset += byte(8 - int64(rest))
+		//}
+		r.offset = 0
+
 	}
 	return data, nil
 }

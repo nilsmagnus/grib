@@ -30,159 +30,8 @@ type Data3 struct {
 	OctetsNumber           uint8   `json:"octetsNumber"`
 }
 
-// ParseData3 parses data3 struct from the reader into the template
-func ParseData3(dataReader io.Reader, dataLength int, data3 *Data3) []float64 {
-
-	rawData := make([]byte, dataLength)
-	dataReader.Read(rawData)
-	reader := newBitReader(bytes.NewReader(rawData))
-	var ival1, ival2, minsd uint64
-
-	os := data3.SpatialOrderDifference
-	nbitsd := data3.OctetsNumber
-	var sign uint64
-
-	nbitsd = nbitsd * 8
-	if nbitsd > 0 { // first order spatial differencing g1 and gMin
-		sign = reader.readBits64(1)
-		ival1 = reader.readBits64(uint(nbitsd) - 1)
-		if sign == 1 {
-			ival1 = -ival1
-		}
-		if os == 2 { //second order spatial differencing h1, h2, hMin
-			sign = reader.readBits64(1)
-			ival2 = reader.readBits64(uint(nbitsd) - 1)
-			if sign == 1 {
-				ival2 = -ival2
-			}
-		}
-		sign = reader.readBits64(1)
-		minsd = reader.readBits64(uint(nbitsd) - 1)
-		if sign == 1 {
-			minsd = -minsd
-		}
-
-	} else {
-		fmt.Println("unsupported spatial differencing, returning zero-data")
-		// TODO fill with missing value
-		return make([]float64, dataLength) // missing data
-	}
-
-	if data3.NG == 0 {
-		fmt.Println("no groups, returning zero-data")
-		// TODO fill with missing
-
-		return make([]float64, dataLength) // missing data
-	}
-
-	// [ww +1]-xx  Get reference values for groups (X1's)
-	// X1 == gref
-	X1 := make([]uint64, data3.NG) // initialized to zero
-	if data3.Bits != 0 {
-		reader.incrByte()
-		for i := 0; i < int(data3.NG); i++ {
-			X1[i] = reader.readBits64(uint(data3.Bits))
-		}
-	}
-
-	// [xx +1 ]-yy Get number of bits used to encode each group
-	// NB == gwidth
-	NB := make([]uint64, data3.NG) // initialized to zero
-	if data3.GroupWidthsBits != 0 {
-		reader.incrByte()
-		for i := 0; i < int(data3.NG); i++ {
-			NB[i] = reader.readBits64(uint(data3.GroupWidthsBits))
-		}
-	}
-
-	for i := 0; i < int(data3.NG); i++ {
-		NB[i] += uint64(data3.GroupWidths)
-	}
-
-	// [yy +1 ]-zz Get the scaled group lengths using formula
-	//     Ln = ref + Kn * len_inc, where n = 1-NG,
-	//          ref = referenceGroupLength, and  len_inc = lengthIncrement
-
-	L := make([]uint64, data3.NG) // initialized to zero
-	referenceGroupLength := data3.GroupLengthsReference
-	nb := data3.GroupScaledLengthsBits
-	if nb != 0 {
-		reader.incrByte()
-		for i := 0; i < int(data3.NG); i++ {
-			L[i] = reader.readBits64(uint(nb))
-		}
-	}
-
-	var totalL uint64
-	for i := 0; i < int(data3.NG); i++ {
-		L[i] = L[i]*uint64(data3.GroupLengthIncrement) + uint64(referenceGroupLength)
-		totalL += L[i]
-	}
-	totalL -= L[data3.NG-1]
-	totalL += uint64(data3.GroupLastLength)
-
-	//enter Length of Last Group
-	L[data3.NG-1] = uint64(data3.GroupLastLength)
-
-	// self test
-	//TODO add self test?
-
-	data := make([]float64, dataLength)
-
-	count := 0
-	reader.incrByte()
-	if data3.MissingValue == 0 {
-		for i := 0; i < int(data3.NG); i++ {
-
-			if NB[i] != 0 {
-				for j := 0; j < int(L[i]); j++ {
-					count++
-					data[count] = float64(reader.readBits64(uint(NB[i])) + X1[i])
-				}
-			} else {
-				for j := 0; j < int(L[i]); j++ {
-					count++
-					data[count] = float64(X1[i])
-				}
-			}
-		} // end for i
-
-	} else {
-		fmt.Println("Missingvalue 1 and 2 not supported, returing zero-values")
-		return make([]float64, dataLength)
-	}
-
-	if os == 1 { // g1 and gMin
-		// encoded by G(n) = F(n) - F(n -1 )
-		// decoded by F(n) = G(n) + F(n -1 )
-		// data[] at this point contains G0, G1, G2, ....
-		data[0] = float64(ival1)
-		for i := 0; i < dataLength; i++ {
-			data[i] += float64(minsd)
-			data[i] = data[i] + data[i-1]
-		}
-	} else if os == 2 { // 2nd order
-		data[0] = float64(ival1)
-		data[1] = float64(ival2)
-		for i := 0; i < dataLength; i++ {
-			data[i] += float64(minsd)
-			data[i] = data[i] + (2 * data[i-1]) - data[i-2]
-		}
-	}
-
-	D := data3.DecimalScale
-	E := data3.BinaryScale
-	R := float64(data3.Reference)
-	DD := math.Pow(10, float64(D))
-	EE := math.Pow(2, float64(E))
-	for i := 0; i < dataLength; i++ {
-		data[i] = (R + (data[i] * EE)) / DD
-	}
-
-	return data
-
-}
-func ParseData3_old(dataReader io.Reader, dataLength int, template *Data3) []float64 {
+// ParseData3 parses data3 struct from the reader into the an array of floating-point values
+func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64 {
 
 	rawData := make([]byte, dataLength)
 	dataReader.Read(rawData)
@@ -194,8 +43,7 @@ func ParseData3_old(dataReader io.Reader, dataLength int, template *Data3) []flo
 
 	var missingValueSubstitute1 float64
 	var missingValueSubstitute2 float64
-
-	ng := int(template.NG)
+	numberOfGroups := int(template.NG)
 	if template.MissingValue == 1 {
 		missingValueSubstitute1 = float64(template.MissingSubstitute1)
 	} else if template.MissingValue == 2 {
@@ -234,41 +82,38 @@ func ParseData3_old(dataReader io.Reader, dataLength int, template *Data3) []flo
 	//
 	//  Extract Each Group's reference value
 	//
-	// fmt.Println("groups", template.NG)
-	references, err := bitReader.readUintsBlock(int(template.Bits), ng, true)
+	references, err := bitReader.readUintsBlock(int(template.Bits), numberOfGroups)
 	if err != nil {
 		panic(err)
 	}
-
-	//fmt.Println("references")
 
 	//
 	//  Extract Each Group's bit width
 	//
-	widths, err := bitReader.readUintsBlock(int(template.GroupWidthsBits), ng, true)
+	widths, err := bitReader.readUintsBlock(int(template.GroupWidthsBits), numberOfGroups)
 	if err != nil {
 		panic(err)
 	}
 
-	for j := 0; j < ng; j++ {
+	for j := 0; j < numberOfGroups; j++ {
 		widths[j] += uint64(template.GroupWidths)
 	}
 
 	//
 	//  Extract Each Group's length (number of values in each group)
 	//
-	lengths, err := bitReader.readUintsBlock(int(template.GroupScaledLengthsBits), ng, true)
+	lengths, err := bitReader.readUintsBlock(int(template.GroupScaledLengthsBits), numberOfGroups)
 	if err != nil {
 		panic(err)
 	}
 
-	for j := 0; j < ng; j++ {
+	for j := 0; j < numberOfGroups; j++ {
 		lengths[j] = (lengths[j] * uint64(template.GroupLengthIncrement)) + uint64(template.GroupLengthsReference)
 	}
 	lengths[template.NG-1] = uint64(template.GroupLastLength)
 
 	// debug
-	for j := 0; j < ng; j++ {
+	for j := 0; j < numberOfGroups; j++ {
 		//fmt.Println(j, " - Reference", references[j], "Width", widths[j], "length", lengths[j])
 	}
 
@@ -280,16 +125,11 @@ func ParseData3_old(dataReader io.Reader, dataLength int, template *Data3) []flo
 	totBit := 0
 	totLen := 0
 
-	for j := 0; j < ng; j++ {
+	for j := 0; j < numberOfGroups; j++ {
 		totBit += int(widths[j]) * int(lengths[j])
 		totLen += int(lengths[j])
 	}
 
-	//if (totLen != ndpts) {
-	//   panic("Checksum err")
-	//}
-	//fmt.Println(totBit / 8)
-	//fmt.Println(dataLength)
 	if totBit/8 > int(dataLength) {
 		fmt.Println(totLen)
 		panic("Checksum err")
@@ -304,7 +144,7 @@ func ParseData3_old(dataReader io.Reader, dataLength int, template *Data3) []flo
 
 	if template.MissingValue == 0 {
 		n := 0
-		for j := 0; j < ng; j++ {
+		for j := 0; j < numberOfGroups; j++ {
 			if widths[j] != 0 {
 				tmp, _ := bitReader.readIntsBlock(int(widths[j]), int(lengths[j]))
 				section7Data = append(section7Data, tmp...)
@@ -324,7 +164,7 @@ func ParseData3_old(dataReader io.Reader, dataLength int, template *Data3) []flo
 	} else if template.MissingValue == 1 || template.MissingValue == 2 {
 		// missing values included
 		n := 0
-		for j := 0; j < ng; j++ {
+		for j := 0; j < numberOfGroups; j++ {
 			if widths[j] != 0 {
 				msng1 := math.Pow(2.0, float64(widths[j])) - 1
 				msng2 := msng1 - 1
@@ -381,7 +221,7 @@ func ParseData3_old(dataReader io.Reader, dataLength int, template *Data3) []flo
 	//printf("SAGod: %ld %ld\n",idrsnum,idrstmpl[16])
 
 	itemp := non
-	ndpts := ng
+	ndpts := numberOfGroups
 
 	if template.SpatialOrderDifference == 1 {
 		// first order
@@ -397,6 +237,7 @@ func ParseData3_old(dataReader io.Reader, dataLength int, template *Data3) []flo
 		}
 	} else if template.SpatialOrderDifference == 2 {
 		// second order
+
 		section7Data[0] = int64(ival1)
 		section7Data[1] = int64(ival2)
 		if template.MissingValue == 0 {
@@ -405,7 +246,8 @@ func ParseData3_old(dataReader io.Reader, dataLength int, template *Data3) []flo
 
 		for n := 2; n < itemp; n++ {
 			section7Data[n] = section7Data[n] + int64(minsd)
-			section7Data[n] = section7Data[n] + (2 * section7Data[n-1]) - section7Data[n-2]
+			// WTF does this line do??? it seems to fuck up everything
+			//section7Data[n] = section7Data[n] + (2 * section7Data[n-1]) - section7Data[n-2]
 		}
 	}
 
