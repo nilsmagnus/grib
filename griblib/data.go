@@ -31,7 +31,158 @@ type Data3 struct {
 }
 
 // ParseData3 parses data3 struct from the reader into the template
-func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64 {
+func ParseData3(dataReader io.Reader, dataLength int, data3 *Data3) []float64 {
+
+	rawData := make([]byte, dataLength)
+	dataReader.Read(rawData)
+	reader := newBitReader(bytes.NewReader(rawData))
+	var ival1, ival2, minsd uint64
+
+	os := data3.SpatialOrderDifference
+	nbitsd := data3.OctetsNumber
+	var sign uint64
+
+	nbitsd = nbitsd * 8
+	if nbitsd > 0 { // first order spatial differencing g1 and gMin
+		sign = reader.readBits64(1)
+		ival1 = reader.readBits64(uint(nbitsd) - 1)
+		if sign == 1 {
+			ival1 = -ival1
+		}
+		if os == 2 { //second order spatial differencing h1, h2, hMin
+			sign = reader.readBits64(1)
+			ival2 = reader.readBits64(uint(nbitsd) - 1)
+			if sign == 1 {
+				ival2 = -ival2
+			}
+		}
+		sign = reader.readBits64(1)
+		minsd = reader.readBits64(uint(nbitsd) - 1)
+		if sign == 1 {
+			minsd = -minsd
+		}
+
+	} else {
+		fmt.Println("unsupported spatial differencing, returning zero-data")
+		// TODO fill with missing value
+		return make([]float64, dataLength) // missing data
+	}
+
+	if data3.NG == 0 {
+		fmt.Println("no groups, returning zero-data")
+		// TODO fill with missing
+
+		return make([]float64, dataLength) // missing data
+	}
+
+	// [ww +1]-xx  Get reference values for groups (X1's)
+	// X1 == gref
+	X1 := make([]uint64, data3.NG) // initialized to zero
+	if data3.Bits != 0 {
+		reader.incrByte()
+		for i := 0; i < int(data3.NG); i++ {
+			X1[i] = reader.readBits64(uint(data3.Bits))
+		}
+	}
+
+	// [xx +1 ]-yy Get number of bits used to encode each group
+	// NB == gwidth
+	NB := make([]uint64, data3.NG) // initialized to zero
+	if data3.GroupWidthsBits != 0 {
+		reader.incrByte()
+		for i := 0; i < int(data3.NG); i++ {
+			NB[i] = reader.readBits64(uint(data3.GroupWidthsBits))
+		}
+	}
+
+	for i := 0; i < int(data3.NG); i++ {
+		NB[i] += uint64(data3.GroupWidths)
+	}
+
+	// [yy +1 ]-zz Get the scaled group lengths using formula
+	//     Ln = ref + Kn * len_inc, where n = 1-NG,
+	//          ref = referenceGroupLength, and  len_inc = lengthIncrement
+
+	L := make([]uint64, data3.NG) // initialized to zero
+	referenceGroupLength := data3.GroupLengthsReference
+	nb := data3.GroupScaledLengthsBits
+	if nb != 0 {
+		reader.incrByte()
+		for i := 0; i < int(data3.NG); i++ {
+			L[i] = reader.readBits64(uint(nb))
+		}
+	}
+
+	var totalL uint64
+	for i := 0; i < int(data3.NG); i++ {
+		L[i] = L[i]*uint64(data3.GroupLengthIncrement) + uint64(referenceGroupLength)
+		totalL += L[i]
+	}
+	totalL -= L[data3.NG-1]
+	totalL += uint64(data3.GroupLastLength)
+
+	//enter Length of Last Group
+	L[data3.NG-1] = uint64(data3.GroupLastLength)
+
+	// self test
+	//TODO add self test?
+
+	data := make([]float64, dataLength)
+
+	count := 0
+	reader.incrByte()
+	if data3.MissingValue == 0 {
+		for i := 0; i < int(data3.NG); i++ {
+
+			if NB[i] != 0 {
+				for j := 0; j < int(L[i]); j++ {
+					count++
+					data[count] = float64(reader.readBits64(uint(NB[i])) + X1[i])
+				}
+			} else {
+				for j := 0; j < int(L[i]); j++ {
+					count++
+					data[count] = float64(X1[i])
+				}
+			}
+		} // end for i
+
+	} else {
+		fmt.Println("Missingvalue 1 and 2 not supported, returing zero-values")
+		return make([]float64, dataLength)
+	}
+
+	if os == 1 { // g1 and gMin
+		// encoded by G(n) = F(n) - F(n -1 )
+		// decoded by F(n) = G(n) + F(n -1 )
+		// data[] at this point contains G0, G1, G2, ....
+		data[0] = float64(ival1)
+		for i := 0; i < dataLength; i++ {
+			data[i] += float64(minsd)
+			data[i] = data[i] + data[i-1]
+		}
+	} else if os == 2 { // 2nd order
+		data[0] = float64(ival1)
+		data[1] = float64(ival2)
+		for i := 0; i < dataLength; i++ {
+			data[i] += float64(minsd)
+			data[i] = data[i] + (2 * data[i-1]) - data[i-2]
+		}
+	}
+
+	D := data3.DecimalScale
+	E := data3.BinaryScale
+	R := float64(data3.Reference)
+	DD := math.Pow(10, float64(D))
+	EE := math.Pow(2, float64(E))
+	for i := 0; i < dataLength; i++ {
+		data[i] = (R + (data[i] * EE)) / DD
+	}
+
+	return data
+
+}
+func ParseData3_old(dataReader io.Reader, dataLength int, template *Data3) []float64 {
 
 	rawData := make([]byte, dataLength)
 	dataReader.Read(rawData)
@@ -183,13 +334,13 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 				for k := 0; k < int(lengths[j]); k++ {
 					if section7Data[n] == int64(msng1) {
 						ifldmiss[n] = 1
-						//section7Data[n]=0;
+						//section7Data[n]=0
 					} else if template.MissingValue == 2 && section7Data[n] == int64(msng2) {
 						ifldmiss[n] = 2
-						//section7Data[n]=0;
+						//section7Data[n]=0
 					} else {
 						ifldmiss[n] = 0
-						//section7Data[non++]=section7Data[n]+references[j];
+						//section7Data[non++]=section7Data[n]+references[j]
 					}
 					n++
 				}
@@ -219,15 +370,15 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 	}
 
 	/*
-	   if ( references != 0 ) free(references);
-	   if ( widths != 0 ) free(widths);
-	   if ( lengths != 0 ) free(lengths);
+	   if ( references != 0 ) free(references)
+	   if ( widths != 0 ) free(widths)
+	   if ( lengths != 0 ) free(lengths)
 	*/
 	//
 	//  If using spatial differences, add overall min value, and
 	//  sum up recursively
 	//
-	//printf("SAGod: %ld %ld\n",idrsnum,idrstmpl[16]);
+	//printf("SAGod: %ld %ld\n",idrsnum,idrstmpl[16])
 
 	itemp := non
 	ndpts := ng
@@ -260,7 +411,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 
 	fld := make([]float64, len(section7Data))
 	bscale := math.Pow(2.0, float64(template.BinaryScale))
-	dscale := math.Pow(10.0, -float64(template.DecimalScale))
+	dscale := math.Pow(10.0, float64(template.DecimalScale))
 
 	if template.MissingValue == 0 {
 		// no missing values
@@ -275,7 +426,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 				non++
 				fld[n] = ((float64(dataValue) * float64(bscale)) + float64(template.Reference)) / dscale
 
-				//printf(" SAG %d %f %d %f %f %f\n",n,fld[n],section7Data[non-1],bscale,ref,dscale);
+				//printf(" SAG %d %f %d %f %f %f\n",n,fld[n],section7Data[non-1],bscale,ref,dscale)
 			} else if ifldmiss[n] == 1 {
 				fld[n] = missingValueSubstitute1
 			} else if ifldmiss[n] == 2 {

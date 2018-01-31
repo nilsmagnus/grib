@@ -3,6 +3,7 @@ package griblib
 import (
 	"os"
 	"testing"
+	"fmt"
 )
 
 func Test_read_integrationtest_file(t *testing.T) {
@@ -19,6 +20,17 @@ func Test_read_integrationtest_file(t *testing.T) {
 
 	if len(messages) != 77 {
 		t.Error("should have exactly 77 message in testfile")
+	}
+
+	for _, m := range messages {
+//		if m.Section4.ProductDefinitionTemplate.ParameterCategory == 0 {
+			fmt.Printf("category %d   \tparameter number %d ",
+				m.Section4.ProductDefinitionTemplate.ParameterCategory,
+				m.Section4.ProductDefinitionTemplate.ParameterNumber)
+			fmt.Printf("surface: type %d\t value %d\n",
+				m.Section4.ProductDefinitionTemplate.FirstSurface.Type,
+				m.Section4.ProductDefinitionTemplate.FirstSurface.Value)
+//		}
 	}
 
 }

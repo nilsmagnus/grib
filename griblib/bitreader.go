@@ -134,6 +134,10 @@ func newBitReader(r io.Reader) bitReader {
 	return bitReader{r: byter}
 }
 
+func (br *bitReader) incrByte() {
+	br.bits = 0
+}
+
 // readBits64 reads the given number of bits and returns them in the
 // least-significant part of a uint64. In the event of an error, it returns 0
 // and the error can be obtained by calling Err().
