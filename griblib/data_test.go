@@ -1,12 +1,13 @@
 package griblib
 
 import (
+	"fmt"
 	"os"
 	"testing"
 )
 
 func Test_read_integrationtest_file(t *testing.T) {
-	testFile, fileOpenErr := os.Open("integrationtestdata/gfs.t00z.pgrb2.2p50.f012")
+	testFile, fileOpenErr := os.Open("integrationtestdata/gfs.t18z.pgrb2.1p00.f003")
 
 	if fileOpenErr != nil {
 		t.Fatal("Grib file for integration tests not found")
@@ -18,7 +19,7 @@ func Test_read_integrationtest_file(t *testing.T) {
 	}
 
 	if len(messages) != 77 {
-		t.Error("should have exactly 77 message in testfile")
+		t.Errorf("should have exactly 77 message in testfile, was %d", len(messages))
 	}
 
 	for _, m := range messages {
@@ -26,11 +27,20 @@ func Test_read_integrationtest_file(t *testing.T) {
 		if m.Section4.ProductDefinitionTemplate.ParameterCategory == 0 &&
 			m.Section4.ProductDefinitionTemplate.FirstSurface.Type == 100 &&
 			m.Section4.ProductDefinitionTemplate.FirstSurface.Value == 100 {
+			var max float64 = 00
+			var min float64 = 1000
 			for _, kelvin := range m.Section7.Data {
-				if kelvin < 237.5 || kelvin > 269.9 {
+				if kelvin < 228.9 || kelvin > 281.2 {
 					t.Errorf("Got kelvin out of range: %f\n", kelvin)
 				}
+				if kelvin > max {
+					max = kelvin
+				}
+				if kelvin < min {
+					min = kelvin
+				}
 			}
+			fmt.Printf("max: %f min: %f\n", max, min)
 
 		}
 	}

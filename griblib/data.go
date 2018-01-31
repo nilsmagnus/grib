@@ -245,7 +245,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 		}
 
 		for n := 2; n < itemp; n++ {
-			section7Data[n] = section7Data[n] + int64(minsd)
+			//section7Data[n] = section7Data[n] + int64(minsd)
 			// WTF does this line do??? it seems to fuck up everything
 			//section7Data[n] = section7Data[n] + (2 * section7Data[n-1]) - section7Data[n-2]
 		}
