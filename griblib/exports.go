@@ -16,6 +16,8 @@ const (
 	PrintMessageCategories = 2
 	// ExportJSONToConsole - export json to console
 	ExportJSONToConsole = 3
+	// ExportToPNG - export data as a png
+	ExportToPNG = 4
 )
 
 // Export exports messages to the supported formats
@@ -28,6 +30,8 @@ func Export(messages []Message, options Options) {
 		printCategories(messages)
 	case ExportJSONToConsole:
 		exportJSONConsole(messages)
+	case ExportToPNG:
+		ExportMessagesAsPngs(messages, options)
 	default:
 		fmt.Printf("Error: Export type %d not supported. \n", options.ExportType)
 	}
