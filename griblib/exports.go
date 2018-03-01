@@ -31,7 +31,7 @@ func Export(messages []Message, options Options) {
 	case ExportJSONToConsole:
 		exportJSONConsole(messages)
 	case ExportToPNG:
-		ExportMessagesAsPngs(messages, options)
+		ExportMessagesAsPngs(messages)
 	default:
 		fmt.Printf("Error: Export type %d not supported. \n", options.ExportType)
 	}
