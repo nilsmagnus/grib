@@ -6,3 +6,4 @@ testdata/
 *.iws
 grib
 
+griblib/testoutput

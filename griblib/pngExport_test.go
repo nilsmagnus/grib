@@ -1,6 +1,7 @@
 package griblib
 
 import (
+	"fmt"
 	"os"
 	"testing"
 )
@@ -19,10 +20,12 @@ func Test_message_to_png(t *testing.T) {
 		t.Fatal(messageErr)
 	}
 
-	image := imageFromMessage(messages[0])
-
-	if image == nil {
-		t.Error("Image is nill")
+	for i, message := range messages {
+		image := imageFromMessage(message)
+		if image == nil {
+			t.Error("Image is nill")
+		}
+		writeImageToFilename(image, fmt.Sprintf("testoutput/testdata%d.png", i))
 	}
 
 }

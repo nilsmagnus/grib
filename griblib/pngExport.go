@@ -52,8 +52,8 @@ func imageFromMessage(message Message) image.Image {
 		log.Fatal(err)
 		return nil
 	} else {
-		height := int(grid0.Ni)
-		width := int(grid0.Nj)
+		height := int(grid0.Nj)
+		width := int(grid0.Ni)
 
 		maxValue, minValue := maxMin(message.Section7.Data)
 
@@ -63,7 +63,7 @@ func imageFromMessage(message Message) image.Image {
 			for x := 0; x < width; x++ {
 				value := message.Section7.Data[y*width+x]
 				rgbaImage.Set(x, y, color.NRGBA{
-					R: 128,
+					R: redValue(value, maxValue, minValue),
 					G: 0,
 					B: blueValue(value, maxValue, minValue),
 					A: 255,
@@ -76,14 +76,20 @@ func imageFromMessage(message Message) image.Image {
 
 // returns a number between 0 and 255
 func blueValue(value float64, maxValue float64, minValue float64) uint8 {
-	percentOfMaxValue := (math.Abs(value) + math.Abs(minValue)) / (math.Abs(maxValue) + math.Abs(minValue))
-	return uint8(percentOfMaxValue * 255.0)
+	if value < 0 {
+		percentOfMaxValue := (math.Abs(value) + math.Abs(minValue)) / (math.Abs(maxValue) + math.Abs(minValue))
+		return uint8(percentOfMaxValue * 255.0)
+	}
+	return 0
 }
 
 // returns a number between 0 and 255
 func redValue(value float64, maxValue float64, minValue float64) uint8 {
-	percentOfMaxValue := (math.Abs(value) + math.Abs(minValue)) / (math.Abs(maxValue) + math.Abs(minValue))
-	return uint8(percentOfMaxValue * 255.0)
+	if value > 0 {
+		percentOfMaxValue := (math.Abs(value) + math.Abs(minValue)) / (math.Abs(maxValue) + math.Abs(minValue))
+		return uint8(percentOfMaxValue * 255.0)
+	}
+	return 0
 }
 
 func maxMin(float64s []float64) (float64, float64) {
