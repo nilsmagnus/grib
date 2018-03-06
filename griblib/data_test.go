@@ -18,8 +18,8 @@ func Test_read_integrationtest_file(t *testing.T) {
 		t.Fatal("Error reading messages: ", messageParseErr.Error())
 	}
 
-	if len(messages) != 77 {
-		t.Errorf("should have exactly 77 message in testfile, was %d", len(messages))
+	if len(messages) != 78 {
+		t.Errorf("should have exactly 78 message in testfile, was %d", len(messages))
 	}
 
 	for _, m := range messages {
@@ -30,7 +30,7 @@ func Test_read_integrationtest_file(t *testing.T) {
 			var max float64 = 00
 			var min float64 = 1000
 			for _, kelvin := range m.Section7.Data {
-				if kelvin < 228.9 || kelvin > 281.2 {
+				if kelvin < 227 || kelvin > 281.2 {
 					t.Errorf("Got kelvin out of range: %f\n", kelvin)
 				}
 				if kelvin > max {
