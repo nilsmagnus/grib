@@ -6,7 +6,16 @@ import (
 	"testing"
 )
 
+func beforeTests(t *testing.T) func(t *testing.T) {
+	os.MkdirAll("testoutput", os.ModePerm)
+
+	return func(t *testing.T) {
+		os.RemoveAll("testoutput")
+	}
+}
+
 func Test_message_to_png(t *testing.T) {
+	defer beforeTests(t)(t)
 
 	testInput, err := os.Open("integrationtestdata/gfs.t18z.pgrb2.1p00.f003")
 
@@ -25,6 +34,7 @@ func Test_message_to_png(t *testing.T) {
 		if image == nil {
 			t.Error("Image is nill")
 		}
+
 		writeImageToFilename(image, fmt.Sprintf("testoutput/testdata%d.png", i))
 	}
 
