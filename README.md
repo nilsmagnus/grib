@@ -93,6 +93,13 @@ to test:
 - Tests for reduction
 - Tests for reading all sections
 
+
+# Contributors
+
+ - "analogic", https://github.com/analogic
+ - Cyrille Meichel, https://github.com/landru29
+ - Nils Larsgård, https://github.com/nilsmagnus
+ 
 ## Help appreciated
 
 Feel free to fork and submit pull requests or simply create issues for improvements :)
