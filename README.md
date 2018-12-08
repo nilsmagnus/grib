@@ -66,7 +66,9 @@ Have a look at 'main.go' for main usage.
 
 - basic binary parsing of GRIB2 GFS files from NOAA
 - implemented only "Grid point data - complex packing and spatial differencing"
-- 
+- Parsing Data3 type
+- Parsing Data0 type (Thanks to Cyrille Meichel)
+
 ## Development
 
 ### Dependencies
