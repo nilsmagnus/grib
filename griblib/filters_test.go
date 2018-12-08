@@ -1,9 +1,9 @@
 package griblib
 
 import (
-	"testing"
-	"os"
 	"fmt"
+	"os"
+	"testing"
 )
 
 func Test_calculcate_startStopIndexes(t *testing.T) {
@@ -104,8 +104,8 @@ func Test_temperature_layers(t *testing.T) {
 	if msgErr != nil {
 		t.Fatal("Error reading messages from testfile")
 	}
-	if len(messages) != 77 {
-		t.Errorf("expected 77 messages, got %d\n", len(messages))
+	if len(messages) != 415 {
+		t.Errorf("expected 415 messages, got %d\n", len(messages))
 	}
 
 	filtered := Filter(messages, Options{Discipline: 0, Category: 0, Surface: Surface{Value: 200, Type: 100}})

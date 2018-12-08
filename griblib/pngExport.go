@@ -47,18 +47,23 @@ func writeImageToFilename(img image.Image, name string) {
 
 func imageFromMessage(message Message) image.Image {
 
-	if grid0, ok := message.Section3.Definition.(*Grid0); !ok {
+	grid0, ok := message.Section3.Definition.(*Grid0)
+
+	if !ok {
 		err := fmt.Errorf("Currently not supporting definition of type %s ", reflect.TypeOf(message.Section3.Definition))
 		log.Fatal(err)
 		return nil
-	} else {
-		height := int(grid0.Nj)
-		width := int(grid0.Ni)
+	}
 
-		maxValue, minValue := maxMin(message.Section7.Data)
+	height := int(grid0.Nj)
+	width := int(grid0.Ni)
 
-		rgbaImage := image.NewNRGBA(image.Rect(0, 0, width, height))
-		log.Printf("d=%d , w=%d, h=%d, wxh=%d\n", len(message.Section7.Data), width, height, width*height)
+	maxValue, minValue := maxMin(message.Section7.Data)
+
+	rgbaImage := image.NewNRGBA(image.Rect(0, 0, width, height))
+	length := len(message.Section7.Data)
+	if length == width*height {
+		log.Printf("d=%d , w=%d, h=%d, wxh=%d\n", length, width, height, width*height)
 		for y := 0; y < height; y++ {
 			for x := 0; x < width; x++ {
 				value := message.Section7.Data[y*width+x]
@@ -70,8 +75,8 @@ func imageFromMessage(message Message) image.Image {
 				})
 			}
 		}
-		return rgbaImage
 	}
+	return rgbaImage
 }
 
 // returns a number between 0 and 255
@@ -93,6 +98,9 @@ func redValue(value float64, maxValue float64, minValue float64) uint8 {
 }
 
 func maxMin(float64s []float64) (float64, float64) {
+	if len(float64s) == 0 {
+		return 0, 0
+	}
 	tmp := make([]float64, len(float64s))
 	copy(tmp, float64s)
 	sort.Slice(float64s, func(i, j int) bool {

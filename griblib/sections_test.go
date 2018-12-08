@@ -46,7 +46,7 @@ func Test_read_section1(t *testing.T) {
 		Type: 8,
 	}
 
-	section1, readError := ReadSection1(toIoReader(testData))
+	section1, readError := ReadSection1(toIoReader(testData), binary.Size(testData))
 
 	if readError != nil {
 		t.Fatal(readError)
