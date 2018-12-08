@@ -63,7 +63,7 @@ func imageFromMessage(message Message) image.Image {
 	rgbaImage := image.NewNRGBA(image.Rect(0, 0, width, height))
 	length := len(message.Section7.Data)
 	if length == width*height {
-		log.Printf("d=%d , w=%d, h=%d, wxh=%d\n", length, width, height, width*height)
+//		log.Printf("d=%d , w=%d, h=%d, wxh=%d\n", length, width, height, width*height)
 		for y := 0; y < height; y++ {
 			for x := 0; x < width; x++ {
 				value := message.Section7.Data[y*width+x]

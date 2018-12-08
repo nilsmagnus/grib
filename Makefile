@@ -38,7 +38,6 @@ lint:
 	go vet ./...
 
 test-all: lint test
-	go test -race ./...
 
 strict-check:
 	@test -z $(shell gofmt -l main.go | tee /dev/stderr) || echo "[WARN] Fix formatting issues with 'make fmt'"

@@ -18,8 +18,8 @@ func Test_read_integrationtest_file(t *testing.T) {
 		t.Fatal("Error reading messages: ", messageParseErr.Error())
 	}
 
-	if len(messages) != 417 {
-		t.Errorf("should have exactly 417 message in testfile, was %d", len(messages))
+	if len(messages) != 366 {
+		t.Errorf("should have exactly 366 message in testfile, was %d", len(messages))
 	}
 
 	for _, m := range messages {
