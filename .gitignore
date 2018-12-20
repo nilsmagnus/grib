@@ -5,5 +5,5 @@ testdata/
 *.ipr
 *.iws
 grib
-
+*.png
 griblib/testoutput
