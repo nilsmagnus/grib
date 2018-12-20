@@ -23,14 +23,14 @@ func Test_read_integrationtest_file(t *testing.T) {
 	}
 
 	for _, m := range messages {
-		// isobaric temperatures at level 100Pa
-		if m.Section4.ProductDefinitionTemplate.ParameterCategory == 0 &&
-			m.Section4.ProductDefinitionTemplate.FirstSurface.Type == 100 &&
-			m.Section4.ProductDefinitionTemplate.FirstSurface.Value == 100 {
+		surface := m.Section4.ProductDefinitionTemplate.FirstSurface
+		if surface.Type == 1 && // ground surface
+			m.Section0.Discipline == 0 && // meterology
+			m.Section4.ProductDefinitionTemplate.ParameterCategory == 0 { // temperature
 			var max float64 = 00
 			var min float64 = 1000
 			for _, kelvin := range m.Section7.Data {
-				if kelvin < 227 || kelvin > 281.2 {
+				if kelvin < 200 || kelvin > 350 {
 					t.Errorf("Got kelvin out of range: %f\n", kelvin)
 				}
 				if kelvin > max {
@@ -40,7 +40,9 @@ func Test_read_integrationtest_file(t *testing.T) {
 					min = kelvin
 				}
 			}
-			fmt.Printf("max: %f min: %f\n", max, min)
+			fmt.Printf("category number %v,", m.Section4.ProductDefinitionTemplate.ParameterCategory)
+			fmt.Printf("parameter number %v,", m.Section4.ProductDefinitionTemplate.ParameterNumber)
+			fmt.Printf("surface type %v, surface value %v max: %f min: %f\n", surface.Type, surface.Value, max, min)
 
 		}
 	}

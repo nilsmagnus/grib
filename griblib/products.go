@@ -1,8 +1,9 @@
 package griblib
 
-// Product0 http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-0.shtml
+// Product0 http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-0.shtml
 // Analysis or forecast at a horizontal level or in a horizontal layer at a point in time
 type Product0 struct {
+	// category 0 is temperature, see http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-1.shtml
 	ParameterCategory uint8   `json:"parameterCategory"`
 	ParameterNumber   uint8   `json:"parameterNumber"`
 	ProcessType       uint8   `json:"processType"`

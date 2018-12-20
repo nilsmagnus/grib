@@ -139,23 +139,23 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 	//  For each group, unpack data values
 	//
 	non := 0
-	var section7Data []int64
-	var ifldmiss []int64
+	section7Data := make([]uint64, 0)
+	ifldmiss := make([]int64, 0)
 
 	if template.MissingValue == 0 {
 		n := 0
 		for j := 0; j < numberOfGroups; j++ {
 			if widths[j] != 0 {
-				tmp, _ := bitReader.readIntsBlock(int(widths[j]), int(lengths[j]))
+				tmp, _ := bitReader.readUintsBlock(int(widths[j]), int(lengths[j]))
 				section7Data = append(section7Data, tmp...)
 
 				for k := 0; k < int(lengths[j]); k++ {
-					section7Data[n] = section7Data[n] + int64(references[j])
+					section7Data[n] = section7Data[n] + references[j]
 					n++
 				}
 			} else {
 				for l := n; l < n+int(lengths[j]); l++ {
-					section7Data = append(section7Data, int64(references[j]))
+					section7Data = append(section7Data, references[j])
 				}
 				n = n + int(lengths[j])
 			}
@@ -175,10 +175,10 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 				}
 
 				for k := 0; k < int(lengths[j]); k++ {
-					if section7Data[n] == int64(msng1) {
+					if section7Data[n] == uint64(msng1) {
 						ifldmiss[n] = 1
 						//section7Data[n]=0
-					} else if template.MissingValue == 2 && section7Data[n] == int64(msng2) {
+					} else if template.MissingValue == 2 && section7Data[n] == uint64(msng2) {
 						ifldmiss[n] = 2
 						//section7Data[n]=0
 					} else {
@@ -203,7 +203,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 						ifldmiss[l] = 0
 					}
 					for l := non; l < non+int(lengths[j]); l++ {
-						section7Data[l] = int64(references[j])
+						section7Data[l] = references[j]
 					}
 					non += int(lengths[j])
 				}
@@ -228,21 +228,21 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 
 	if template.SpatialOrderDifference == 1 {
 		// first order
-		section7Data[0] = int64(ival1)
+		section7Data[0] = uint64(ival1)
 
 		if template.MissingValue == 0 {
 			itemp = ndpts // no missing values
 		}
 
 		for n := 1; n < itemp; n++ {
-			section7Data[n] = section7Data[n] + int64(minsd)
+			section7Data[n] = section7Data[n] + minsd
 			section7Data[n] = section7Data[n] + section7Data[n-1]
 		}
 	} else if template.SpatialOrderDifference == 2 {
 		// second order
 
-		section7Data[0] = int64(ival1)
-		section7Data[1] = int64(ival2)
+		section7Data[0] = uint64(ival1)
+		section7Data[1] = uint64(ival2)
 		if template.MissingValue == 0 {
 			itemp = ndpts
 		}
@@ -255,13 +255,15 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 	}
 
 	fld := make([]float64, len(section7Data))
-	bscale := math.Pow(2.0, float64(template.BinaryScale))
-	dscale := math.Pow(10.0, float64(template.DecimalScale))
+	binaryScale := math.Pow(2.0, float64(template.BinaryScale))
+	decimalScale := math.Pow(10.0, -float64(template.DecimalScale))
+
+	scaleStrategy := scaleFunc(binaryScale, decimalScale, template.Reference)
 
 	if template.MissingValue == 0 {
 		// no missing values
 		for i, dataValue := range section7Data {
-			fld[i] = ((float64(dataValue) * float64(bscale)) + float64(template.Reference)) / dscale
+			fld[i] = scaleStrategy(dataValue)
 		}
 	} else if template.MissingValue == 1 || template.MissingValue == 2 {
 		// missing values included
@@ -269,9 +271,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 		for n, dataValue := range section7Data {
 			if ifldmiss[n] == 0 {
 				non++
-				fld[n] = ((float64(dataValue) * float64(bscale)) + float64(template.Reference)) / dscale
-
-				//printf(" SAG %d %f %d %f %f %f\n",n,fld[n],section7Data[non-1],bscale,ref,dscale)
+				fld[n] = scaleStrategy(dataValue)
 			} else if ifldmiss[n] == 1 {
 				fld[n] = missingValueSubstitute1
 			} else if ifldmiss[n] == 2 {
@@ -282,4 +282,14 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 	}
 
 	return fld
+}
+
+
+func scaleFunc(bScale float64, dScale float64, referenceValue float32) func(uintValue uint64) float64 {
+	scale := bScale * dScale
+	ref := scale * float64(referenceValue)
+	return func(value uint64) float64 {
+		signed := int64(value)
+		return ref + float64(signed)*scale
+	}
 }
