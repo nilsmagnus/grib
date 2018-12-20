@@ -82,7 +82,7 @@ func imageFromMessage(message *Message) image.Image {
 
 // returns a number between 0 and 255
 func blueValue(value float64, maxValue float64, minValue float64) uint8 {
-	value  = value - 273
+	//value  = value - 273
 	if value < 0 {
 		percentOfMaxValue := (math.Abs(value) + math.Abs(minValue)) / (math.Abs(maxValue) + math.Abs(minValue))
 		return uint8(percentOfMaxValue * 255.0)
@@ -92,7 +92,7 @@ func blueValue(value float64, maxValue float64, minValue float64) uint8 {
 
 // returns a number between 0 and 255
 func redValue(value float64, maxValue float64, minValue float64) uint8 {
-	value  = value - 273
+	//value  = value - 273
 	if value > 0 {
 		percentOfMaxValue := (math.Abs(value) + math.Abs(minValue)) / (math.Abs(maxValue) + math.Abs(minValue))
 		return uint8(percentOfMaxValue * 255.0)
