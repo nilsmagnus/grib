@@ -33,7 +33,7 @@ type Data0 struct {
 // ParseData0 parses data0 struct from the reader into the an array of floating-point values
 func ParseData0(dataReader io.Reader, dataLength int, template *Data0) []float64 {
 
-	fld := []float64{}
+	fld := make([]float64, 0)
 
 	if dataLength == 0 {
 		return fld

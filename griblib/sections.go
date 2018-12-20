@@ -45,7 +45,9 @@ const (
 )
 
 //ReadMessages reads all message from gribFile
-func ReadMessages(gribFile io.Reader) (messages []Message, err error) {
+func ReadMessages(gribFile io.Reader) ([]*Message, error) {
+
+	messages := make([]*Message, 0)
 
 	for {
 		message, messageErr := ReadMessage(gribFile)
@@ -54,19 +56,21 @@ func ReadMessages(gribFile io.Reader) (messages []Message, err error) {
 				return messages, nil
 			}
 			fmt.Println("Error when parsing a message, ", messageErr.Error())
-			return messages, err
+			return messages, messageErr
 		}
 		messages = append(messages, message)
 	}
+	return messages, nil
 }
 
 //ReadMessage reads the actual messages from a gribfile-reader (io.Reader from either file, http or any other io.Reader)
-func ReadMessage(gribFile io.Reader) (message Message, err error) {
+func ReadMessage(gribFile io.Reader) (*Message, error) {
 
+	message := Message{}
 	section0, headError := ReadSection0(gribFile)
 
 	if headError != nil {
-		return message, headError
+		return &message, headError
 	}
 
 	messageBytes := make([]byte, section0.MessageLength-16)
@@ -75,7 +79,7 @@ func ReadMessage(gribFile io.Reader) (message Message, err error) {
 
 	if readError != nil {
 		fmt.Println("Error reading message")
-		return message, readError
+		return &message, readError
 	}
 
 	if numBytes != int(section0.MessageLength-16) {
@@ -86,23 +90,25 @@ func ReadMessage(gribFile io.Reader) (message Message, err error) {
 
 }
 
-func readMessage(gribFile io.Reader, section0 Section0) (message Message, err error) {
+func readMessage(gribFile io.Reader, section0 Section0) (*Message, error) {
 
-	message.Section0 = section0
+	message := Message{
+		Section0: section0,
+	}
 	for {
 
 		// pre-parse section head to decide which struct use
 		sectionHead, headErr := ReadSectionHead(gribFile)
 		if headErr != nil {
 			fmt.Println("Error reading header", headErr.Error())
-			return message, headErr
+			return &message, headErr
 		}
 
 		if sectionHead.ContentLength() > 0 {
 			var rawData = make([]byte, sectionHead.ContentLength())
-			err = binary.Read(gribFile, binary.BigEndian, &rawData)
+			err := binary.Read(gribFile, binary.BigEndian, &rawData)
 			if err != nil {
-				return message, err
+				return &message, err
 			}
 			byteReader := bytes.NewBuffer(rawData)
 
@@ -124,15 +130,15 @@ func readMessage(gribFile io.Reader, section0 Section0) (message Message, err er
 				message.Section7, err = ReadSection7(byteReader, sectionHead.ContentLength(), message.Section5)
 			case 8:
 				// end-section, return
-				return message, nil
+				return &message, nil
 			default:
 				err = fmt.Errorf("Unknown section number %d  (Something bad with parser or files)", sectionHead.Number)
 			}
 			if err != nil {
-				return message, err
+				return &message, err
 			}
 		} else {
-			return message, err
+			return &message, nil
 		}
 	}
 }

@@ -10,17 +10,16 @@ import (
 	"math"
 	"os"
 	"reflect"
-	"sort"
 )
 
-func ExportMessagesAsPngs(messages []Message) {
+func ExportMessagesAsPngs(messages []*Message) {
 	for i, message := range messages {
 		dataImage := imageFromMessage(message)
 		writeImageToFilename(dataImage, imageFileName(i, message))
 	}
 }
 
-func imageFileName(messageNumber int, message Message) string {
+func imageFileName(messageNumber int, message *Message) string {
 	dataname := ReadProductDisciplineParameters(message.Section0.Discipline, message.Section4.ProductDefinitionTemplate.ParameterCategory)
 	return fmt.Sprintf("%s - discipline%d category%d messageIndex%d.png",
 		dataname,
@@ -45,7 +44,7 @@ func writeImageToFilename(img image.Image, name string) {
 	}
 }
 
-func imageFromMessage(message Message) image.Image {
+func imageFromMessage(message *Message) image.Image {
 
 	grid0, ok := message.Section3.Definition.(*Grid0)
 
@@ -55,22 +54,24 @@ func imageFromMessage(message Message) image.Image {
 		return nil
 	}
 
-	height := int(grid0.Nj)
-	width := int(grid0.Ni)
+	height := int(grid0.Ni)
+	width := int(grid0.Nj)
 
 	maxValue, minValue := maxMin(message.Section7.Data)
 
 	rgbaImage := image.NewNRGBA(image.Rect(0, 0, width, height))
 	length := len(message.Section7.Data)
 	if length == width*height {
-//		log.Printf("d=%d , w=%d, h=%d, wxh=%d\n", length, width, height, width*height)
+		//		log.Printf("d=%d , w=%d, h=%d, wxh=%d\n", length, width, height, width*height)
 		for y := 0; y < height; y++ {
 			for x := 0; x < width; x++ {
 				value := message.Section7.Data[y*width+x]
+				red := redValue(value, maxValue, minValue)
+				blue := blueValue(value, maxValue, minValue)
 				rgbaImage.Set(x, y, color.NRGBA{
-					R: redValue(value, maxValue, minValue),
+					R: red,
 					G: 0,
-					B: blueValue(value, maxValue, minValue),
+					B: blue,
 					A: 255,
 				})
 			}
@@ -81,6 +82,7 @@ func imageFromMessage(message Message) image.Image {
 
 // returns a number between 0 and 255
 func blueValue(value float64, maxValue float64, minValue float64) uint8 {
+	value  = value - 273
 	if value < 0 {
 		percentOfMaxValue := (math.Abs(value) + math.Abs(minValue)) / (math.Abs(maxValue) + math.Abs(minValue))
 		return uint8(percentOfMaxValue * 255.0)
@@ -90,6 +92,7 @@ func blueValue(value float64, maxValue float64, minValue float64) uint8 {
 
 // returns a number between 0 and 255
 func redValue(value float64, maxValue float64, minValue float64) uint8 {
+	value  = value - 273
 	if value > 0 {
 		percentOfMaxValue := (math.Abs(value) + math.Abs(minValue)) / (math.Abs(maxValue) + math.Abs(minValue))
 		return uint8(percentOfMaxValue * 255.0)
@@ -98,14 +101,14 @@ func redValue(value float64, maxValue float64, minValue float64) uint8 {
 }
 
 func maxMin(float64s []float64) (float64, float64) {
-	if len(float64s) == 0 {
-		return 0, 0
+	max, min := -9999999.0, 999999.0
+	for _, v := range float64s {
+		if v > max {
+			max = v
+		}
+		if v < min {
+			min = v
+		}
 	}
-	tmp := make([]float64, len(float64s))
-	copy(tmp, float64s)
-	sort.Slice(float64s, func(i, j int) bool {
-		return float64s[i] < float64s[j]
-	})
-	sort.Float64s(float64s)
-	return float64s[0], float64s[len(float64s)-1]
+	return max, min
 }

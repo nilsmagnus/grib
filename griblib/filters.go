@@ -25,7 +25,9 @@ const (
 )
 
 // Filter messages with values from options
-func Filter(messages []Message, options Options) (filtered []Message) {
+func Filter(messages []*Message, options Options) ([]*Message) {
+
+	filtered := make([]*Message,0)
 
 	for _, message := range messages {
 		discipline := satisfiesDiscipline(options.Discipline, message)
@@ -35,6 +37,7 @@ func Filter(messages []Message, options Options) (filtered []Message) {
 			continue
 		}
 		if !isEmpty(options.GeoFilter) {
+			fmt.Println("Using GeoFilter %#V", options.GeoFilter)
 			if data, err := filterValuesFromGeoFilter(message, options.GeoFilter); err == nil {
 				message.Section7.Data = *data
 				if grid0, ok := message.Section3.Definition.(*Grid0); ok {
@@ -55,8 +58,8 @@ func Filter(messages []Message, options Options) (filtered []Message) {
 	return filtered
 
 }
-func satisfiesSurface(s Surface, message Message) bool {
-	return s == Surface{} ||
+func satisfiesSurface(s Surface, message *Message) bool {
+	return s == Surface{} || s.Type == 255 ||
 		(message.Section4.ProductDefinitionTemplate.FirstSurface.Type == s.Type &&
 			message.Section4.ProductDefinitionTemplate.FirstSurface.Value == s.Value)
 }
@@ -81,7 +84,7 @@ func isEmpty(geoFilter GeoFilter) bool {
 	} || geoFilter == GeoFilter{}
 }
 
-func filterValuesFromGeoFilter(message Message, filter GeoFilter) (*[]float64, error) {
+func filterValuesFromGeoFilter(message *Message, filter GeoFilter) (*[]float64, error) {
 	grid0, ok := message.Section3.Definition.(*Grid0)
 	if ok {
 		startNi, stopNi, startNj, stopNj := startStopIndexes(filter, *grid0)
@@ -113,7 +116,7 @@ func startStopIndexes(filter GeoFilter, grid Grid0) (uint32, uint32, uint32, uin
 	return startNi, stopNi, startNj, stopNj
 }
 
-func satisfiesDiscipline(discipline int, message Message) bool {
+func satisfiesDiscipline(discipline int, message *Message) bool {
 	if discipline == -1 {
 		return true
 	}
@@ -123,7 +126,7 @@ func satisfiesDiscipline(discipline int, message Message) bool {
 	return false
 }
 
-func satisfiesCategory(product int, message Message) bool {
+func satisfiesCategory(product int, message *Message) bool {
 	if product == -1 {
 		return true
 	}

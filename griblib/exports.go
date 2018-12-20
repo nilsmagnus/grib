@@ -21,7 +21,7 @@ const (
 )
 
 // Export exports messages to the supported formats
-func Export(messages []Message, options Options) {
+func Export(messages []*Message, options Options) {
 	switch options.ExportType {
 	case ExportNone:
 	case PrintMessageDisciplines:
@@ -37,13 +37,13 @@ func Export(messages []Message, options Options) {
 	}
 }
 
-func printDisciplines(messages []Message) {
+func printDisciplines(messages []*Message) {
 	for _, message := range messages {
 		fmt.Println(DisciplineDescription(message.Section0.Discipline))
 	}
 }
 
-func printCategories(messages []Message) {
+func printCategories(messages []*Message) {
 	for _, m := range messages {
 		category := m.Section4.ProductDefinitionTemplate.ParameterCategory
 		discipline := m.Section0.Discipline
@@ -51,10 +51,10 @@ func printCategories(messages []Message) {
 	}
 }
 
-func exportJSONConsole(messages []Message) {
+func exportJSONConsole(messages []*Message) {
 	fmt.Println("[")
 	for _, message := range messages {
-		export(&message)
+		export(message)
 		fmt.Println(",")
 	}
 	fmt.Println("]")

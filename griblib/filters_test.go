@@ -41,7 +41,7 @@ func Test_filter_values_on_geofilter(t *testing.T) {
 		Section3: Section3{Definition: &grid},
 	}
 
-	filteredValues, err := filterValuesFromGeoFilter(message, filter)
+	filteredValues, err := filterValuesFromGeoFilter(&message, filter)
 
 	if err != nil {
 		t.Fatal("did not filter shit")
@@ -55,7 +55,7 @@ func Test_filter_values_on_geofilter(t *testing.T) {
 
 func Test_filter_on_discipline(t *testing.T) {
 
-	messages := []Message{
+	messages := []*Message{
 		{Section0: Section0{Discipline: 1}},
 		{Section0: Section0{Discipline: 2}},
 	}
@@ -75,7 +75,7 @@ func Test_filter_on_discipline(t *testing.T) {
 
 func Test_filter_on_category(t *testing.T) {
 
-	messages := []Message{
+	messages := []*Message{
 		//message.Section4.ProductDefinitionTemplate.ParameterCategory
 		{Section4: Section4{ProductDefinitionTemplate: Product0{ParameterCategory: 1}}},
 		{Section4: Section4{ProductDefinitionTemplate: Product0{ParameterCategory: 2}}},
