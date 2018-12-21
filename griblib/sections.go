@@ -60,7 +60,6 @@ func ReadMessages(gribFile io.Reader) ([]*Message, error) {
 		}
 		messages = append(messages, message)
 	}
-	return messages, nil
 }
 
 //ReadMessage reads the actual messages from a gribfile-reader (io.Reader from either file, http or any other io.Reader)
