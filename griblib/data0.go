@@ -30,6 +30,24 @@ type Data0 struct {
 	Type         uint8   `json:"type"`
 }
 
+func (template Data0) getRefScale() (float64, float64) {
+	bscale := math.Pow(2.0, float64(template.BinaryScale))
+	dscale := math.Pow(10.0, -float64(template.DecimalScale))
+
+	scale := bscale * dscale
+	ref := dscale * float64(template.Reference)
+
+	return ref, scale
+}
+
+func (template Data0) scaleFunc() func(uintValue uint64) float64 {
+	ref, scale := template.getRefScale()
+	return func(value uint64) float64 {
+		signed := int64(value)
+		return ref + float64(signed)*scale
+	}
+}
+
 // ParseData0 parses data0 struct from the reader into the an array of floating-point values
 func ParseData0(dataReader io.Reader, dataLength int, template *Data0) []float64 {
 
@@ -46,11 +64,7 @@ func ParseData0(dataReader io.Reader, dataLength int, template *Data0) []float64
 	}
 	fmt.Printf("read: %d\n", bytesRead)
 
-	bscale := math.Pow(2.0, float64(template.BinaryScale))
-	dscale := math.Pow(10.0, -float64(template.DecimalScale))
-
-	scale := bscale * dscale
-	ref := dscale * float64(template.Reference)
+	ref, scale := template.getRefScale()
 
 	buffer := bytes.NewBuffer(rawData)
 	bitReader := newReader(buffer)

@@ -211,6 +211,16 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 	itemp := non
 	ndpts := numberOfGroups
 
+	// Spatial differencing is a pre-processing before group splitting at encoding time.
+	// It is intended to reduce the size of sufficiently smooth fields, when combined with
+	// a splitting scheme as described in Data Representation Template 5.2. At order 1,
+	// an initial field of values f is replaced by a new field of values g,
+	// where g1 = f1, g2 = f2 - f1, ..., gn = fn - fn-1.
+	// At order 2, the field of values g is itself replaced by a new field of values h,
+	// where h1 = f1, h2 = f2, h3 = g3 - g2, ..., hn = gn - gn-1.
+	// To keep values positive, the overall minimum of the resulting field (either gmin or
+	// hmin) is removed. At decoding time, after bit string unpacking, the original scaled
+	// values are recovered by adding the overall minimum and summing up recursively.
 	if template.SpatialOrderDifference == 1 {
 		// first order
 		section7Data[0] = uint64(ival1)
@@ -233,17 +243,15 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 		}
 
 		for n := 2; n < itemp; n++ {
-			//section7Data[n] = section7Data[n] + int64(minsd)
+			section7Data[n] = section7Data[n] + minsd
 			// WTF does this line do??? it seems to fuck up everything
-			//section7Data[n] = section7Data[n] + (2 * section7Data[n-1]) - section7Data[n-2]
+			section7Data[n] = section7Data[n] + (2 * section7Data[n-1]) - section7Data[n-2]
 		}
 	}
 
 	fld := make([]float64, len(section7Data))
-	binaryScale := math.Pow(2.0, float64(template.BinaryScale))
-	decimalScale := math.Pow(10.0, -float64(template.DecimalScale))
 
-	scaleStrategy := scaleFunc(binaryScale, decimalScale, template.Reference)
+	scaleStrategy := template.scaleFunc()
 
 	if template.MissingValue == 0 {
 		// no missing values
@@ -267,13 +275,4 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 	}
 
 	return fld
-}
-
-func scaleFunc(bScale float64, dScale float64, referenceValue float32) func(uintValue uint64) float64 {
-	scale := bScale * dScale
-	ref := scale * float64(referenceValue)
-	return func(value uint64) float64 {
-		signed := int64(value)
-		return ref + float64(signed)*scale
-	}
 }

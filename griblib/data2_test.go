@@ -41,7 +41,7 @@ func Test_read2_integrationtest_file_hour0(t *testing.T) {
 	}
 
 	for index, data := range fixtures {
-		if math.Ceil(messages[0].Section7.Data[index]*100000+.5) != data*100000 {
+		if math.Ceil(messages[0].Section7.Data[index]*10000+.5) != math.Ceil(data*10000+.5) {
 			t.Errorf("Expected value %f at index %d, found %f", data, index, messages[0].Section7.Data[index])
 		}
 	}
