@@ -44,6 +44,11 @@ const (
 	SupportedGribEdition = 2
 )
 
+// Data returns the data as an array of float64
+func (message Message) Data() []float64 {
+	return message.Section7.Data
+}
+
 //ReadMessages reads all message from gribFile
 func ReadMessages(gribFile io.Reader) ([]*Message, error) {
 
