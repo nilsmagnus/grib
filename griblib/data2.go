@@ -143,23 +143,26 @@ func ParseData2(dataReader io.Reader, dataLength int, template *Data2) []float64
 	//  For each group, unpack data values
 	//
 	non := 0
-	section7Data := make([]uint64, 0)
-	ifldmiss := make([]int64, 0)
+	section7Data := []int64{}
+	ifldmiss := []int64{}
 
 	if template.MissingValue == 0 {
 		n := 0
 		for j := 0; j < numberOfGroups; j++ {
 			if widths[j] != 0 {
 				tmp, _ := bitReader.readUintsBlock(int(widths[j]), int(lengths[j]))
-				section7Data = append(section7Data, tmp...)
+				for _, elt := range tmp {
+					section7Data = append(section7Data, int64(elt))
+				}
+				//section7Data = append(section7Data, tmp...)
 
 				for k := 0; k < int(lengths[j]); k++ {
-					section7Data[n] = section7Data[n] + references[j]
+					section7Data[n] = section7Data[n] + int64(references[j])
 					n++
 				}
 			} else {
 				for l := n; l < n+int(lengths[j]); l++ {
-					section7Data = append(section7Data, references[j])
+					section7Data = append(section7Data, int64(references[j]))
 				}
 				n = n + int(lengths[j])
 			}
@@ -179,10 +182,10 @@ func ParseData2(dataReader io.Reader, dataLength int, template *Data2) []float64
 				}
 
 				for k := 0; k < int(lengths[j]); k++ {
-					if section7Data[n] == uint64(msng1) {
+					if section7Data[n] == int64(msng1) {
 						ifldmiss[n] = 1
 						//section7Data[n]=0
-					} else if template.MissingValue == 2 && section7Data[n] == uint64(msng2) {
+					} else if template.MissingValue == 2 && section7Data[n] == int64(msng2) {
 						ifldmiss[n] = 2
 						//section7Data[n]=0
 					} else {
@@ -207,7 +210,7 @@ func ParseData2(dataReader io.Reader, dataLength int, template *Data2) []float64
 						ifldmiss[l] = 0
 					}
 					for l := non; l < non+int(lengths[j]); l++ {
-						section7Data[l] = references[j]
+						section7Data[l] = int64(references[j])
 					}
 					non += int(lengths[j])
 				}

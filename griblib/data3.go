@@ -23,7 +23,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 
 	var ival1 int64
 	var ival2 int64
-	var minsd uint64
+	var minsd int64
 	var err error
 
 	var missingValueSubstitute1 float64
@@ -55,7 +55,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 			ival2, err = bitReader.readInt(rc)
 		}
 
-		minsd, err = bitReader.readUint(rc)
+		minsd, err = bitReader.readInt(rc)
 	}
 
 	//fmt.Println(" ival1", ival1, "ival2", ival2, "minsd", minsd, "octed bytes", rc/8)
@@ -124,23 +124,26 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 	//  For each group, unpack data values
 	//
 	non := 0
-	section7Data := make([]uint64, 0)
-	ifldmiss := make([]int64, 0)
+	section7Data := []int64{}
+	ifldmiss := []int64{}
 
 	if template.MissingValue == 0 {
 		n := 0
 		for j := 0; j < numberOfGroups; j++ {
 			if widths[j] != 0 {
 				tmp, _ := bitReader.readUintsBlock(int(widths[j]), int(lengths[j]))
-				section7Data = append(section7Data, tmp...)
+				for _, elt := range tmp {
+					section7Data = append(section7Data, int64(elt))
+				}
+				//section7Data = append(section7Data, tmp...)
 
 				for k := 0; k < int(lengths[j]); k++ {
-					section7Data[n] = section7Data[n] + references[j]
+					section7Data[n] = section7Data[n] + int64(references[j])
 					n++
 				}
 			} else {
 				for l := n; l < n+int(lengths[j]); l++ {
-					section7Data = append(section7Data, references[j])
+					section7Data = append(section7Data, int64(references[j]))
 				}
 				n = n + int(lengths[j])
 			}
@@ -160,10 +163,10 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 				}
 
 				for k := 0; k < int(lengths[j]); k++ {
-					if section7Data[n] == uint64(msng1) {
+					if section7Data[n] == int64(msng1) {
 						ifldmiss[n] = 1
 						//section7Data[n]=0
-					} else if template.MissingValue == 2 && section7Data[n] == uint64(msng2) {
+					} else if template.MissingValue == 2 && section7Data[n] == int64(msng2) {
 						ifldmiss[n] = 2
 						//section7Data[n]=0
 					} else {
@@ -188,7 +191,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 						ifldmiss[l] = 0
 					}
 					for l := non; l < non+int(lengths[j]); l++ {
-						section7Data[l] = references[j]
+						section7Data[l] = int64(references[j])
 					}
 					non += int(lengths[j])
 				}
@@ -223,29 +226,26 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 	// values are recovered by adding the overall minimum and summing up recursively.
 	if template.SpatialOrderDifference == 1 {
 		// first order
-		section7Data[0] = uint64(ival1)
+		section7Data[0] = ival1
 
 		if template.MissingValue == 0 {
 			itemp = ndpts // no missing values
 		}
 
 		for n := 1; n < itemp; n++ {
-			section7Data[n] = section7Data[n] + minsd
-			section7Data[n] = section7Data[n] + section7Data[n-1]
+			section7Data[n] = section7Data[n] + section7Data[n-1] + minsd
 		}
 	} else if template.SpatialOrderDifference == 2 {
 		// second order
 
-		section7Data[0] = uint64(ival1)
-		section7Data[1] = uint64(ival2)
+		section7Data[0] = ival1
+		section7Data[1] = ival2
 		if template.MissingValue == 0 {
 			itemp = ndpts
 		}
 
 		for n := 2; n < itemp; n++ {
-			section7Data[n] = section7Data[n] + minsd
-			// WTF does this line do??? it seems to fuck up everything
-			section7Data[n] = section7Data[n] + (2 * section7Data[n-1]) - section7Data[n-2]
+			section7Data[n] = section7Data[n] + (2 * section7Data[n-1]) - section7Data[n-2] + minsd
 		}
 	}
 

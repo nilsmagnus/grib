@@ -40,9 +40,9 @@ func (template Data0) getRefScale() (float64, float64) {
 	return ref, scale
 }
 
-func (template Data0) scaleFunc() func(uintValue uint64) float64 {
+func (template Data0) scaleFunc() func(uintValue int64) float64 {
 	ref, scale := template.getRefScale()
-	return func(value uint64) float64 {
+	return func(value int64) float64 {
 		signed := int64(value)
 		return ref + float64(signed)*scale
 	}

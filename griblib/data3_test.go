@@ -102,8 +102,8 @@ func Test_read3_integrationtest_file_hour0(t *testing.T) {
 		t.Errorf("should have exactly 2 messages in testfile, was %d", len(messages))
 	}
 
-	if messages[0].Section5.DataTemplateNumber != 2 {
-		t.Errorf("Data template number should be 2 (found %d)", messages[0].Section5.DataTemplateNumber)
+	if messages[0].Section5.DataTemplateNumber != 3 {
+		t.Errorf("Data template number should be 3 (found %d)", messages[0].Section5.DataTemplateNumber)
 	}
 
 	for index, data := range fixtures {
