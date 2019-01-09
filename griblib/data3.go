@@ -10,24 +10,9 @@ import (
 //Data3 is a Grid point data - complex packing and spatial differencing
 // http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp5-3.shtml
 type Data3 struct {
-	Reference              float32 `json:"reference"`
-	BinaryScale            uint16  `json:"binaryScale"`
-	DecimalScale           uint16  `json:"decimalScale"`
-	Bits                   uint8   `json:"bits"`
-	Type                   uint8   `json:"type"`
-	GroupMethod            uint8   `json:"groupMethod"`
-	MissingValue           uint8   `json:"missingValue"`
-	MissingSubstitute1     uint32  `json:"missingSubstitute1"`
-	MissingSubstitute2     uint32  `json:"missingSubstitute2"`
-	NG                     uint32  `json:"ng"`
-	GroupWidths            uint8   `json:"groupWidths"`
-	GroupWidthsBits        uint8   `json:"groupWidthsBits"`
-	GroupLengthsReference  uint32  `json:"groupLengthsReference"` // 13
-	GroupLengthIncrement   uint8   `json:"groupLengthIncrement"`  // 14
-	GroupLastLength        uint32  `json:"groupLastLength"`       // 15
-	GroupScaledLengthsBits uint8   `json:"groupScaledLengthsBits"`
-	SpatialOrderDifference uint8   `json:"spatialOrderDifference"`
-	OctetsNumber           uint8   `json:"octetsNumber"`
+	Data2
+	SpatialOrderDifference uint8 `json:"spatialOrderDifference"`
+	OctetsNumber           uint8 `json:"octetsNumber"`
 }
 
 // ParseData3 parses data3 struct from the reader into the an array of floating-point values
@@ -283,7 +268,6 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) []float64
 
 	return fld
 }
-
 
 func scaleFunc(bScale float64, dScale float64, referenceValue float32) func(uintValue uint64) float64 {
 	scale := bScale * dScale

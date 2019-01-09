@@ -6,10 +6,10 @@ import (
 )
 
 func Test_read0_integrationtest_file_hour0(t *testing.T) {
-	testFile, fileOpenErr := os.Open("integrationtestdata/template0.grb2")
+	testFile, fileOpenErr := os.Open("integrationtestdata/template5_0.grib2")
 
 	if fileOpenErr != nil {
-		t.Fatal("Grib file for integration tests not found")
+		t.Fatalf("Grib file for integration tests not found %s", fileOpenErr.Error())
 	}
 	messages, messageParseErr := ReadMessages(testFile)
 
@@ -18,7 +18,11 @@ func Test_read0_integrationtest_file_hour0(t *testing.T) {
 	}
 
 	if len(messages) != 2 {
-		t.Errorf("should have exactly 354 message in testfile, was %d", len(messages))
+		t.Errorf("should have exactly 2 message in testfile, was %d", len(messages))
+	}
+
+	if messages[0].Section5.DataTemplateNumber != 0 {
+		t.Errorf("Data template number should be 0 (found %d)", messages[0].Section5.DataTemplateNumber)
 	}
 
 }

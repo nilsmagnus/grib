@@ -22,6 +22,10 @@ func Test_read_integrationtest_file(t *testing.T) {
 		t.Errorf("should have exactly 366 message in testfile, was %d", len(messages))
 	}
 
+	if messages[0].Section5.DataTemplateNumber != 3 {
+		t.Errorf("Data template number should be 3 (found %d)", messages[0].Section5.DataTemplateNumber)
+	}
+
 	for _, m := range messages {
 		surface := m.Section4.ProductDefinitionTemplate.FirstSurface
 		if surface.Type == 1 && // ground surface
