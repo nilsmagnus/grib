@@ -1,19 +1,21 @@
-package griblib
+package gribtest
 
 import (
 	"fmt"
 	"math"
 	"os"
 	"testing"
+
+	"github.com/nilsmagnus/grib/griblib"
 )
 
 func Test_read_integrationtest_file(t *testing.T) {
-	testFile, fileOpenErr := os.Open("integrationtestdata/gfs.t18z.pgrb2.1p00.f003")
+	testFile, fileOpenErr := os.Open("../integrationtestdata/gfs.t18z.pgrb2.1p00.f003")
 
 	if fileOpenErr != nil {
 		t.Fatal("Grib file for integration tests not found")
 	}
-	messages, messageParseErr := ReadMessages(testFile)
+	messages, messageParseErr := griblib.ReadMessages(testFile)
 
 	if messageParseErr != nil {
 		t.Fatal("Error reading messages: ", messageParseErr.Error())
@@ -55,12 +57,12 @@ func Test_read_integrationtest_file(t *testing.T) {
 }
 
 func Test_read_integrationtest_file_hour0(t *testing.T) {
-	testFile, fileOpenErr := os.Open("integrationtestdata/gfs.t06z.pgrb2.1p00.f000")
+	testFile, fileOpenErr := os.Open("../integrationtestdata/gfs.t06z.pgrb2.1p00.f000")
 
 	if fileOpenErr != nil {
 		t.Fatal("Grib file for integration tests not found")
 	}
-	messages, messageParseErr := ReadMessages(testFile)
+	messages, messageParseErr := griblib.ReadMessages(testFile)
 
 	if messageParseErr != nil {
 		t.Fatal("Error reading messages: ", messageParseErr.Error())
@@ -74,25 +76,24 @@ func Test_read_integrationtest_file_hour0(t *testing.T) {
 
 func Test_read3_integrationtest_file_hour0(t *testing.T) {
 
-	fixtures := []float64{
-		1.18876,
-		1.16876,
-		1.13876,
-		1.11876,
-		1.09876,
-		1.06876,
-		1.04876,
-		1.02876,
-		0.998765,
-		0.968765,
+	testFile, gribFileOpenErr := os.Open("../integrationtestdata/template5_3.grib2")
+	if gribFileOpenErr != nil {
+		t.Fatalf("Grib file for integration tests not found %s", gribFileOpenErr.Error())
+	}
+	defer testFile.Close()
+
+	resultFile, csvFileOpenErr := os.Open("../integrationtestdata/template_ugrd.csv")
+	if gribFileOpenErr != nil {
+		t.Fatalf("CSV file for integration tests not found %s", csvFileOpenErr.Error())
+	}
+	defer resultFile.Close()
+
+	fixtures, errFixtures := readCsvAsSlice(resultFile)
+	if errFixtures != nil {
+		t.Fatalf("Could not parse CSV file %s", errFixtures.Error())
 	}
 
-	testFile, fileOpenErr := os.Open("integrationtestdata/template5_3.grib2")
-
-	if fileOpenErr != nil {
-		t.Fatalf("Grib file for integration tests not found %s", fileOpenErr.Error())
-	}
-	messages, messageParseErr := ReadMessages(testFile)
+	messages, messageParseErr := griblib.ReadMessages(testFile)
 
 	if messageParseErr != nil {
 		t.Fatal("Error reading messages: ", messageParseErr.Error())
@@ -104,6 +105,10 @@ func Test_read3_integrationtest_file_hour0(t *testing.T) {
 
 	if messages[0].Section5.DataTemplateNumber != 3 {
 		t.Errorf("Data template number should be 3 (found %d)", messages[0].Section5.DataTemplateNumber)
+	}
+
+	if len(fixtures) != len(messages[0].Data()) {
+		t.Errorf("should have exactly 2 message in testfile, was %d", len(fixtures))
 	}
 
 	for index, data := range fixtures {
