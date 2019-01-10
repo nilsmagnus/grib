@@ -37,7 +37,7 @@ func Test_read_integrationtest_file(t *testing.T) {
 			var max float64 = 00
 			var min float64 = 1000
 			for _, kelvin := range m.Section7.Data {
-				if kelvin < 200 || kelvin > 350 {
+				if kelvin < 197 || kelvin > 350 {
 					t.Errorf("Got kelvin out of range: %f\n", kelvin)
 				}
 				if kelvin > max {

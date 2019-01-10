@@ -527,18 +527,18 @@ func ReadSection7(f io.Reader, length int, section5 Section5) (section Section7,
 
 		switch x := data.(type) {
 		case Data0:
-			section.Data = ParseData0(f, length, &x)
+			section.Data, sectionError = ParseData0(f, length, &x)
 		case Data2:
-			section.Data = ParseData2(f, length, &x)
+			section.Data, sectionError = ParseData2(f, length, &x)
 		case Data3:
-			section.Data = ParseData3(f, length, &x)
+			section.Data, sectionError = ParseData3(f, length, &x)
 		default:
 			sectionError = fmt.Errorf("Unknown data type")
 			return
 		}
 	}
 
-	return section, nil
+	return section, sectionError
 	// section.Data = ParseData3(f, length, &section5.DataTemplate) // 5 is the length of (octet 1-5)
 	// return section, sectionError
 }

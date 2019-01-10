@@ -1,8 +1,6 @@
 package griblib
 
 import (
-	"bytes"
-	"fmt"
 	"io"
 	"math"
 )
@@ -49,39 +47,30 @@ func (template Data0) scaleFunc() func(uintValue int64) float64 {
 }
 
 // ParseData0 parses data0 struct from the reader into the an array of floating-point values
-func ParseData0(dataReader io.Reader, dataLength int, template *Data0) []float64 {
+func ParseData0(dataReader io.Reader, dataLength int, template *Data0) ([]float64, error) {
 
 	fld := []float64{}
 
 	if dataLength == 0 {
-		return fld
+		return fld, nil
 	}
 
-	rawData := make([]byte, dataLength)
-	bytesRead, errRead := dataReader.Read(rawData)
-	if errRead != nil {
-		panic(errRead)
-	}
-	fmt.Printf("read: %d\n", bytesRead)
+	scaleStrategy := template.scaleFunc()
 
-	ref, scale := template.getRefScale()
+	bitReader := makeBitReader(dataReader, dataLength)
 
-	buffer := bytes.NewBuffer(rawData)
-	bitReader := newReader(buffer)
-
-	dataSize := int(math.Floor(
+	dataSize := int64(math.Floor(
 		float64(8*dataLength) / float64(template.Bits),
 	))
 
-	uintDataSlice, errRead := bitReader.readUintsBlock(int(template.Bits), dataSize)
+	uintDataSlice, errRead := bitReader.readUintsBlock(int(template.Bits), dataSize, false)
 	if errRead != nil {
-		panic(errRead)
+		return []float64{}, errRead
 	}
 
 	for _, uintValue := range uintDataSlice {
-		signed := int64(uintValue)
-		fld = append(fld, ref+float64(signed)*scale)
+		fld = append(fld, scaleStrategy(int64(uintValue)))
 	}
 
-	return fld
+	return fld, nil
 }

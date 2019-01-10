@@ -42,7 +42,7 @@ func Test_read2_integrationtest_file_hour0(t *testing.T) {
 	}
 
 	if len(fixtures) != len(messages[0].Data()) {
-		t.Errorf("should have exactly 2 message in testfile, was %d", len(fixtures))
+		t.Errorf("should have exactly %d values in testfile, was %d", len(messages[0].Data()), len(fixtures))
 	}
 
 	for index, data := range fixtures {
