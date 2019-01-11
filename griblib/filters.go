@@ -25,9 +25,9 @@ const (
 )
 
 // Filter messages with values from options
-func Filter(messages []*Message, options Options) ([]*Message) {
+func Filter(messages []*Message, options Options) []*Message {
 
-	filtered := make([]*Message,0)
+	filtered := make([]*Message, 0)
 
 	for _, message := range messages {
 		discipline := satisfiesDiscipline(options.Discipline, message)
@@ -38,7 +38,7 @@ func Filter(messages []*Message, options Options) ([]*Message) {
 		}
 		if !isEmpty(options.GeoFilter) {
 			fmt.Println("Using GeoFilter %#V", options.GeoFilter)
-			if data, err := filterValuesFromGeoFilter(message, options.GeoFilter); err == nil {
+			if data, err := FilterValuesFromGeoFilter(message, options.GeoFilter); err == nil {
 				message.Section7.Data = *data
 				if grid0, ok := message.Section3.Definition.(*Grid0); ok {
 					updatedGrid := filteredGrid(grid0, options.GeoFilter)
@@ -69,7 +69,7 @@ func filteredGrid(grid0 *Grid0, filter GeoFilter) *Grid0 {
 	grid0.La2 = filter.MaxLat
 	grid0.Lo1 = filter.MinLong
 	grid0.Lo2 = filter.MaxLong
-	startnj, stopnj, startni, stopni := startStopIndexes(filter, *grid0)
+	startnj, stopnj, startni, stopni := StartStopIndexes(filter, *grid0)
 	grid0.Ni = stopni - startni
 	grid0.Nj = stopnj - startnj
 	return grid0
@@ -84,10 +84,11 @@ func isEmpty(geoFilter GeoFilter) bool {
 	} || geoFilter == GeoFilter{}
 }
 
-func filterValuesFromGeoFilter(message *Message, filter GeoFilter) (*[]float64, error) {
+// FilterValuesFromGeoFilter ...
+func FilterValuesFromGeoFilter(message *Message, filter GeoFilter) (*[]float64, error) {
 	grid0, ok := message.Section3.Definition.(*Grid0)
 	if ok {
-		startNi, stopNi, startNj, stopNj := startStopIndexes(filter, *grid0)
+		startNi, stopNi, startNj, stopNj := StartStopIndexes(filter, *grid0)
 
 		data := make([]float64, (stopNi-startNi)*(stopNj-startNj))
 
@@ -103,7 +104,8 @@ func filterValuesFromGeoFilter(message *Message, filter GeoFilter) (*[]float64, 
 	return &message.Section7.Data, fmt.Errorf("grid not of wanted type (wanted Grid0), was %v", reflect.TypeOf(message.Section3.Definition))
 }
 
-func startStopIndexes(filter GeoFilter, grid Grid0) (uint32, uint32, uint32, uint32) {
+// StartStopIndexes ...
+func StartStopIndexes(filter GeoFilter, grid Grid0) (uint32, uint32, uint32, uint32) {
 
 	// ni is number of points west-east
 	startNi := uint32(filter.MinLong/grid.Di) + 1

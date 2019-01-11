@@ -1,22 +1,25 @@
-package griblib
+package gribtest
 
 import (
 	"bytes"
 	"encoding/binary"
 	"io"
 	"testing"
+
+	"github.com/nilsmagnus/grib/griblib"
 )
 
 func Test_read_section0(t *testing.T) {
 
-	testData := Section0{Discipline: 2,
+	testData := griblib.Section0{
+		Discipline:    2,
 		Edition:       3,
 		MessageLength: 4,
 		Indicator:     5,
 		Reserved:      6,
 	}
 
-	section0, readError := ReadSection0(toIoReader(testData))
+	section0, readError := griblib.ReadSection0(toIoReader(testData))
 
 	if readError != nil {
 		t.Fatal(readError)
@@ -28,13 +31,13 @@ func Test_read_section0(t *testing.T) {
 }
 func Test_read_section1(t *testing.T) {
 
-	testData := Section1{
+	testData := griblib.Section1{
 		LocalTablesVersion:   1,
 		MasterTablesVersion:  2,
 		OriginatingCenter:    3,
 		OriginatingSubCenter: 4,
 		ProductionStatus:     5,
-		ReferenceTime: Time{
+		ReferenceTime: griblib.Time{
 			Day:    1,
 			Hour:   2,
 			Minute: 3,
@@ -46,7 +49,7 @@ func Test_read_section1(t *testing.T) {
 		Type: 8,
 	}
 
-	section1, readError := ReadSection1(toIoReader(testData), binary.Size(testData))
+	section1, readError := griblib.ReadSection1(toIoReader(testData), binary.Size(testData))
 
 	if readError != nil {
 		t.Fatal(readError)

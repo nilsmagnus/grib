@@ -1,8 +1,6 @@
 package griblib
 
 import (
-	"bytes"
-	"fmt"
 	"io"
 	"math"
 )
@@ -30,44 +28,49 @@ type Data0 struct {
 	Type         uint8   `json:"type"`
 }
 
-// ParseData0 parses data0 struct from the reader into the an array of floating-point values
-func ParseData0(dataReader io.Reader, dataLength int, template *Data0) []float64 {
-
-	fld := make([]float64, 0)
-
-	if dataLength == 0 {
-		return fld
-	}
-
-	rawData := make([]byte, dataLength)
-	bytesRead, errRead := dataReader.Read(rawData)
-	if errRead != nil {
-		panic(errRead)
-	}
-	fmt.Printf("read: %d\n", bytesRead)
-
+func (template Data0) getRefScale() (float64, float64) {
 	bscale := math.Pow(2.0, float64(template.BinaryScale))
 	dscale := math.Pow(10.0, -float64(template.DecimalScale))
 
 	scale := bscale * dscale
 	ref := dscale * float64(template.Reference)
 
-	buffer := bytes.NewBuffer(rawData)
-	bitReader := newReader(buffer)
+	return ref, scale
+}
 
-	dataSize := int(math.Floor(
+func (template Data0) scaleFunc() func(uintValue int64) float64 {
+	ref, scale := template.getRefScale()
+	return func(value int64) float64 {
+		signed := int64(value)
+		return ref + float64(signed)*scale
+	}
+}
+
+// ParseData0 parses data0 struct from the reader into the an array of floating-point values
+func ParseData0(dataReader io.Reader, dataLength int, template *Data0) ([]float64, error) {
+
+	fld := []float64{}
+
+	if dataLength == 0 {
+		return fld, nil
+	}
+
+	scaleStrategy := template.scaleFunc()
+
+	bitReader := makeBitReader(dataReader, dataLength)
+
+	dataSize := int64(math.Floor(
 		float64(8*dataLength) / float64(template.Bits),
 	))
 
-	uintDataSlice, errRead := bitReader.readUintsBlock(int(template.Bits), dataSize)
+	uintDataSlice, errRead := bitReader.readUintsBlock(int(template.Bits), dataSize, false)
 	if errRead != nil {
-		panic(errRead)
+		return []float64{}, errRead
 	}
 
 	for _, uintValue := range uintDataSlice {
-		signed := int64(uintValue)
-		fld = append(fld, ref+float64(signed)*scale)
+		fld = append(fld, scaleStrategy(int64(uintValue)))
 	}
 
-	return fld
+	return fld, nil
 }

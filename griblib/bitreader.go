@@ -2,7 +2,8 @@ package griblib
 
 import (
 	//"fmt"
-	"bufio"
+
+	"bytes"
 	"io"
 )
 
@@ -13,21 +14,36 @@ type BitReader struct {
 	offset byte
 }
 
+func (r *BitReader) resetOffset() {
+	r.offset = 0
+}
+
+func (r *BitReader) currentBit() byte {
+	return (r.byte >> (7 - r.offset)) & 0x01
+}
+
 func newReader(r io.ByteReader) *BitReader {
 	return &BitReader{r, 0, 0}
 }
 
-func (r *BitReader) readBit() (bool, error) {
+func makeBitReader(dataReader io.Reader, dataLength int) *BitReader {
+	rawData := make([]byte, dataLength)
+	dataReader.Read(rawData)
+	buffer := bytes.NewBuffer(rawData)
+	return newReader(buffer)
+}
+
+func (r *BitReader) readBit() (uint, error) {
 	if r.offset == 8 {
-		r.offset = 0
+		r.resetOffset()
 	}
 	if r.offset == 0 {
 		var err error
 		if r.byte, err = r.reader.ReadByte(); err != nil {
-			return false, err
+			return 0, err
 		}
 	}
-	bit := (r.byte & (0x80 >> r.offset)) != 0
+	bit := uint(r.currentBit())
 	r.offset++
 	return bit, nil
 }
@@ -40,9 +56,7 @@ func (r *BitReader) readUint(nbits int) (uint64, error) {
 		if err != nil {
 			return 0, err
 		}
-		if bit {
-			result |= 1 << uint(i)
-		}
+		result |= uint64(bit << uint(i))
 	}
 
 	return result, nil
@@ -57,57 +71,53 @@ func (r *BitReader) readInt(nbits int) (int64, error) {
 		if err != nil {
 			return 0, err
 		}
-		if i == (nbits-1) && bit {
+		if i == (nbits-1) && bit == 1 {
 			negative = -1
-		} else if bit {
-			result |= 1 << uint(i)
+			continue
 		}
+		result |= int64(bit << uint(i))
 	}
 	return negative * result, nil
 }
 
-func (r *BitReader) readUintsBlock(bits int, count int) ([]uint64, error) {
-	//fmt.Println("Reading", bits, "bits", count, "x")
-	data := make([]uint64, count)
-	var err error
+func (r *BitReader) readUintsBlock(bits int, count int64, resetOffset bool) ([]uint64, error) {
+	result := []uint64{}
+
+	if resetOffset {
+		r.resetOffset()
+	}
 
 	if bits != 0 {
-		for i := 0; i != count; i++ {
-			data[i], err = r.readUint(bits)
+		for i := int64(0); i != count; i++ {
+			data, err := r.readUint(bits)
 			if err != nil {
-				return data, err
+				return result, err
 			}
-
-			//fmt.Println(data[i])
+			result = append(result, data)
 		}
-
-		// if we are not fitting last byte seek to byte end
-		//rest := (bits * count) % 8
-		//if rest != 0 {
-		//	r.offset += byte(8 - int64(rest))
-		//}
-		r.offset = 0
-
 	}
-	return data, nil
+
+	return result, nil
 }
 
-func (r *BitReader) readIntsBlock(bits int, count int) ([]int64, error) {
-	//fmt.Println("Reading", bits, "bits", count, "x")
-	data := make([]int64, count)
-	var err error
+func (r *BitReader) readIntsBlock(bits int, count int64, resetOffset bool) ([]int64, error) {
+	result := []int64{}
+
+	if resetOffset {
+		r.resetOffset()
+	}
 
 	if bits != 0 {
-		for i := 0; i != count; i++ {
-			data[i], err = r.readInt(bits)
+		for i := int64(0); i != count; i++ {
+			data, err := r.readUint(bits)
 			if err != nil {
-				return data, err
+				return result, err
 			}
-			//fmt.Println(data[i])
+			result = append(result, int64(data))
 		}
-
 	}
-	return data, nil
+
+	return result, nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -116,7 +126,7 @@ func (r *BitReader) readIntsBlock(bits int, count int) ([]int64, error) {
 // bit-by-bit, from it. Its Read* methods don't return the usual error
 // because the error handling was verbose. Instead, any error is kept and can
 // be checked afterwards.
-type bitReader struct {
+/*type bitReader struct {
 	r    io.ByteReader
 	n    uint64
 	bits uint
@@ -217,3 +227,4 @@ func (br *bitReader) tryReadBit() (bit byte, ok bool) {
 func (br *bitReader) Err() error {
 	return br.err
 }
+*/

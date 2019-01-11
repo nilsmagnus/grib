@@ -1,8 +1,10 @@
-package griblib
+package gribtest
 
 import (
 	"os"
 	"testing"
+
+	"github.com/nilsmagnus/grib/griblib"
 )
 
 func beforeTests(t *testing.T) func(t *testing.T) {
@@ -16,13 +18,13 @@ func beforeTests(t *testing.T) func(t *testing.T) {
 func Test_message_to_png(t *testing.T) {
 	defer beforeTests(t)(t)
 
-	testInput, err := os.Open("integrationtestdata/gfs.t00z.pgrb2.2p50.f012")
+	testInput, err := os.Open("../integrationtestdata/gfs.t00z.pgrb2.2p50.f012")
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	messages, messageErr := ReadMessages(testInput)
+	messages, messageErr := griblib.ReadMessages(testInput)
 
 	if messageErr != nil {
 		t.Fatal(messageErr)
@@ -33,14 +35,14 @@ func Test_message_to_png(t *testing.T) {
 		if message.Section0.Discipline == 0 &&
 			message.Section4.ProductDefinitionTemplate.ParameterCategory == 0 &&
 			surface.Type == 1 {
-			ExportMessagesAsPngs([]*Message{message})
+			griblib.ExportMessagesAsPngs([]*griblib.Message{message})
 		}
 	}
 
 }
 
 func Test_maxmin(t *testing.T) {
-	max, min := maxMin([]float64{0, -154, 54, 64, -10})
+	max, min := griblib.MaxMin([]float64{0, -154, 54, 64, -10})
 	if max != 64.0 {
 		t.Errorf("Expected max to be 64, was %f", max)
 	}
@@ -51,13 +53,13 @@ func Test_maxmin(t *testing.T) {
 
 func Test_redvalue(t *testing.T) {
 
-	if red := redValue(0, 100, -100); red != 0 {
+	if red := griblib.RedValue(0, 100, -100); red != 0 {
 		t.Errorf("expected blue to be 125 , but was %d", red)
 	}
-	if red := redValue(50, 100, -100); red != 191 {
+	if red := griblib.RedValue(50, 100, -100); red != 191 {
 		t.Errorf("expected blue to be 191 , but was %d", red)
 	}
-	if red := redValue(50, 100, 0); red != 127 {
+	if red := griblib.RedValue(50, 100, 0); red != 127 {
 		t.Errorf("expected blue to be 127 , but was %d", red)
 	}
 }
