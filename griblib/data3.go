@@ -3,7 +3,6 @@ package griblib
 import (
 	"fmt"
 	"io"
-	"math"
 )
 
 //Data3 is a Grid point data - complex packing and spatial differencing
@@ -14,136 +13,7 @@ type Data3 struct {
 	OctetsNumber           uint8 `json:"octetsNumber"`
 }
 
-// ParseData3 parses data3 struct from the reader into the an array of floating-point values
-func ParseData3(dataReader io.Reader, dataLength int, template *Data3) ([]float64, error) {
-
-	var ival1 int64
-	var ival2 int64
-	var minsd int64
-
-	//
-	// Init reader
-	//
-	bitReader := makeBitReader(dataReader, dataLength)
-
-	//
-	//  Extract Spatial differencing values, if using DRS Template 5.3
-	//
-	rc := int(template.OctetsNumber) * 8
-	if rc != 0 {
-		var err error
-		ival1, err = bitReader.readInt(rc)
-		if err != nil {
-			return []float64{}, err
-		}
-
-		if template.SpatialOrderDifference == 2 {
-			ival2, err = bitReader.readInt(rc)
-			if err != nil {
-				return []float64{}, err
-			}
-		}
-
-		minsd, err = bitReader.readInt(rc)
-		if err != nil {
-			return []float64{}, err
-		}
-	}
-
-	bitGroups, err := template.extractBitGroupParameters(bitReader)
-	if err != nil {
-		return []float64{}, err
-	}
-
-	//
-	//  Test to see if the group widths and lengths are consistent with number of
-	//  values, and length of section 7.
-	//
-	if err := checkLengths(bitGroups, dataLength); err != nil {
-		return []float64{}, err
-	}
-
-	//
-	//  For each group, unpack data values
-	//
-	non := int64(0)
-	section7Data := []int64{}
-	ifldmiss := []int64{}
-
-	switch template.MissingValue {
-	case 0:
-		for _, bitGroup := range bitGroups {
-			var tmp []int64
-			if bitGroup.Width != 0 {
-				tmp, err = bitReader.readIntsBlock(int(bitGroup.Width), int64(bitGroup.Length), false)
-				if err != nil {
-					fmt.Printf("ERROR %s\n", err.Error())
-				}
-			} else {
-				tmp = bitGroup.zeroGroup()
-			}
-
-			for _, elt := range tmp {
-				section7Data = append(section7Data, elt+int64(bitGroup.Reference))
-			}
-		}
-
-	case 1, 2:
-		// missing values included
-		n := 0
-		for _, bitGroup := range bitGroups {
-			if bitGroup.Width != 0 {
-				msng1 := math.Pow(2.0, float64(bitGroup.Width)) - 1
-				msng2 := msng1 - 1
-
-				var err error
-				ifldmiss, err = bitReader.readIntsBlock(int(bitGroup.Width), int64(bitGroup.Length), false)
-				if err != nil {
-					return []float64{}, err
-				}
-
-				for k := 0; k < int(bitGroup.Length); k++ {
-					if section7Data[n] == int64(msng1) {
-						ifldmiss[n] = 1
-						//section7Data[n]=0
-						n++
-						continue
-					}
-					if template.MissingValue == 2 && section7Data[n] == int64(msng2) {
-						ifldmiss[n] = 2
-						//section7Data[n]=0
-						n++
-						continue
-					}
-					ifldmiss[n] = 0
-					//section7Data[non++]=section7Data[n]+references[j]
-					n++
-				}
-			} else {
-				msng1 := math.Pow(2.0, float64(template.Bits)) - 1
-				msng2 := msng1 - 1
-				if bitGroup.Reference == uint64(msng1) {
-					for l := n; l < n+int(bitGroup.Length); l++ {
-						ifldmiss[l] = 1
-					}
-				} else if template.MissingValue == 2 && bitGroup.Reference == uint64(msng2) {
-					for l := n; l < n+int(bitGroup.Length); l++ {
-						ifldmiss[l] = 2
-					}
-				} else {
-					for l := n; l < n+int(bitGroup.Length); l++ {
-						ifldmiss[l] = 0
-					}
-					for l := non; l < non+int64(bitGroup.Length); l++ {
-						section7Data[l] = int64(bitGroup.Reference)
-					}
-					non += int64(bitGroup.Length)
-				}
-				n = n + int(bitGroup.Length)
-			}
-		}
-	}
-
+func (template *Data3) applySpacialDifferencing(section7Data []int64, minsd int64, ival1 int64, ival2 int64) {
 	// Spatial differencing is a pre-processing before group splitting at encoding time.
 	// It is intended to reduce the size of sufficiently smooth fields, when combined with
 	// a splitting scheme as described in Data Representation Template 5.2. At order 1,
@@ -172,6 +42,81 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) ([]float6
 			section7Data[n] = section7Data[n] + (2 * section7Data[n-1]) - section7Data[n-2] + minsd
 		}
 	}
+}
+
+func (template *Data3) extractSpacingDifferentialValues(bitReader *BitReader) (int64, int64, int64, error) {
+	var ival1 int64
+	var ival2 int64
+	var minsd int64
+
+	rc := int(template.OctetsNumber) * 8
+	if rc != 0 {
+		var err error
+		ival1, err = bitReader.readInt(rc)
+		if err != nil {
+			return minsd, ival1, ival2, fmt.Errorf("Spacial differencing Value 1: %s", err.Error())
+		}
+
+		if template.SpatialOrderDifference == 2 {
+			ival2, err = bitReader.readInt(rc)
+			if err != nil {
+				return minsd, ival1, ival2, fmt.Errorf("Spacial differencing Value 2: %s", err.Error())
+			}
+		}
+
+		minsd, err = bitReader.readInt(rc)
+		if err != nil {
+			return minsd, ival1, ival2, fmt.Errorf("Spacial differencing Reference: %s", err.Error())
+		}
+	}
+
+	return minsd, ival1, ival2, nil
+}
+
+// ParseData3 parses data3 struct from the reader into the an array of floating-point values
+func ParseData3(dataReader io.Reader, dataLength int, template *Data3) ([]float64, error) {
+
+	//
+	// Init reader
+	//
+	bitReader := makeBitReader(dataReader, dataLength)
+
+	//
+	//  Extract Spatial differencing values, if using DRS Template 5.3
+	//
+	minsd, ival1, ival2, err := template.extractSpacingDifferentialValues(bitReader)
+	if err != nil {
+		return []float64{}, fmt.Errorf("Spacial differencing Value 1: %s", err.Error())
+	}
+
+	//
+	// Extract Bit Group Parameters
+	//
+	bitGroups, err := template.extractBitGroupParameters(bitReader)
+	if err != nil {
+		return []float64{}, fmt.Errorf("Groups: %s", err.Error())
+	}
+
+	//
+	//  Test to see if the group widths and lengths are consistent with number of
+	//  values, and length of section 7.
+	//
+	if err := checkLengths(bitGroups, dataLength); err != nil {
+		return []float64{}, fmt.Errorf("Check length: %s", err.Error())
+	}
+
+	//
+	//  For each group, unpack data values
+	//
+	section7Data, ifldmiss, err := template.extractData(bitReader, bitGroups)
+	if err != nil {
+		return []float64{}, fmt.Errorf("Data extract: %s", err.Error())
+	}
+
+	//
+	// Apply spacing differencing
+	//
+	template.applySpacialDifferencing(section7Data, minsd, ival1, ival2)
 
 	return template.scaleValues(section7Data, ifldmiss), nil
 }

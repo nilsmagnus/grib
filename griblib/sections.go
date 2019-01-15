@@ -539,8 +539,6 @@ func ReadSection7(f io.Reader, length int, section5 Section5) (section Section7,
 	}
 
 	return section, sectionError
-	// section.Data = ParseData3(f, length, &section5.DataTemplate) // 5 is the length of (octet 1-5)
-	// return section, sectionError
 }
 
 //read is poorly documented other than code

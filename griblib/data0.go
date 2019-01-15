@@ -5,6 +5,8 @@ import (
 	"math"
 )
 
+const INT_MAX = 9223372036854775807
+
 //Data0 is a Grid point data - simple packing
 // http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp5-0.shtml
 //    | Octet Number | Content

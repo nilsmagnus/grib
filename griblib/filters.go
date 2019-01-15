@@ -37,7 +37,7 @@ func Filter(messages []*Message, options Options) []*Message {
 			continue
 		}
 		if !isEmpty(options.GeoFilter) {
-			fmt.Println("Using GeoFilter %#V", options.GeoFilter)
+			fmt.Printf("Using GeoFilter %v\n", options.GeoFilter)
 			if data, err := FilterValuesFromGeoFilter(message, options.GeoFilter); err == nil {
 				message.Section7.Data = *data
 				if grid0, ok := message.Section3.Definition.(*Grid0); ok {

@@ -17,6 +17,21 @@ func (bitGroup bitGroupParameter) zeroGroup() []int64 {
 	return result
 }
 
+func (bitGroup bitGroupParameter) readData(bitReader *BitReader) ([]int64, error) {
+	var tmp []int64
+	var err error
+	if bitGroup.Width != 0 {
+		tmp, err = bitReader.readIntsBlock(int(bitGroup.Width), int64(bitGroup.Length), false)
+		if err != nil {
+			fmt.Printf("ERROR %s\n", err.Error())
+		}
+	} else {
+		tmp = bitGroup.zeroGroup()
+	}
+
+	return tmp, err
+}
+
 //
 //  Test to see if the group widths and lengths are consistent with number of
 //  values, and length of section 7.
