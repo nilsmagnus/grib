@@ -87,11 +87,9 @@ func (template *Data2) scaleValues(section7Data []int64, ifldmiss []int64) []flo
 	}
 	if template.MissingValue == 1 || template.MissingValue == 2 {
 		// missing values included
-		non := 0
 		for n, dataValue := range section7Data {
 			switch ifldmiss[n] {
 			case 0:
-				non++
 				fld = append(fld, scaleStrategy(dataValue))
 			case 1:
 				fld = append(fld, missingValueSubstitute1)
@@ -104,6 +102,87 @@ func (template *Data2) scaleValues(section7Data []int64, ifldmiss []int64) []flo
 	return fld
 }
 
+func (template *Data2) extractData(bitReader *BitReader, bitGroups []bitGroupParameter) ([]int64, []int64, error) {
+	section7Data := []int64{}
+	ifldmiss := []int64{}
+
+	for _, bitGroup := range bitGroups {
+		tmp, err := bitGroup.readData(bitReader)
+		if err != nil {
+			return section7Data, ifldmiss, fmt.Errorf("bitGroup read: %s", err.Error())
+		}
+		switch template.MissingValue {
+		case 0:
+			for _, elt := range tmp {
+				section7Data = append(section7Data, elt+int64(bitGroup.Reference))
+				ifldmiss = append(ifldmiss, 0)
+			}
+
+		case 1:
+			if bitGroup.Width == 0 {
+				msng1 := uint64(math.Pow(2.0, float64(template.Bits))) - 1
+				for _, elt := range tmp {
+					if bitGroup.Reference == msng1 {
+						section7Data = append(section7Data, -1)
+						ifldmiss = append(ifldmiss, 1)
+					} else {
+						section7Data = append(section7Data, elt+int64(bitGroup.Reference))
+						ifldmiss = append(ifldmiss, 0)
+					}
+				}
+			} else {
+				msng1 := int64(math.Pow(2.0, float64(bitGroup.Width))) - 1
+				for _, elt := range tmp {
+					if elt == msng1 {
+						section7Data = append(section7Data, -1)
+						ifldmiss = append(ifldmiss, 1)
+					} else {
+						section7Data = append(section7Data, elt+int64(bitGroup.Reference))
+						ifldmiss = append(ifldmiss, 0)
+					}
+				}
+			}
+
+		case 2:
+			if bitGroup.Width == 0 {
+				msng1 := uint64(math.Pow(2.0, float64(template.Bits))) - 1
+				msng2 := msng1 - 1
+				for _, elt := range tmp {
+					if bitGroup.Reference == msng1 || bitGroup.Reference == msng2 {
+						section7Data = append(section7Data, -1)
+						if bitGroup.Reference == msng1 {
+							ifldmiss = append(ifldmiss, 1)
+						} else {
+							ifldmiss = append(ifldmiss, 2)
+						}
+					} else {
+						section7Data = append(section7Data, elt+int64(bitGroup.Reference))
+						ifldmiss = append(ifldmiss, 0)
+					}
+				}
+			} else {
+				msng1 := int64(math.Pow(2.0, float64(bitGroup.Width))) - 1
+				msng2 := msng1 - 1
+				for _, elt := range tmp {
+					if elt == msng1 || elt == msng2 {
+						section7Data = append(section7Data, -1)
+						if elt == msng1 {
+							ifldmiss = append(ifldmiss, 1)
+						} else {
+							ifldmiss = append(ifldmiss, 2)
+						}
+					} else {
+						section7Data = append(section7Data, elt+int64(bitGroup.Reference))
+						ifldmiss = append(ifldmiss, 0)
+					}
+				}
+			}
+		}
+	}
+
+	return section7Data, ifldmiss, nil
+}
+
 // ParseData2 parses data2 struct from the reader into the an array of floating-point values
 func ParseData2(dataReader io.Reader, dataLength int, template *Data2) ([]float64, error) {
 
@@ -112,6 +191,9 @@ func ParseData2(dataReader io.Reader, dataLength int, template *Data2) ([]float6
 	//
 	bitReader := makeBitReader(dataReader, dataLength)
 
+	//
+	// Extract Bit Group Parameters
+	//
 	bitGroups, err := template.extractBitGroupParameters(bitReader)
 	if err != nil {
 		return []float64{}, err
@@ -128,84 +210,9 @@ func ParseData2(dataReader io.Reader, dataLength int, template *Data2) ([]float6
 	//
 	//  For each group, unpack data values
 	//
-	non := int64(0)
-	section7Data := []int64{}
-	ifldmiss := []int64{}
-
-	fmt.Printf("offset %d\n", bitReader.offset)
-
-	switch template.MissingValue {
-	case 0:
-		for _, bitGroup := range bitGroups {
-			var tmp []int64
-			if bitGroup.Width != 0 {
-				tmp, err = bitReader.readIntsBlock(int(bitGroup.Width), int64(bitGroup.Length), false)
-				if err != nil {
-					fmt.Printf("ERROR %s\n", err.Error())
-				}
-			} else {
-				tmp = bitGroup.zeroGroup()
-			}
-
-			for _, elt := range tmp {
-				section7Data = append(section7Data, elt+int64(bitGroup.Reference))
-			}
-		}
-
-	case 1, 2:
-		// missing values included
-		n := 0
-		for _, bitGroup := range bitGroups {
-			if bitGroup.Width != 0 {
-				msng1 := math.Pow(2.0, float64(bitGroup.Width)) - 1
-				msng2 := msng1 - 1
-
-				var err error
-				ifldmiss, err = bitReader.readIntsBlock(int(bitGroup.Width), int64(bitGroup.Length), false)
-				if err != nil {
-					return []float64{}, err
-				}
-
-				for k := 0; k < int(bitGroup.Length); k++ {
-					if section7Data[n] == int64(msng1) {
-						ifldmiss[n] = 1
-						//section7Data[n]=0
-						n++
-						continue
-					}
-					if template.MissingValue == 2 && section7Data[n] == int64(msng2) {
-						ifldmiss[n] = 2
-						//section7Data[n]=0
-						n++
-						continue
-					}
-					ifldmiss[n] = 0
-					//section7Data[non++]=section7Data[n]+references[j]
-					n++
-				}
-			} else {
-				msng1 := math.Pow(2.0, float64(template.Bits)) - 1
-				msng2 := msng1 - 1
-				if bitGroup.Reference == uint64(msng1) {
-					for l := n; l < n+int(bitGroup.Length); l++ {
-						ifldmiss[l] = 1
-					}
-				} else if template.MissingValue == 2 && bitGroup.Reference == uint64(msng2) {
-					for l := n; l < n+int(bitGroup.Length); l++ {
-						ifldmiss[l] = 2
-					}
-				} else {
-					for l := n; l < n+int(bitGroup.Length); l++ {
-						ifldmiss[l] = 0
-					}
-					for l := non; l < non+int64(bitGroup.Length); l++ {
-						section7Data[l] = int64(bitGroup.Reference)
-					}
-					non += int64(bitGroup.Length)
-				}
-				n = n + int(bitGroup.Length)
-			}
-		}
+	section7Data, ifldmiss, err := template.extractData(bitReader, bitGroups)
+	if err != nil {
+		return []float64{}, fmt.Errorf("Data extract: %s", err.Error())
 	}
 
 	return template.scaleValues(section7Data, ifldmiss), nil
