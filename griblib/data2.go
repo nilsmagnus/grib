@@ -74,15 +74,15 @@ func (template *Data2) missingValueSubstitute() (float64, float64) {
 }
 
 func (template *Data2) scaleValues(section7Data []int64, ifldmiss []int64) []float64 {
-	fld := []float64{}
+	fld := make([]float64, len(section7Data))
 
 	scaleStrategy := template.scaleFunc()
 	missingValueSubstitute1, missingValueSubstitute2 := template.missingValueSubstitute()
 
 	if template.MissingValue == 0 {
 		// no missing values
-		for _, dataValue := range section7Data {
-			fld = append(fld, scaleStrategy(dataValue))
+		for n, dataValue := range section7Data {
+			fld[n] = scaleStrategy(dataValue)
 		}
 	}
 	if template.MissingValue == 1 || template.MissingValue == 2 {
@@ -90,11 +90,11 @@ func (template *Data2) scaleValues(section7Data []int64, ifldmiss []int64) []flo
 		for n, dataValue := range section7Data {
 			switch ifldmiss[n] {
 			case 0:
-				fld = append(fld, scaleStrategy(dataValue))
+				fld[n] = scaleStrategy(dataValue)
 			case 1:
-				fld = append(fld, missingValueSubstitute1)
+				fld[n] = missingValueSubstitute1
 			case 2:
-				fld = append(fld, missingValueSubstitute2)
+				fld[n] = missingValueSubstitute2
 			}
 		}
 	}
@@ -103,9 +103,9 @@ func (template *Data2) scaleValues(section7Data []int64, ifldmiss []int64) []flo
 }
 
 func (template *Data2) extractData(bitReader *BitReader, bitGroups []bitGroupParameter) ([]int64, []int64, error) {
-	section7Data := []int64{}
-	ifldmiss := []int64{}
-
+	// TODO : read 1 bitgroup at a time to a fixed-size slice, append each slice to a master-slice
+	section7Data := make([]int64, 0)
+	ifldmiss := make([]int64, 0)
 	for _, bitGroup := range bitGroups {
 		tmp, err := bitGroup.readData(bitReader)
 		if err != nil {

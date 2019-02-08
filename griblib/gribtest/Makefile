@@ -1,3 +1,5 @@
+.PHONY: default benchmark
+
 default:
 	go test -v 
 

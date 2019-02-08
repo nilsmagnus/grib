@@ -81,7 +81,7 @@ func (r *BitReader) readInt(nbits int) (int64, error) {
 }
 
 func (r *BitReader) readUintsBlock(bits int, count int64, resetOffset bool) ([]uint64, error) {
-	result := []uint64{}
+	result := make([]uint64, count)
 
 	if resetOffset {
 		r.resetOffset()
@@ -93,7 +93,7 @@ func (r *BitReader) readUintsBlock(bits int, count int64, resetOffset bool) ([]u
 			if err != nil {
 				return result, err
 			}
-			result = append(result, data)
+			result[i] = data
 		}
 	}
 
@@ -101,7 +101,7 @@ func (r *BitReader) readUintsBlock(bits int, count int64, resetOffset bool) ([]u
 }
 
 func (r *BitReader) readIntsBlock(bits int, count int64, resetOffset bool) ([]int64, error) {
-	result := []int64{}
+	result := make([]int64, count)
 
 	if resetOffset {
 		r.resetOffset()
@@ -113,7 +113,7 @@ func (r *BitReader) readIntsBlock(bits int, count int64, resetOffset bool) ([]in
 			if err != nil {
 				return result, err
 			}
-			result = append(result, int64(data))
+			result[i] = int64(data)
 		}
 	}
 
