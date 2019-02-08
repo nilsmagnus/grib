@@ -8,16 +8,11 @@ type bitGroupParameter struct {
 	Length    uint64
 }
 
-func (bitGroup bitGroupParameter) zeroGroup() []int64 {
-	result := []int64{}
-	for l := 0; l < int(bitGroup.Length); l++ {
-		result = append(result, 0)
-	}
-
-	return result
+func (bitGroup *bitGroupParameter) zeroGroup() []int64 {
+	return make([]int64, bitGroup.Length)
 }
 
-func (bitGroup bitGroupParameter) readData(bitReader *BitReader) ([]int64, error) {
+func (bitGroup *bitGroupParameter) readData(bitReader *BitReader) ([]int64, error) {
 	var tmp []int64
 	var err error
 	if bitGroup.Width != 0 {

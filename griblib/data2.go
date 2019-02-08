@@ -104,7 +104,7 @@ func (template *Data2) scaleValues(section7Data []int64, ifldmiss []int64) []flo
 
 func (template *Data2) extractData(bitReader *BitReader, bitGroups []bitGroupParameter) ([]int64, []int64, error) {
 	// TODO : read 1 bitgroup at a time to a fixed-size slice, append each slice to a master-slice
-	section7Data := make([]int64, 0)
+	section7Data := make([]int64, 0, len(bitGroups)*16)
 	ifldmiss := make([]int64, 0)
 	for _, bitGroup := range bitGroups {
 		tmp, err := bitGroup.readData(bitReader)
@@ -113,10 +113,12 @@ func (template *Data2) extractData(bitReader *BitReader, bitGroups []bitGroupPar
 		}
 		switch template.MissingValue {
 		case 0:
-			for _, elt := range tmp {
-				section7Data = append(section7Data, elt+int64(bitGroup.Reference))
-				ifldmiss = append(ifldmiss, 0)
+			data := make([]int64, len(tmp))
+			ifldmiss = append(ifldmiss, make([]int64, len(tmp))...)
+			for i, elt := range tmp {
+				data[i] = elt + int64(bitGroup.Reference)
 			}
+			section7Data = append(section7Data, data...)
 
 		case 1:
 			if bitGroup.Width == 0 {
