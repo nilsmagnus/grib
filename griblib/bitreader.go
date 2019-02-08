@@ -34,16 +34,17 @@ func makeBitReader(dataReader io.Reader, dataLength int) *BitReader {
 }
 
 func (r *BitReader) readBit() (uint, error) {
-	if r.offset == 8 {
-		r.resetOffset()
-	}
-	if r.offset == 0 {
-		var err error
-		if r.byte, err = r.reader.ReadByte(); err != nil {
+	if r.offset == 8 || r.offset == 0 {
+		r.offset = 0
+		if b, err := r.reader.ReadByte(); err == nil {
+			r.byte = b
+		} else {
 			return 0, err
 		}
 	}
-	bit := uint(r.currentBit())
+	bit := uint((r.byte >> (7 - r.offset)) & 0x01)
+
+	//bit := uint(r.currentBit())
 	r.offset++
 	return bit, nil
 }
@@ -51,12 +52,11 @@ func (r *BitReader) readBit() (uint, error) {
 func (r *BitReader) readUint(nbits int) (uint64, error) {
 	var result uint64
 	for i := nbits - 1; i >= 0; i-- {
-		bit, err := r.readBit()
-
-		if err != nil {
+		if bit, err := r.readBit(); err == nil {
+			result |= uint64(bit << uint(i))
+		} else {
 			return 0, err
 		}
-		result |= uint64(bit << uint(i))
 	}
 
 	return result, nil

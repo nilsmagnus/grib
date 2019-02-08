@@ -103,9 +103,8 @@ func (template *Data2) scaleValues(section7Data []int64, ifldmiss []int64) []flo
 }
 
 func (template *Data2) extractData(bitReader *BitReader, bitGroups []bitGroupParameter) ([]int64, []int64, error) {
-	// TODO : read 1 bitgroup at a time to a fixed-size slice, append each slice to a master-slice
-	section7Data := make([]int64, 0, len(bitGroups)*16)
-	ifldmiss := make([]int64, 0)
+	section7Data := make([]int64, 0, len(bitGroups)*32)
+	ifldmiss := make([]int64, 0, len(bitGroups)*32)
 	for _, bitGroup := range bitGroups {
 		tmp, err := bitGroup.readData(bitReader)
 		if err != nil {
