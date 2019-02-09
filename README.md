@@ -122,24 +122,45 @@ to run a performance-test go to griblib/gribtest and run `make benchmark`.
 Sample output:
 
 ```
+go version go1.11.2 linux/amd64
+go test -bench=. -benchmem -memprofile memprofile.out -cpuprofile profile.out
+category number 0,parameter number 0,surface type 1, surface value 0 max: 329.500000 min: 197.900000
+goos: linux
+goarch: amd64
+pkg: github.com/nilsmagnus/grib/griblib/gribtest
+BenchmarkReadMessages-4   	     100	  11681028 ns/op	 6587281 B/op	    9344 allocs/op
+PASS
+ok  	github.com/nilsmagnus/grib/griblib/gribtest	5.456s
+go tool pprof -top profile.out
 File: gribtest.test
 Type: cpu
-Time: Feb 7, 2019 at 9:10pm (CET)
-Duration: 9.31s, Total samples = 9.54s (102.47%)
-Showing nodes accounting for 8.64s, 90.57% of 9.54s total
-Dropped 126 nodes (cum <= 0.05s)
+Time: Feb 9, 2019 at 6:44pm (CET)
+Duration: 5.41s, Total samples = 5.34s (98.77%)
+Showing nodes accounting for 5.12s, 95.88% of 5.34s total
+Dropped 69 nodes (cum <= 0.03s)
       flat  flat%   sum%        cum   cum%
-     1.37s 14.36% 14.36%      2.14s 22.43%  github.com/nilsmagnus/grib/griblib.(*BitReader).readBit
-     1.23s 12.89% 27.25%      3.37s 35.32%  github.com/nilsmagnus/grib/griblib.(*BitReader).readUint
-     0.72s  7.55% 34.80%      0.72s  7.55%  runtime.memmove
-     0.72s  7.55% 42.35%      0.80s  8.39%  syscall.Syscall
-     0.54s  5.66% 48.01%      0.54s  5.66%  runtime.memclrNoHeapPointers
-     0.48s  5.03% 53.04%      0.48s  5.03%  github.com/nilsmagnus/grib/griblib.(*BitReader).currentBit (inline)
-     0.38s  3.98% 57.02%      0.89s  9.33%  encoding/binary.(*decoder).value
-     0.31s  3.25% 60.27%      3.97s 41.61%  github.com/nilsmagnus/grib/griblib.(*BitReader).readIntsBlock
+     1.58s 29.59% 29.59%      1.78s 33.33%  github.com/nilsmagnus/grib/griblib.(*BitReader).readBit
+     1.07s 20.04% 49.63%      2.85s 53.37%  github.com/nilsmagnus/grib/griblib.(*BitReader).readUint
+     0.53s  9.93% 59.55%      0.53s  9.93%  runtime.memclrNoHeapPointers
+     0.36s  6.74% 66.29%      0.85s 15.92%  encoding/binary.(*decoder).value
+     0.15s  2.81% 69.10%      2.78s 52.06%  github.com/nilsmagnus/grib/griblib.(*BitReader).readIntsBlock
+     0.15s  2.81% 71.91%      0.15s  2.81%  github.com/nilsmagnus/grib/griblib.(*Data3).applySpacialDifferencing
+     0.14s  2.62% 74.53%      0.26s  4.87%  reflect.Value.Index
+     0.13s  2.43% 76.97%      0.20s  3.75%  bytes.(*Buffer).ReadByte
+     0.11s  2.06% 79.03%      0.28s  5.24%  github.com/nilsmagnus/grib/griblib.(*Data2).scaleValues
+     0.11s  2.06% 81.09%      0.19s  3.56%  reflect.Value.SetUint
+     0.08s  1.50% 82.58%      0.08s  1.50%  github.com/nilsmagnus/grib/griblib.Data0.scaleFunc.func1
+     0.08s  1.50% 84.08%      0.08s  1.50%  reflect.(*rtype).Kind (inline)
+     0.07s  1.31% 85.39%      0.07s  1.31%  bytes.(*Buffer).empty (inline)
+     0.06s  1.12% 86.52%      0.68s 12.73%  runtime.mallocgc
+     0.06s  1.12% 87.64%      0.06s  1.12%  runtime.memmove
+     0.05s  0.94% 88.58%      0.05s  0.94%  reflect.flag.mustBeAssignable
+     0.05s  0.94% 89.51%      0.05s  0.94%  runtime.nextFreeFast (inline)
+     0.04s  0.75% 90.26%      0.04s  0.75%  encoding/binary.(*decoder).uint8 (inline)
+   
  ```
 
-* As you can see from the sample output, it is the readBit and readUint that takes most of the time. 
+* As you can see from the sample output, it is the readBit and readUint that takes most of the time. If anyone know how to optimize these functions further, please let me know :)
 * Performance can be better if you only want to read certain kinds of messages. The filter that is implemented will filter only after reading all the messages. (help appreciated :) )
 
 #### Memory
@@ -149,20 +170,23 @@ Dropped 126 nodes (cum <= 0.05s)
 go tool pprof -top memprofile.out
 File: gribtest.test
 Type: alloc_space
-Time: Feb 7, 2019 at 9:20pm (CET)
-Showing nodes accounting for 9.31GB, 99.36% of 9.37GB total
-Dropped 44 nodes (cum <= 0.05GB)
+Time: Feb 9, 2019 at 6:44pm (CET)
+Showing nodes accounting for 4.54GB, 99.45% of 4.57GB total
+Dropped 56 nodes (cum <= 0.02GB)
       flat  flat%   sum%        cum   cum%
-    4.83GB 51.57% 51.57%     5.94GB 63.37%  github.com/nilsmagnus/grib/griblib.(*Data2).extractData
-    2.39GB 25.47% 77.04%     2.39GB 25.47%  github.com/nilsmagnus/grib/griblib.(*Data2).scaleValues
-    0.98GB 10.47% 87.50%     0.98GB 10.47%  github.com/nilsmagnus/grib/griblib.(*BitReader).readIntsBlock
-    0.30GB  3.20% 90.71%     9.36GB 99.84%  github.com/nilsmagnus/grib/griblib.ReadMessage
-    0.25GB  2.67% 93.38%     0.49GB  5.22%  github.com/nilsmagnus/grib/griblib.(*Data2).extractBitGroupParameters
-
+    2.69GB 58.76% 58.76%     3.21GB 70.19%  github.com/nilsmagnus/grib/griblib.(*Data2).extractData
+    0.76GB 16.60% 75.36%     0.76GB 16.60%  github.com/nilsmagnus/grib/griblib.(*Data2).scaleValues
+    0.47GB 10.22% 85.58%     0.47GB 10.22%  github.com/nilsmagnus/grib/griblib.(*BitReader).readIntsBlock
+    0.27GB  5.93% 91.51%     0.35GB  7.55%  github.com/nilsmagnus/grib/griblib.(*Data2).extractBitGroupParameters
+    0.08GB  1.65% 93.17%     0.08GB  1.65%  github.com/nilsmagnus/grib/griblib.(*BitReader).readUintsBlock
+    0.06GB  1.34% 94.50%     4.55GB 99.65%  github.com/nilsmagnus/grib/griblib.ReadMessage
+    0.06GB  1.32% 95.82%     0.06GB  1.33%  encoding/binary.Read
+    0.06GB  1.23% 97.05%     0.06GB  1.23%  github.com/nilsmagnus/grib/griblib.makeBitReader
+    0.06GB  1.21% 98.26%     0.06GB  1.21%  github.com/nilsmagnus/grib/griblib.(*bitGroupParameter).zeroGroup (inline)
 ```
 
-* extractData is hogging memory
-* scaleValues is hoggig memory
+* extractData is hogging memory and should be the focus for further memory-optimizations. It is probably allocating and discarding a lot of slices and a fixed size slice should be considered. 
+* scaleValues could possibly be optimized, but is much better now than previous versions.
 
 
 # Grib Documentation
