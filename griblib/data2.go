@@ -103,8 +103,13 @@ func (template *Data2) scaleValues(section7Data []int64, ifldmiss []int64) []flo
 }
 
 func (template *Data2) extractData(bitReader *BitReader, bitGroups []bitGroupParameter) ([]int64, []int64, error) {
-	section7Data := make([]int64, 0, len(bitGroups)*32)
-	ifldmiss := make([]int64, 0, len(bitGroups)*32)
+	var totalLength uint64
+	for _, group := range bitGroups {
+		totalLength += group.Length
+	}
+	section7Data := make([]int64, 0, totalLength)
+	ifldmiss := make([]int64, 0, totalLength)
+
 	for _, bitGroup := range bitGroups {
 		tmp, err := bitGroup.readData(bitReader)
 		if err != nil {

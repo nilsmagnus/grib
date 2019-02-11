@@ -170,19 +170,21 @@ Dropped 69 nodes (cum <= 0.03s)
 go tool pprof -top memprofile.out
 File: gribtest.test
 Type: alloc_space
-Time: Feb 9, 2019 at 6:44pm (CET)
-Showing nodes accounting for 4.54GB, 99.45% of 4.57GB total
-Dropped 56 nodes (cum <= 0.02GB)
+Time: Feb 11, 2019 at 9:32pm (CET)
+Showing nodes accounting for 3.86GB, 99.26% of 3.89GB total
+Dropped 51 nodes (cum <= 0.02GB)
       flat  flat%   sum%        cum   cum%
-    2.69GB 58.76% 58.76%     3.21GB 70.19%  github.com/nilsmagnus/grib/griblib.(*Data2).extractData
-    0.76GB 16.60% 75.36%     0.76GB 16.60%  github.com/nilsmagnus/grib/griblib.(*Data2).scaleValues
-    0.47GB 10.22% 85.58%     0.47GB 10.22%  github.com/nilsmagnus/grib/griblib.(*BitReader).readIntsBlock
-    0.27GB  5.93% 91.51%     0.35GB  7.55%  github.com/nilsmagnus/grib/griblib.(*Data2).extractBitGroupParameters
-    0.08GB  1.65% 93.17%     0.08GB  1.65%  github.com/nilsmagnus/grib/griblib.(*BitReader).readUintsBlock
-    0.06GB  1.34% 94.50%     4.55GB 99.65%  github.com/nilsmagnus/grib/griblib.ReadMessage
-    0.06GB  1.32% 95.82%     0.06GB  1.33%  encoding/binary.Read
-    0.06GB  1.23% 97.05%     0.06GB  1.23%  github.com/nilsmagnus/grib/griblib.makeBitReader
-    0.06GB  1.21% 98.26%     0.06GB  1.21%  github.com/nilsmagnus/grib/griblib.(*bitGroupParameter).zeroGroup (inline)
+    2.02GB 51.98% 51.98%     2.53GB 65.04%  github.com/nilsmagnus/grib/griblib.(*Data2).extractData
+    0.75GB 19.23% 71.21%     0.75GB 19.23%  github.com/nilsmagnus/grib/griblib.(*Data2).scaleValues
+    0.46GB 11.84% 83.05%     0.46GB 11.84%  github.com/nilsmagnus/grib/griblib.(*BitReader).readIntsBlock
+    0.26GB  6.74% 89.79%     0.34GB  8.69%  github.com/nilsmagnus/grib/griblib.(*Data2).extractBitGroupParameters
+    0.08GB  1.99% 91.78%     0.08GB  1.99%  github.com/nilsmagnus/grib/griblib.(*BitReader).readUintsBlock
+    0.06GB  1.61% 93.39%     0.06GB  1.66%  encoding/binary.Read
+    0.06GB  1.59% 94.98%     3.88GB 99.61%  github.com/nilsmagnus/grib/griblib.ReadMessage
+    0.06GB  1.59% 96.57%     0.06GB  1.60%  github.com/nilsmagnus/grib/griblib.makeBitReader
+    0.06GB  1.48% 98.04%     3.81GB 98.01%  github.com/nilsmagnus/grib/griblib.readMessage
+    0.05GB  1.22% 99.26%     0.05GB  1.22%  github.com/nilsmagnus/grib/griblib.(*bitGroupParameter).zeroGroup (inline)
+         0     0% 99.26%     0.03GB  0.71%  github.com/nilsmagnus/grib/griblib.(*Data2).extractGroupBitWidths
 ```
 
 * extractData is hogging memory and should be the focus for further memory-optimizations. It is probably allocating and discarding a lot of slices and a fixed size slice should be considered. 
