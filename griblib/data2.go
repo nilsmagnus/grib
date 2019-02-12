@@ -107,8 +107,9 @@ func (template *Data2) extractData(bitReader *BitReader, bitGroups []bitGroupPar
 	for _, group := range bitGroups {
 		totalLength += group.Length
 	}
-	section7Data := make([]int64, 0, totalLength)
+	section7Data := make([]int64, totalLength)
 	ifldmiss := make([]int64, 0, totalLength)
+	s7i := 0
 
 	for _, bitGroup := range bitGroups {
 		tmp, err := bitGroup.readData(bitReader)
@@ -117,22 +118,22 @@ func (template *Data2) extractData(bitReader *BitReader, bitGroups []bitGroupPar
 		}
 		switch template.MissingValue {
 		case 0:
-			data := make([]int64, len(tmp))
 			ifldmiss = append(ifldmiss, make([]int64, len(tmp))...)
-			for i, elt := range tmp {
-				data[i] = elt + int64(bitGroup.Reference)
+			for _, elt := range tmp {
+				section7Data[s7i] = elt + int64(bitGroup.Reference)
+				s7i++
 			}
-			section7Data = append(section7Data, data...)
 
 		case 1:
 			if bitGroup.Width == 0 {
 				msng1 := uint64(math.Pow(2.0, float64(template.Bits))) - 1
 				for _, elt := range tmp {
 					if bitGroup.Reference == msng1 {
-						section7Data = append(section7Data, -1)
+						section7Data[s7i] = -1
 						ifldmiss = append(ifldmiss, 1)
 					} else {
-						section7Data = append(section7Data, elt+int64(bitGroup.Reference))
+						section7Data[s7i] = elt + int64(bitGroup.Reference)
+						s7i++
 						ifldmiss = append(ifldmiss, 0)
 					}
 				}
@@ -140,10 +141,12 @@ func (template *Data2) extractData(bitReader *BitReader, bitGroups []bitGroupPar
 				msng1 := int64(math.Pow(2.0, float64(bitGroup.Width))) - 1
 				for _, elt := range tmp {
 					if elt == msng1 {
-						section7Data = append(section7Data, -1)
+						section7Data[s7i] = -1
+						s7i++
 						ifldmiss = append(ifldmiss, 1)
 					} else {
-						section7Data = append(section7Data, elt+int64(bitGroup.Reference))
+						section7Data[s7i] = elt + int64(bitGroup.Reference)
+						s7i++
 						ifldmiss = append(ifldmiss, 0)
 					}
 				}
@@ -155,14 +158,18 @@ func (template *Data2) extractData(bitReader *BitReader, bitGroups []bitGroupPar
 				msng2 := msng1 - 1
 				for _, elt := range tmp {
 					if bitGroup.Reference == msng1 || bitGroup.Reference == msng2 {
-						section7Data = append(section7Data, -1)
+						section7Data[s7i] = -1
+						s7i++
+
 						if bitGroup.Reference == msng1 {
 							ifldmiss = append(ifldmiss, 1)
 						} else {
 							ifldmiss = append(ifldmiss, 2)
 						}
 					} else {
-						section7Data = append(section7Data, elt+int64(bitGroup.Reference))
+						section7Data[s7i] = elt + int64(bitGroup.Reference)
+						s7i++
+
 						ifldmiss = append(ifldmiss, 0)
 					}
 				}
@@ -171,14 +178,16 @@ func (template *Data2) extractData(bitReader *BitReader, bitGroups []bitGroupPar
 				msng2 := msng1 - 1
 				for _, elt := range tmp {
 					if elt == msng1 || elt == msng2 {
-						section7Data = append(section7Data, -1)
+						section7Data[s7i] = -1
+						s7i++
 						if elt == msng1 {
 							ifldmiss = append(ifldmiss, 1)
 						} else {
 							ifldmiss = append(ifldmiss, 2)
 						}
 					} else {
-						section7Data = append(section7Data, elt+int64(bitGroup.Reference))
+						section7Data[s7i] = elt + int64(bitGroup.Reference)
+						s7i++
 						ifldmiss = append(ifldmiss, 0)
 					}
 				}

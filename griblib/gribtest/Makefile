@@ -12,7 +12,7 @@ benchmark:
 	rm profile.out memprofile.out
 	rm gribtest.test
 
-benchmark:
+benchmark-mem:
 	go version
 	go test -bench=. -benchmem -memprofile memprofile.out -cpuprofile profile.out
 	go tool pprof -top profile.out
