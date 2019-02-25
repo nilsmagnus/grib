@@ -13,6 +13,19 @@ Install by typing
 
     go get -u github.com/nilsmagnus/grib
 
+## Library Usage:
+
+Have a look at 'main.go' for main usage:
+
+    gribfile, err := os.Open("somegrib2file.grib2")
+	if err != nil {
+		b.Fatalf("Could not open test-file %v", err)
+	}
+    messages, err := griblib.ReadMessages(gribfile)
+    
+    for _, message := range messages {
+    	// do your thing
+    }
 
 ### Application Usage:
 
@@ -50,6 +63,7 @@ Reduce input file to default output-file with discipline 0 (Meteorology):
 
     grib -operation reduce -file testdata/reduced.grib2 -discipline 0
 
+
 Filter on area on size of norway+sweden, output to json:
       
     grib -file testdata/gfs.t00z.pgrb2.2p50.f003  -latMin 57000000 -latMax 71000000 -longMin 4400000 -longMax 32000000 -export 3
@@ -58,15 +72,7 @@ Filter on temperature only:
 
     grib -file testdata/gfs.t00z.pgrb2.2p50.f003 -discipline 0 -category 0 
 
-## Library examples
 
-Have a look at 'main.go' for main usage:
-
-    gribfile, err := os.Open("somegrib2file.grib2")
-	if err != nil {
-		b.Fatalf("Could not open test-file %v", err)
-	}
-    griblib.ReadMessages(gribfile)
 	
 
 ## What works?
