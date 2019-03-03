@@ -130,6 +130,7 @@ func (template *Data2) extractData(bitReader *BitReader, bitGroups []bitGroupPar
 				for _, elt := range tmp {
 					if bitGroup.Reference == msng1 {
 						section7Data[s7i] = -1
+						s7i++
 						ifldmiss = append(ifldmiss, 1)
 					} else {
 						section7Data[s7i] = elt + int64(bitGroup.Reference)
