@@ -17,4 +17,6 @@ jobs:
       uses: actions/checkout@v1
 
     - name: Build
-      run: make
+      run: | 
+        go get -u github.com/nilsmagnus/grib
+        make
