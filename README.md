@@ -3,9 +3,9 @@ Circle-ci build: [![CircleCI](https://circleci.com/gh/nilsmagnus/grib/tree/maste
 GRIB2 Golang parser application and library
 ================================
 
-Parser and library for grib2 file format. 
+Parser and library for the grib2 file format for meteorological data representations. 
 
-Forked from github.com/analogic/grib which is now abandoned by the author (see [comment on my pull request](https://github.com/analogic/grib/pull/1)).
+For a full presentation of the library, see https://github.com/nilsmagnus/what-is-griblib
 
 ## Usage
 
