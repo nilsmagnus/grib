@@ -13,9 +13,9 @@ func Test_read_section0(t *testing.T) {
 
 	testData := griblib.Section0{
 		Discipline:    2,
-		Edition:       3,
+		Edition:       2,
 		MessageLength: 4,
-		Indicator:     5,
+		Indicator:     0x47524942,
 		Reserved:      6,
 	}
 
@@ -46,7 +46,7 @@ func Test_read_section1(t *testing.T) {
 			Year:   6,
 		},
 		ReferenceTimeSignificance: 7,
-		Type: 8,
+		Type:                      8,
 	}
 
 	section1, readError := griblib.ReadSection1(toIoReader(testData), binary.Size(testData))
