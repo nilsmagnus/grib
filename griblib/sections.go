@@ -176,8 +176,10 @@ func ReadSection0(reader io.Reader) (section0 Section0, err error) {
 
 	if section0.Indicator == Grib {
 		if section0.Edition != SupportedGribEdition {
-			return section0, fmt.Errorf("Unsupported  grib edition %d", section0.Edition)
+			return section0, fmt.Errorf("Unsupported grib edition %d", section0.Edition)
 		}
+	} else {
+		return section0, fmt.Errorf("Unsupported grib indicator %d", section0.Indicator)
 	}
 
 	return
