@@ -114,6 +114,7 @@ to test:
  - "analogic", https://github.com/analogic
  - Cyrille Meichel, https://github.com/landru29
  - Nils Larsgård, https://github.com/nilsmagnus
+ - measuredweighed, https://github.com/measuredweighed
  
 ## Help appreciated
 
