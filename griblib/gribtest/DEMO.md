@@ -2,7 +2,7 @@
 
 ## before optimize
 git co before-optimize
-go test -bench=. -benchmem -memprofile memprofile.out -cpuprofile profile.out
+go test -memprofile memprofile.out -cpuprofile profile.out
 
 go tool pprof -web memprofile.out
 go tool pprof -web cpuprofile.out
@@ -14,7 +14,7 @@ go tool pprof -web cpuprofile.out
 
 # after optimize
 git co master
-go test -bench=. -benchmem -memprofile memprofile.out -cpuprofile profile.out
+go test -memprofile memprofile.out -cpuprofile profile.out
 
 go tool pprof -web memprofile.out
 go tool pprof -web cpuprofile.out
