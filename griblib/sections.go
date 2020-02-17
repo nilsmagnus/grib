@@ -362,14 +362,15 @@ func (s Section3) String() string {
 	return fmt.Sprint("Point count: ", s.DataPointCount, " Definition: ", GridDefinitionTemplateDescription(int(s.TemplateNumber)))
 }
 
-//ReadSection3 is poorly documented other than code
-func ReadSection3(f io.Reader, length int) (section Section3, err error) {
+//ReadSection3 reads section3 from reader(f). the Lenght parameter is ignored
+func ReadSection3(f io.Reader, _ int) (section Section3, err error) {
 
 	err = read(f, &section.Source, &section.DataPointCount, &section.PointCountOctets, &section.PointCountInterpretation, &section.TemplateNumber)
 	if err != nil {
 		return section, err
 	}
 
+	//
 	section.Definition, err = ReadGrid(f, section.TemplateNumber)
 	return section, err
 }
