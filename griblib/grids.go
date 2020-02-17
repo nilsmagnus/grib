@@ -77,7 +77,7 @@ func ReadGrid(f io.Reader, templateNumber uint16) (Grid, error) {
 		return &grid, binary.Read(f, binary.BigEndian, &grid)
 	default:
 		var grid Grid90
-		return &grid, errors.New(fmt.Sprint("Unknown grid template number ", templateNumber))
+		return &grid, errors.New(fmt.Sprint("Unsupported grid definition ", templateNumber))
 	}
 	return g, err
 }

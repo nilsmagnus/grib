@@ -2,11 +2,11 @@ package griblib
 
 import (
 	"image"
+	"log"
 
 	"fmt"
 	"image/color"
 	"image/png"
-	"log"
 	"math"
 	"os"
 	"reflect"
@@ -14,9 +14,21 @@ import (
 
 func ExportMessagesAsPngs(messages []*Message) {
 	for i, message := range messages {
-		dataImage := imageFromMessage(message)
-		writeImageToFilename(dataImage, imageFileName(i, message))
+		dataImage, err := imageFromMessage(message)
+		if err != nil {
+			log.Printf("Message could not be converted to image: %v\n", err)
+		} else {
+			writeImageToFilename(dataImage, imageFileName(i, message))
+		}
 	}
+}
+
+func ExportMessageAsPng(message *Message, filename string) error {
+	dataImage, err := imageFromMessage(message)
+	if err != nil {
+		return err
+	}
+	return writeImageToFilename(dataImage, filename)
 }
 
 func imageFileName(messageNumber int, message *Message) string {
@@ -28,34 +40,34 @@ func imageFileName(messageNumber int, message *Message) string {
 		messageNumber)
 }
 
-func writeImageToFilename(img image.Image, name string) {
+func writeImageToFilename(img image.Image, name string) error {
 	f, err := os.Create(name)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	if err := png.Encode(f, img); err != nil {
 		f.Close()
-		log.Fatal(err)
+		return err
 	}
 
 	if err := f.Close(); err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 }
 
-func imageFromMessage(message *Message) image.Image {
+func imageFromMessage(message *Message) (image.Image, error) {
 
 	grid0, ok := message.Section3.Definition.(*Grid0)
 
 	if !ok {
 		err := fmt.Errorf("Currently not supporting definition of type %s ", reflect.TypeOf(message.Section3.Definition))
-		log.Fatal(err)
-		return nil
+		return nil, err
 	}
 
-	height := int(grid0.Ni)
-	width := int(grid0.Nj)
+	height := int(grid0.Nj)
+	width := int(grid0.Ni)
 
 	maxValue, minValue := MaxMin(message.Section7.Data)
 
@@ -66,18 +78,18 @@ func imageFromMessage(message *Message) image.Image {
 		for y := 0; y < height; y++ {
 			for x := 0; x < width; x++ {
 				value := message.Section7.Data[y*width+x]
-				red := RedValue(value, maxValue, minValue)
-				blue := blueValue(value, maxValue, minValue)
+				red := uint8(0)
+				blue := uint8(254)
 				rgbaImage.Set(x, y, color.NRGBA{
 					R: red,
 					G: 0,
 					B: blue,
-					A: 255,
+					A: RedValue(value, maxValue, minValue),
 				})
 			}
 		}
 	}
-	return rgbaImage
+	return rgbaImage, nil
 }
 
 // returns a number between 0 and 255

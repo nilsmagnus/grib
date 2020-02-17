@@ -1,6 +1,7 @@
 package gribtest
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -31,11 +32,16 @@ func Test_message_to_png(t *testing.T) {
 	}
 
 	for _, message := range messages {
-		surface := message.Section4.ProductDefinitionTemplate.FirstSurface
 		if message.Section0.Discipline == 0 &&
-			message.Section4.ProductDefinitionTemplate.ParameterCategory == 0 &&
-			surface.Type == 1 {
-			griblib.ExportMessagesAsPngs([]*griblib.Message{message})
+			message.Section4.ProductDefinitionTemplate.ParameterCategory == 1 &&
+			message.Section4.ProductDefinitionTemplate.FirstSurface.Type == 1 {
+			dataname := griblib.ReadProductDisciplineParameters(message.Section0.Discipline, message.Section4.ProductDefinitionTemplate.ParameterCategory)
+
+			errf := griblib.ExportMessageAsPng(message, fmt.Sprintf("%s.png", dataname))
+			fmt.Printf("wrote image to %s \n", dataname)
+			if errf != nil {
+				t.Error(errf)
+			}
 		}
 	}
 

@@ -543,7 +543,7 @@ func ReadSection7(f io.Reader, length int, section5 Section5) (section Section7,
 	return section, sectionError
 }
 
-//read is poorly documented other than code
+//read bytes from reader and serialize the bytes into the given data .. pointers
 func read(reader io.Reader, data ...interface{}) (err error) {
 	for _, what := range data {
 		err = binary.Read(reader, binary.BigEndian, what)
