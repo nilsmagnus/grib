@@ -123,7 +123,7 @@ type Grid10 struct {
 type Grid20 struct {
 	//name =  "Polar stereographic projection ";
 	GridHeader
-	Nx                          uint32 `json:"Nx"`
+	Nx                          uint32 `json:"nx"`
 	Ny                          uint32 `json:"ny"`
 	La1                         int32  `json:"na1"`
 	Lo1                         int32  `json:"lo1"`
