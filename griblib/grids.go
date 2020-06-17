@@ -7,6 +7,13 @@ import (
 	"io"
 )
 
+func fixNegLatLon(num int32) int32 {
+	if num < 0 {
+		return -int32(uint32(num) &^ uint32(0x80000000))
+	}
+	return num
+}
+
 //ScaledValue specifies the scale of a value
 type ScaledValue struct {
 	Scale uint8  `json:"scale"`
@@ -26,22 +33,45 @@ type Grid interface {
 
 //ReadGrid reads grid from binary input to the grid-number specified by templateNumber
 func ReadGrid(f io.Reader, templateNumber uint16) (Grid, error) {
+	var err error
+	var g Grid
 	switch templateNumber {
 	case 0:
 		var grid Grid0
-		return &grid, binary.Read(f, binary.BigEndian, &grid)
+		err = binary.Read(f, binary.BigEndian, &grid)
+		grid.La1 = fixNegLatLon(grid.La1)
+		grid.Lo1 = fixNegLatLon(grid.Lo1)
+		grid.La2 = fixNegLatLon(grid.La2)
+		grid.Lo2 = fixNegLatLon(grid.Lo2)
+		g = &grid
 	case 10:
 		var grid Grid10
-		return &grid, binary.Read(f, binary.BigEndian, &grid)
+		err = binary.Read(f, binary.BigEndian, &grid)
+		grid.La1 = fixNegLatLon(grid.La1)
+		grid.Lo1 = fixNegLatLon(grid.Lo1)
+		grid.La2 = fixNegLatLon(grid.La2)
+		grid.Lo2 = fixNegLatLon(grid.Lo2)
+		g = &grid
 	case 20:
 		var grid Grid20
-		return &grid, binary.Read(f, binary.BigEndian, &grid)
+		err = binary.Read(f, binary.BigEndian, &grid)
+		grid.La1 = fixNegLatLon(grid.La1)
+		grid.Lo1 = fixNegLatLon(grid.Lo1)
+		g = &grid
 	case 30:
 		var grid Grid30
-		return &grid, binary.Read(f, binary.BigEndian, &grid)
+		err = binary.Read(f, binary.BigEndian, &grid)
+		grid.La1 = fixNegLatLon(grid.La1)
+		grid.Lo1 = fixNegLatLon(grid.Lo1)
+		g = &grid
 	case 40:
 		var grid Grid40
-		return &grid, binary.Read(f, binary.BigEndian, &grid)
+		err = binary.Read(f, binary.BigEndian, &grid)
+		grid.La1 = fixNegLatLon(grid.La1)
+		grid.Lo1 = fixNegLatLon(grid.Lo1)
+		grid.La2 = fixNegLatLon(grid.La2)
+		grid.Lo2 = fixNegLatLon(grid.Lo2)
+		g = &grid
 	case 90:
 		var grid Grid90
 		return &grid, binary.Read(f, binary.BigEndian, &grid)
@@ -49,6 +79,7 @@ func ReadGrid(f io.Reader, templateNumber uint16) (Grid, error) {
 		var grid Grid90
 		return &grid, errors.New(fmt.Sprint("Unknown grid template number ", templateNumber))
 	}
+	return g, err
 }
 
 //GridHeader is a common header in all grids
