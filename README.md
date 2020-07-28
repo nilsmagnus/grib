@@ -201,7 +201,7 @@ Dropped 43 nodes (cum <= 0.02GB)
 
 Grib specification:
 
-http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc.shtml
+https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/
 
 Documentation from noaa.gov :
 
