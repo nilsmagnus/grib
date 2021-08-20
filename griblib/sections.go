@@ -49,6 +49,27 @@ func (message Message) Data() []float64 {
 	return message.Section7.Data
 }
 
+//ReadMessages reads at most n first messages from gribFile
+func ReadNMessages(gribFile io.Reader, n int) ([]*Message, error) {
+	messages := make([]*Message, 0)
+
+	for {
+		message, messageErr := ReadMessage(gribFile)
+
+		if messageErr != nil {
+			if strings.Contains(messageErr.Error(), "EOF") {
+				return messages, nil
+			}
+			fmt.Println("Error when parsing a message, ", messageErr.Error())
+			return messages, messageErr
+		}
+		messages = append(messages, message)
+		if len(messages) >= n {
+			return messages, nil
+		}
+	}
+}
+
 //ReadMessages reads all message from gribFile
 func ReadMessages(gribFile io.Reader) ([]*Message, error) {
 
