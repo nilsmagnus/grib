@@ -31,7 +31,7 @@ Read first n messages in a grib-file:
 
     gribfile, err := os.Open("somegrib2file.grib2")
     if err != nil { log.Fatalf("Could not open test-file %v", err) }
-    messages, err := griblib.ReadMessages(gribfile)
+    messages, err := griblib.ReadNMessages(gribfile, 2)
 
     for _, message := range messages {
         // do your thing with the n first messages
