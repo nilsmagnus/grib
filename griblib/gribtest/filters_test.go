@@ -1,7 +1,7 @@
 package gribtest
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"testing"
 
@@ -116,9 +116,9 @@ func Test_temperature_layers(t *testing.T) {
 		t.Errorf("expected 1 messages, got %d\n", len(filtered))
 	}
 
-	fmt.Println("layers for ")
+	log.Println("layers for ")
 	for _, f := range filtered {
-		fmt.Printf("c: %d\ts1: %d\t\tt1: %d\tv1: %d (meter over sea-level?)\n",
+		log.Printf("c: %d\ts1: %d\t\tt1: %d\tv1: %d (meter over sea-level?)\n",
 			f.Section4.ProductDefinitionTemplate.ParameterCategory,
 			f.Section4.ProductDefinitionTemplate.FirstSurface.Scale,
 			f.Section4.ProductDefinitionTemplate.FirstSurface.Type,

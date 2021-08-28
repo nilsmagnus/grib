@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log"
 	"strings"
 )
 
@@ -60,7 +61,7 @@ func ReadNMessages(gribFile io.Reader, n int) ([]*Message, error) {
 			if strings.Contains(messageErr.Error(), "EOF") {
 				return messages, nil
 			}
-			fmt.Println("Error when parsing a message, ", messageErr.Error())
+			log.Println("Error when parsing a message, ", messageErr.Error())
 			return messages, messageErr
 		}
 		messages = append(messages, message)
@@ -81,7 +82,7 @@ func ReadMessages(gribFile io.Reader) ([]*Message, error) {
 			if strings.Contains(messageErr.Error(), "EOF") {
 				return messages, nil
 			}
-			fmt.Println("Error when parsing a message, ", messageErr.Error())
+			log.Println("Error when parsing a message, ", messageErr.Error())
 			return messages, messageErr
 		}
 		messages = append(messages, message)
@@ -103,12 +104,12 @@ func ReadMessage(gribFile io.Reader) (*Message, error) {
 	numBytes, readError := gribFile.Read(messageBytes)
 
 	if readError != nil {
-		fmt.Println("Error reading message")
+		log.Println("Error reading message")
 		return &message, readError
 	}
 
 	if numBytes != int(section0.MessageLength-16) {
-		fmt.Println("Did not read full message")
+		log.Println("Did not read full message")
 	}
 
 	return readMessage(bytes.NewReader(messageBytes), section0)
@@ -125,7 +126,7 @@ func readMessage(gribFile io.Reader, section0 Section0) (*Message, error) {
 		// pre-parse section head to decide which struct use
 		sectionHead, headErr := ReadSectionHead(gribFile)
 		if headErr != nil {
-			fmt.Println("Error reading header", headErr.Error())
+			log.Println("Error reading header", headErr.Error())
 			return &message, headErr
 		}
 
@@ -537,7 +538,7 @@ type Section7 struct {
 func ReadSection7(f io.Reader, length int, section5 Section5) (section Section7, sectionError error) {
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Printf("Corrupt message %q\n", err)
+			log.Printf("Corrupt message %q\n", err)
 		}
 	}()
 

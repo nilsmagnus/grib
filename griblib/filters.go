@@ -2,6 +2,7 @@ package griblib
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 )
 
@@ -37,7 +38,7 @@ func Filter(messages []*Message, options Options) []*Message {
 			continue
 		}
 		if !isEmpty(options.GeoFilter) {
-			fmt.Printf("Using GeoFilter %v\n", options.GeoFilter)
+			log.Printf("Using GeoFilter %v\n", options.GeoFilter)
 			if data, err := FilterValuesFromGeoFilter(message, options.GeoFilter); err == nil {
 				message.Section7.Data = *data
 				if grid0, ok := message.Section3.Definition.(*Grid0); ok {
@@ -47,7 +48,7 @@ func Filter(messages []*Message, options Options) []*Message {
 				}
 
 			} else {
-				fmt.Println(err.Error())
+				log.Println(err.Error())
 			}
 		}
 		if discipline && category {
