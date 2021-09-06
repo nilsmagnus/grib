@@ -1,4 +1,4 @@
-Circle-ci build: [![CircleCI](https://circleci.com/gh/nilsmagnus/grib/tree/master.svg?style=svg)](https://circleci.com/gh/nilsmagnus/grib/tree/master)
+![Build](https://github.com/nilsmagnus/grib/actions/workflows/go.yml/badge.svg)
 
 GRIB2 Golang parser application and library
 ================================
