@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 # The name of the executable (default is current directory name)
-TARGET := $(shell echo $${PWD##*/})
+TARGET := $(shell echo "$${PWD##*/}")
 .DEFAULT_GOAL: $(TARGET)
 
 # These will be provided to the target
@@ -17,6 +17,7 @@ SRC = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 .PHONY: all build clean install uninstall fmt simplify check run
 
 all: test-all install
+	@echo "Built $(TARGET), git sha $(BUILD)"
 
 $(TARGET): $(SRC)
 	go build $(LDFLAGS) -o $(TARGET)
