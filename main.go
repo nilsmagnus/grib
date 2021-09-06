@@ -28,14 +28,14 @@ func optionsFromFlag() griblib.Options {
 	flag.Parse()
 
 	return griblib.Options{
-		Operation:               string(*operation),
-		Filepath:                string(*filename),
-		ReduceFilePath:          string(*reducedFile),
-		ExportType:              int(*exportType),
-		MaximumNumberOfMessages: int(*maxNum),
-		Discipline:              int(*discipline),
-		Category:                int(*category),
-		DataExport:              bool(*dataExport),
+		Operation:               *operation,
+		Filepath:                *filename,
+		ReduceFilePath:          *reducedFile,
+		ExportType:              *exportType,
+		MaximumNumberOfMessages: *maxNum,
+		Discipline:              *discipline,
+		Category:                *category,
+		DataExport:              *dataExport,
 		Surface: griblib.Surface{
 			Type: uint8(*surface),
 		},

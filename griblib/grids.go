@@ -101,16 +101,16 @@ func (h *GridHeader) Export() (d map[string]string) {
 type Grid0 struct {
 	//Name :=  "Latitude/longitude (or equidistant cylindrical, or Plate Carree) "
 	GridHeader
-	Ni                          uint32     `json:"ni"`
-	Nj                          uint32     `json:"nj"`
+	Ni                          uint32     `json:"ni"` // lines along parallel(latitudes)
+	Nj                          uint32     `json:"nj"` // lines along meridian(longitude)
 	BasicAngle                  BasicAngle `json:"basicAngle"`
-	La1                         int32      `json:"la1"`
-	Lo1                         int32      `json:"lo1"`
+	La1                         int32      `json:"la1"` // latitude of first grid-point
+	Lo1                         int32      `json:"lo1"` // longitude of first grid-point
 	ResolutionAndComponentFlags uint8      `json:"resolutionAndComponentFlags"`
-	La2                         int32      `json:"la2"`
-	Lo2                         int32      `json:"lo2"`
-	Di                          int32      `json:"di"`
-	Dj                          int32      `json:"dj"`
+	La2                         int32      `json:"la2"` // latitude of last grid-point
+	Lo2                         int32      `json:"lo2"` // longitude of first grid-point
+	Di                          int32      `json:"di"`  // direction i increment
+	Dj                          int32      `json:"dj"`  // direction j increment
 	ScanningMode                uint8      `json:"scanningMode"`
 }
 

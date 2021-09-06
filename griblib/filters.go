@@ -3,10 +3,19 @@ package griblib
 import (
 	"fmt"
 	"log"
+	"math"
 	"reflect"
 )
 
 // GeoFilter is used to filter values. Only values inside the filter is returned when using this filter
+// values are multiplies of 10^6, so a latitude with value 10.123456 is specified with the number 10123456
+//
+// note that latitude 90 is considered lesser than latitude 85 in calculations.
+// an example for a valid filter is
+//
+// 		filter := griblib.GeoFilter{MinLong: 10_000_000, MinLat: 85_000_000, MaxLat: 70_000_000, MaxLong: 15_000_000}
+//
+// note than MinLat has higher integer value than MaxLat
 type GeoFilter struct {
 	MinLat  int32 `json:"minLat"`
 	MaxLat  int32 `json:"maxLat"`
@@ -109,12 +118,12 @@ func FilterValuesFromGeoFilter(message *Message, filter GeoFilter) (*[]float64, 
 func StartStopIndexes(filter GeoFilter, grid Grid0) (uint32, uint32, uint32, uint32) {
 
 	// ni is number of points west-east
-	startNi := uint32(filter.MinLong/grid.Di) + 1
-	stopNi := uint32(filter.MaxLong/grid.Di) + 1
+	startNi := uint32((filter.MinLong - grid.Lo1) / grid.Di)
+	stopNi := uint32((filter.MaxLong - grid.Lo1) / grid.Di)
 
 	// nj is number of points north-south
-	startNj := uint32((LatitudeNorth - filter.MaxLat) / grid.Dj)
-	stopNj := uint32((LatitudeNorth - filter.MinLat) / grid.Dj)
+	startNj := uint32(math.Abs(float64(grid.La1-filter.MinLat)) / float64(grid.Dj))
+	stopNj := uint32(math.Abs(float64(grid.La1-filter.MaxLat)) / float64(grid.Dj))
 
 	return startNi, stopNi, startNj, stopNj
 }

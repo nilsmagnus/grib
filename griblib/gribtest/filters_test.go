@@ -9,14 +9,14 @@ import (
 )
 
 func Test_calculcate_startStopIndexes(t *testing.T) {
-	filter := griblib.GeoFilter{MinLong: 4400000, MaxLong: 32000000, MinLat: 57000000, MaxLat: 71000000}
-	grid := griblib.Grid0{Di: 2500000, Dj: 2500000, Lo1: 0, Lo2: 357500000, La1: 90000000, La2: -2057483648, Ni: 144, Nj: 73}
+	filter := griblib.GeoFilter{MinLong: 4_400_000, MaxLong: 32_000_000, MinLat: 71_000_000, MaxLat: 57_000_000}
+	grid := griblib.Grid0{Di: 2_500_000, Dj: 2_500_000, Lo1: 0, Lo2: 357_500_000, La1: 90_000_000, La2: -2057483648, Ni: 144, Nj: 73}
 	startNi, stopNi, startNj, stopNj := griblib.StartStopIndexes(filter, grid)
 
-	if startNi != 2 {
+	if startNi != 1 {
 		t.Errorf("startNi should have been 2, was %d", startNi)
 	}
-	if stopNi != 13 {
+	if stopNi != 12 {
 		t.Errorf("stopNi should have been 13, was %d", stopNi)
 	}
 	if startNj != 7 {
@@ -29,7 +29,7 @@ func Test_calculcate_startStopIndexes(t *testing.T) {
 }
 
 func Test_filter_values_on_geofilter(t *testing.T) {
-	filter := griblib.GeoFilter{MinLong: 4400000, MaxLong: 32000000, MinLat: 57000000, MaxLat: 71000000}
+	filter := griblib.GeoFilter{MinLong: 4400000, MaxLong: 32000000, MinLat: 71000000, MaxLat: 57000000}
 	grid := griblib.Grid0{Di: 2500000, Dj: 2500000, Lo1: 0, Lo2: 357500000, La1: 90000000, La2: -2057483648, Ni: 144, Nj: 73}
 
 	// create monotonically increasing values in test-map
