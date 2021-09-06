@@ -2,22 +2,22 @@ package griblib
 
 import (
 	"bytes"
-	"fmt"
 	"io"
+	"log"
 	"strings"
 )
 
 //Reduce the file in readseeker with the given options, omitting all other products and areas
 func Reduce(readSeeker io.Reader, options Options, content chan []byte, end chan bool) {
 	if options.Discipline == -1 {
-		fmt.Println("No disciplines defined for reduce.")
+		log.Println("No disciplines defined for reduce.")
 		end <- true
 		return
 	}
 	for {
 		messageSection0Bytes := make([]byte, 16)
 		if section0ByteCount, err := readSeeker.Read(messageSection0Bytes); section0ByteCount == 0 || err != nil {
-			fmt.Println("Read 0 bytes, returning.")
+			log.Println("Read 0 bytes, returning.")
 			end <- true
 			return
 		}
@@ -25,7 +25,7 @@ func Reduce(readSeeker io.Reader, options Options, content chan []byte, end chan
 
 		if err != nil {
 			if !isEOF(err) {
-				fmt.Println("section0 read err: ", err.Error())
+				log.Println("section0 read err: ", err.Error())
 			}
 			end <- true
 			return
@@ -36,7 +36,7 @@ func Reduce(readSeeker io.Reader, options Options, content chan []byte, end chan
 			messageContentBytes := make([]byte, section0.MessageLength-16)
 			_, err = readSeeker.Read(messageContentBytes)
 			if err != nil {
-				fmt.Printf("read2 err: %v", err.Error())
+				log.Printf("read2 err: %v", err.Error())
 				end <- true
 			}
 			content <- messageSection0Bytes
@@ -49,6 +49,6 @@ func Reduce(readSeeker io.Reader, options Options, content chan []byte, end chan
 }
 
 func isEOF(err error) bool {
-	fmt.Printf("Error:: %s", err.Error())
+	log.Printf("Error:: %s", err.Error())
 	return strings.Contains(err.Error(), "EOF")
 }

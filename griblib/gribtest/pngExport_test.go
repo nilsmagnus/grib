@@ -2,6 +2,7 @@ package gribtest
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"testing"
 
@@ -38,7 +39,7 @@ func Test_message_to_png(t *testing.T) {
 			dataname := griblib.ReadProductDisciplineParameters(message.Section0.Discipline, message.Section4.ProductDefinitionTemplate.ParameterCategory)
 
 			errf := griblib.ExportMessageAsPng(message, fmt.Sprintf("%s.png", dataname))
-			fmt.Printf("wrote image to %s \n", dataname)
+			log.Printf("wrote image to %s \n", dataname)
 			if errf != nil {
 				t.Error(errf)
 			}

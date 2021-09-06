@@ -3,7 +3,7 @@ package griblib
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
+	"log"
 	"os"
 )
 
@@ -33,13 +33,13 @@ func Export(messages []*Message, options Options) {
 	case ExportToPNG:
 		ExportMessagesAsPngs(messages)
 	default:
-		fmt.Printf("Error: Export type %d not supported. \n", options.ExportType)
+		log.Printf("Error: Export type %d not supported. \n", options.ExportType)
 	}
 }
 
 func printDisciplines(messages []*Message) {
 	for _, message := range messages {
-		fmt.Println(DisciplineDescription(message.Section0.Discipline))
+		log.Println(DisciplineDescription(message.Section0.Discipline))
 	}
 }
 
@@ -47,17 +47,17 @@ func printCategories(messages []*Message) {
 	for _, m := range messages {
 		category := m.Section4.ProductDefinitionTemplate.ParameterCategory
 		discipline := m.Section0.Discipline
-		fmt.Println(ReadProductDisciplineParameters(discipline, category))
+		log.Println(ReadProductDisciplineParameters(discipline, category))
 	}
 }
 
 func exportJSONConsole(messages []*Message) {
-	fmt.Println("[")
+	log.Println("[")
 	for _, message := range messages {
 		export(message)
-		fmt.Println(",")
+		log.Println(",")
 	}
-	fmt.Println("]")
+	log.Println("]")
 }
 
 func export(m *Message) {
@@ -67,5 +67,5 @@ func export(m *Message) {
 	var out bytes.Buffer
 	json.Compact(&out, js)
 	out.WriteTo(os.Stdout)
-	fmt.Println("")
+	log.Println("")
 }

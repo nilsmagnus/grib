@@ -19,12 +19,22 @@ Have a look at 'main.go' for main usage:
 
     gribfile, err := os.Open("somegrib2file.grib2")
 	if err != nil {
-		b.Fatalf("Could not open test-file %v", err)
+		log.Fatalf("Could not open test-file %v", err)
 	}
     messages, err := griblib.ReadMessages(gribfile)
     
     for _, message := range messages {
     	// do your thing
+    }
+
+Read first n messages in a grib-file:
+
+    gribfile, err := os.Open("somegrib2file.grib2")
+    if err != nil { log.Fatalf("Could not open test-file %v", err) }
+    messages, err := griblib.ReadNMessages(gribfile, 2)
+
+    for _, message := range messages {
+        // do your thing with the n first messages
     }
 
 ### Application Usage:

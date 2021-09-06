@@ -1,6 +1,9 @@
 package griblib
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 type bitGroupParameter struct {
 	Reference uint64
@@ -18,7 +21,7 @@ func (bitGroup *bitGroupParameter) readData(bitReader *BitReader) ([]int64, erro
 	if bitGroup.Width != 0 {
 		tmp, err = bitReader.readIntsBlock(int(bitGroup.Width), int64(bitGroup.Length), false)
 		if err != nil {
-			fmt.Printf("ERROR %s\n", err.Error())
+			log.Printf("ERROR %s\n", err.Error())
 		}
 	} else {
 		tmp = bitGroup.zeroGroup()

@@ -1,7 +1,7 @@
 package gribtest
 
 import (
-	"fmt"
+	"log"
 	"math"
 	"os"
 	"testing"
@@ -47,9 +47,9 @@ func Test_read_integrationtest_file(t *testing.T) {
 					min = kelvin
 				}
 			}
-			fmt.Printf("category number %v,", m.Section4.ProductDefinitionTemplate.ParameterCategory)
-			fmt.Printf("parameter number %v,", m.Section4.ProductDefinitionTemplate.ParameterNumber)
-			fmt.Printf("surface type %v, surface value %v max: %f min: %f\n", surface.Type, surface.Value, max, min)
+			log.Printf("category number %v,", m.Section4.ProductDefinitionTemplate.ParameterCategory)
+			log.Printf("parameter number %v,", m.Section4.ProductDefinitionTemplate.ParameterNumber)
+			log.Printf("surface type %v, surface value %v max: %f min: %f\n", surface.Type, surface.Value, max, min)
 
 		}
 	}

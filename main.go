@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"log"
 	"math"
 	"os"
 
@@ -51,10 +51,10 @@ func optionsFromFlag() griblib.Options {
 func main() {
 	options := optionsFromFlag()
 
-	fmt.Printf("Input parameters : %#v \n", options)
+	log.Printf("Input parameters : %#v \n", options)
 
 	if options.Filepath == "" {
-		fmt.Println("Missing 'file' option. ")
+		log.Println("Missing 'file' option. ")
 		flag.Usage()
 		os.Exit(0)
 	}
@@ -62,7 +62,7 @@ func main() {
 	gribFile, err := os.Open(options.Filepath)
 
 	if err != nil {
-		fmt.Printf("\nFile [%s] not found.\n", options.Filepath)
+		log.Printf("\nFile [%s] not found.\n", options.Filepath)
 		os.Exit(1)
 	}
 	defer gribFile.Close()
@@ -73,21 +73,21 @@ func main() {
 	case "reduce":
 		reduceToFile(gribFile, options)
 	default:
-		fmt.Printf("Operation '%s' not supported. Valid values are 'parse' and 'reduce'.", options.Operation)
+		log.Printf("Operation '%s' not supported. Valid values are 'parse' and 'reduce'.", options.Operation)
 		os.Exit(1)
 	}
 }
 
 func reduceToFile(gribFile io.Reader, options griblib.Options) {
 	if options.Discipline == -1 {
-		fmt.Println("No discipline defined.")
+		log.Println("No discipline defined.")
 		flag.Usage()
 		os.Exit(0)
 	}
 
 	reduceFile, err := os.Create(options.ReduceFilePath)
 	if err != nil {
-		fmt.Printf("Error creating reduced reduceFile: %s", err.Error())
+		log.Printf("Error creating reduced reduceFile: %s", err.Error())
 		os.Exit(1)
 	}
 
@@ -101,7 +101,7 @@ func reduceToFile(gribFile io.Reader, options griblib.Options) {
 	for {
 		select {
 		case <-end:
-			fmt.Printf("reduce done to file '%s'. \n", options.ReduceFilePath)
+			log.Printf("reduce done to file '%s'. \n", options.ReduceFilePath)
 			return
 		case bytesRead := <-content:
 			reduceFile.Write(bytesRead)
@@ -114,7 +114,7 @@ func parse(gribFile io.Reader, options griblib.Options) {
 	messages, err := griblib.ReadMessages(gribFile)
 
 	if err != nil {
-		fmt.Printf("Error reading all messages in gribfile: %s", err.Error())
+		log.Printf("Error reading all messages in gribfile: %s", err.Error())
 		os.Exit(1)
 	}
 
