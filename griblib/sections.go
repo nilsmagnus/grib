@@ -51,6 +51,7 @@ func (message Message) Data() []float64 {
 }
 
 //ReadMessages reads at most n first messages from gribFile
+//if an error occurs, the read messages and the error is returned
 func ReadNMessages(gribFile io.Reader, n int) ([]*Message, error) {
 	messages := make([]*Message, 0)
 

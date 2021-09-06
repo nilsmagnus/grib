@@ -7,10 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Set up Go 1.12
+    - name: Set up Go 1.17
       uses: actions/setup-go@v1
       with:
-        go-version: 1.12
+        go-version: 1.17
       id: go
 
     - name: Check out code into the Go module directory
@@ -19,4 +19,4 @@ jobs:
     - name: Build
       run: | 
         go get -u github.com/nilsmagnus/grib
-        make
+        make test-all
