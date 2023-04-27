@@ -8,8 +8,6 @@ import (
 )
 
 func BenchmarkReadMessages(b *testing.B) {
-	// run the Fib function b.N times
-
 	for n := 0; n < b.N; n++ {
 		f, err := os.Open("../integrationtestdata/template5_3.grib2")
 		if err != nil {
