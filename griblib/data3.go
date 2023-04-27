@@ -3,9 +3,11 @@ package griblib
 import (
 	"fmt"
 	"io"
+
+	"github.com/nilsmagnus/grib/internal/reader"
 )
 
-//Data3 is a Grid point data - complex packing and spatial differencing
+// Data3 is a Grid point data - complex packing and spatial differencing
 // http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp5-3.shtml
 type Data3 struct {
 	Data2
@@ -44,7 +46,7 @@ func (template *Data3) applySpacialDifferencing(section7Data []int64, minsd int6
 	}
 }
 
-func (template *Data3) extractSpacingDifferentialValues(bitReader *BitReader) (int64, int64, int64, error) {
+func (template *Data3) extractSpacingDifferentialValues(bitReader *reader.BitReader) (int64, int64, int64, error) {
 	var ival1 int64
 	var ival2 int64
 	var minsd int64
@@ -52,19 +54,19 @@ func (template *Data3) extractSpacingDifferentialValues(bitReader *BitReader) (i
 	rc := int(template.OctetsNumber) * 8
 	if rc != 0 {
 		var err error
-		ival1, err = bitReader.readInt(rc)
+		ival1, err = bitReader.ReadInt(rc)
 		if err != nil {
 			return minsd, ival1, ival2, fmt.Errorf("Spacial differencing Value 1: %s", err.Error())
 		}
 
 		if template.SpatialOrderDifference == 2 {
-			ival2, err = bitReader.readInt(rc)
+			ival2, err = bitReader.ReadInt(rc)
 			if err != nil {
 				return minsd, ival1, ival2, fmt.Errorf("Spacial differencing Value 2: %s", err.Error())
 			}
 		}
 
-		minsd, err = bitReader.readInt(rc)
+		minsd, err = bitReader.ReadInt(rc)
 		if err != nil {
 			return minsd, ival1, ival2, fmt.Errorf("Spacial differencing Reference: %s", err.Error())
 		}
@@ -79,14 +81,17 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) ([]float6
 	//
 	// Init reader
 	//
-	bitReader := makeBitReader(dataReader, dataLength)
+	bitReader, err := reader.New(dataReader, dataLength)
+	if err != nil {
+		return nil, err
+	}
 
 	//
 	//  Extract Spatial differencing values, if using DRS Template 5.3
 	//
 	minsd, ival1, ival2, err := template.extractSpacingDifferentialValues(bitReader)
 	if err != nil {
-		return []float64{}, fmt.Errorf("Spacial differencing Value 1: %s", err.Error())
+		return nil, fmt.Errorf("Spacial differencing Value 1: %s", err.Error())
 	}
 
 	//
@@ -94,7 +99,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) ([]float6
 	//
 	bitGroups, err := template.extractBitGroupParameters(bitReader)
 	if err != nil {
-		return []float64{}, fmt.Errorf("Groups: %s", err.Error())
+		return nil, fmt.Errorf("Groups: %s", err.Error())
 	}
 
 	//
@@ -102,7 +107,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) ([]float6
 	//  values, and length of section 7.
 	//
 	if err := checkLengths(bitGroups, dataLength); err != nil {
-		return []float64{}, fmt.Errorf("Check length: %s", err.Error())
+		return nil, fmt.Errorf("Check length: %s", err.Error())
 	}
 
 	//
@@ -110,7 +115,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) ([]float6
 	//
 	section7Data, ifldmiss, err := template.extractData(bitReader, bitGroups)
 	if err != nil {
-		return []float64{}, fmt.Errorf("Data extract: %s", err.Error())
+		return nil, fmt.Errorf("Data extract: %s", err.Error())
 	}
 
 	//

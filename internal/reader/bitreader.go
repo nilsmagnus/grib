@@ -1,4 +1,4 @@
-package griblib
+package reader
 
 import (
 	//"fmt"
@@ -7,71 +7,54 @@ import (
 	"io"
 )
 
-// BitReader is undocomented
+//go:generate mockgen -destination=../mocks/reader.go -package=mocks io Reader
+
+// BitReader wraps an io.Reader and provides the ability to read values,
+// bit-by-bit, from it.
 type BitReader struct {
 	reader io.ByteReader
 	byte   byte
 	offset byte
 }
 
-func (r *BitReader) resetOffset() {
+// ResetOffset reset the bit cursor to 0.
+// The bit cursor is a value between 0 and 7 that point on the current bit to be read.
+func (r *BitReader) ResetOffset() {
 	r.offset = 0
 }
 
-func (r *BitReader) currentBit() byte {
-	return (r.byte >> (7 - r.offset)) & 0x01
-}
-
-func newReader(r io.ByteReader) *BitReader {
-	return &BitReader{r, 0, 0}
-}
-
-func makeBitReader(dataReader io.Reader, dataLength int) *BitReader {
+// New creates a BitReader from an io.reader.
+// It reads 'dataLength' bytes and stores them in an internal buffer.
+func New(dataReader io.Reader, dataLength int) (*BitReader, error) {
 	rawData := make([]byte, dataLength)
-	dataReader.Read(rawData)
+	_, err := dataReader.Read(rawData)
+	if err != nil {
+		return nil, err
+	}
 	buffer := bytes.NewBuffer(rawData)
-	return newReader(buffer)
+	return newReader(buffer), nil
 }
 
-func (r *BitReader) readBit() (uint, error) {
-	if r.offset == 8 || r.offset == 0 {
-		r.offset = 0
-		if b, err := r.reader.ReadByte(); err == nil {
-			r.byte = b
-		} else {
-			return 0, err
-		}
-	}
-	bit := uint((r.byte >> (7 - r.offset)) & 0x01)
-
-	//bit := uint(r.currentBit())
-	r.offset++
-	return bit, nil
-}
-
-func (r *BitReader) readUint(nbits int) (uint64, error) {
-	var result uint64
-	for i := nbits - 1; i >= 0; i-- {
-		if bit, err := r.readBit(); err == nil {
-			result |= uint64(bit << uint(i))
-		} else {
-			return 0, err
-		}
-	}
-
-	return result, nil
-}
-
-func (r *BitReader) readInt(nbits int) (int64, error) {
+// ReadInt reads an integer encoded on `bits' bits.
+// for instance, given:
+//   - the following stream: A8 E5 2B
+//   - ReadInt(10)
+//
+// 10101000 11100101 00101011
+// \------- -/
+// 1010100011 -> -163
+// * First bit indicates a negative number
+// * 010100011 means 163
+func (r *BitReader) ReadInt(bits int) (int64, error) {
 	var result int64
 	var negative int64 = 1
-	for i := nbits - 1; i >= 0; i-- {
+	for i := bits - 1; i >= 0; i-- {
 		bit, err := r.readBit()
 
 		if err != nil {
 			return 0, err
 		}
-		if i == (nbits-1) && bit == 1 {
+		if i == (bits-1) && bit == 1 {
 			negative = -1
 			continue
 		}
@@ -80,11 +63,12 @@ func (r *BitReader) readInt(nbits int) (int64, error) {
 	return negative * result, nil
 }
 
-func (r *BitReader) readUintsBlock(bits int, count int64, resetOffset bool) ([]uint64, error) {
+// ReadUintsBlock reads a set of unsigned integer encoded on `bits' bits.
+func (r *BitReader) ReadUintsBlock(bits int, count int64, resetOffset bool) ([]uint64, error) {
 	result := make([]uint64, count)
 
 	if resetOffset {
-		r.resetOffset()
+		r.ResetOffset()
 	}
 
 	if bits != 0 {
@@ -100,20 +84,36 @@ func (r *BitReader) readUintsBlock(bits int, count int64, resetOffset bool) ([]u
 	return result, nil
 }
 
-func (r *BitReader) readIntsBlock(bits int, count int64, resetOffset bool) ([]int64, error) {
-	result := make([]int64, count)
+func newReader(r io.ByteReader) *BitReader {
+	return &BitReader{r, 0, 0}
+}
 
-	if resetOffset {
-		r.resetOffset()
+func (r *BitReader) currentBit() byte {
+	return (r.byte >> (7 - r.offset)) & 0x01
+}
+
+func (r *BitReader) readBit() (uint, error) {
+	if r.offset == 8 || r.offset == 0 {
+		r.offset = 0
+		if b, err := r.reader.ReadByte(); err == nil {
+			r.byte = b
+		} else {
+			return 0, err
+		}
 	}
+	bit := uint((r.byte >> (7 - r.offset)) & 0x01)
 
-	if bits != 0 {
-		for i := int64(0); i != count; i++ {
-			data, err := r.readUint(bits)
-			if err != nil {
-				return result, err
-			}
-			result[i] = int64(data)
+	r.offset++
+	return bit, nil
+}
+
+func (r *BitReader) readUint(nbits int) (uint64, error) {
+	var result uint64
+	for i := nbits - 1; i >= 0; i-- {
+		if bit, err := r.readBit(); err == nil {
+			result |= uint64(bit << uint(i))
+		} else {
+			return 0, err
 		}
 	}
 
