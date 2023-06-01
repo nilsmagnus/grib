@@ -14,7 +14,7 @@ LDFLAGS=-ldflags "-X=main.Build=$(BUILD)"
 # go source files, ignore vendor directory
 SRC = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
-.PHONY: all build clean install uninstall fmt simplify check run
+.PHONY: all build clean install uninstall fmt simplify check run test-all
 
 all: test-all install
 	@echo "Built $(TARGET), git sha $(BUILD)"
@@ -33,12 +33,15 @@ fmt:
 	gofmt -l -w $(SRC)
 
 test:
-	go test -short ./...
+	go test $(go list ./... | grep -v /mocks) -short ./...
 
 lint:
 	go vet ./...
 
 test-all: lint test
+
+gen:
+	go generate ./...
 
 strict-check:
 	@test -z $(shell gofmt -l main.go | tee /dev/stderr) || echo "[WARN] Fix formatting issues with 'make fmt'"

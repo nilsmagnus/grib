@@ -1,53 +1,21 @@
 package gribtest
 
 import (
-	"math"
-	"os"
 	"testing"
 
-	"github.com/nilsmagnus/grib/griblib"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_read0_integrationtest_file_hour0(t *testing.T) {
-	testFile, gribFileOpenErr := os.Open("../integrationtestdata/template5_0.grib2")
-	if gribFileOpenErr != nil {
-		t.Fatalf("Grib file for integration tests not found %s", gribFileOpenErr.Error())
-	}
-	defer testFile.Close()
+	messages := openGrib(t, "../integrationtestdata/template5_0.grib2")
 
-	resultFile, csvFileOpenErr := os.Open("../integrationtestdata/template_ugrd.csv")
-	if gribFileOpenErr != nil {
-		t.Fatalf("CSV file for integration tests not found %s", csvFileOpenErr.Error())
-	}
-	defer resultFile.Close()
+	fixtures := openCsv(t, "../integrationtestdata/template_ugrd.csv")
 
-	fixtures, errFixtures := readCsvAsSlice(resultFile)
-	if errFixtures != nil {
-		t.Fatalf("Could not parse CSV file %s", errFixtures.Error())
-	}
+	assert.Len(t, messages, 2, "should have exactly 2 message in testfile")
 
-	messages, messageParseErr := griblib.ReadMessages(testFile)
+	assert.Equal(t, uint16(0), messages[0].Section5.DataTemplateNumber, "Data template number should be 0")
 
-	if messageParseErr != nil {
-		t.Fatal("Error reading messages: ", messageParseErr.Error())
-	}
+	assert.Len(t, messages[0].Data(), len(fixtures))
 
-	if len(messages) != 2 {
-		t.Errorf("should have exactly 2 message in testfile, was %d", len(messages))
-	}
-
-	if messages[0].Section5.DataTemplateNumber != 0 {
-		t.Errorf("Data template number should be 0 (found %d)", messages[0].Section5.DataTemplateNumber)
-	}
-
-	if len(fixtures) != len(messages[0].Data()) {
-		t.Errorf("should have exactly 2 message in testfile, was %d", len(fixtures))
-	}
-
-	for index, data := range fixtures {
-		if math.Ceil(messages[0].Section7.Data[index]*10000+.5) != math.Ceil(data*10000+.5) {
-			t.Errorf("Expected value %f at index %d, found %f", data, index, messages[0].Section7.Data[index])
-		}
-	}
-
+	assert.InEpsilonSlice(t, fixtures, messages[0].Data(), 1e-5)
 }

@@ -2,7 +2,8 @@ package griblib
 
 import (
 	"fmt"
-	"log"
+
+	"github.com/nilsmagnus/grib/internal/reader"
 )
 
 type bitGroupParameter struct {
@@ -15,25 +16,23 @@ func (bitGroup *bitGroupParameter) zeroGroup() []int64 {
 	return make([]int64, bitGroup.Length)
 }
 
-func (bitGroup *bitGroupParameter) readData(bitReader *BitReader) ([]int64, error) {
-	var tmp []int64
+func (bitGroup *bitGroupParameter) readData(bitReader *reader.BitReader) ([]int64, error) {
 	var err error
 	if bitGroup.Width != 0 {
-		tmp, err = bitReader.readIntsBlock(int(bitGroup.Width), int64(bitGroup.Length), false)
-		if err != nil {
-			log.Printf("ERROR %s\n", err.Error())
+		uintArray, err := bitReader.ReadUintsBlock(int(bitGroup.Width), int64(bitGroup.Length), false)
+		output := make([]int64, len(uintArray))
+		for idx, val := range uintArray {
+			output[idx] = int64(val)
 		}
-	} else {
-		tmp = bitGroup.zeroGroup()
+
+		return output, err
 	}
 
-	return tmp, err
+	return bitGroup.zeroGroup(), err
 }
 
-//
-//  Test to see if the group widths and lengths are consistent with number of
-//  values, and length of section 7.
-//
+// Test to see if the group widths and lengths are consistent with number of
+// values, and length of section 7.
 func checkLengths(bitGroups []bitGroupParameter, dataLength int) error {
 	totBit := 0
 	totLen := 0
@@ -50,20 +49,16 @@ func checkLengths(bitGroups []bitGroupParameter, dataLength int) error {
 	return nil
 }
 
-//
-//  Extract Each Group's reference value
-//
-func (template *Data2) extractGroupReferences(bitReader *BitReader) ([]uint64, error) {
+// Extract Each Group's reference value
+func (template *Data2) extractGroupReferences(bitReader *reader.BitReader) ([]uint64, error) {
 	numberOfGroups := int64(template.NG)
-	return bitReader.readUintsBlock(int(template.Bits), numberOfGroups, true)
+	return bitReader.ReadUintsBlock(int(template.Bits), numberOfGroups, true)
 }
 
-//
-//  Extract Each Group's bit width
-//
-func (template *Data2) extractGroupBitWidths(bitReader *BitReader) ([]uint64, error) {
+// Extract Each Group's bit width
+func (template *Data2) extractGroupBitWidths(bitReader *reader.BitReader) ([]uint64, error) {
 	numberOfGroups := int64(template.NG)
-	widths, err := bitReader.readUintsBlock(int(template.GroupWidthsBits), numberOfGroups, true)
+	widths, err := bitReader.ReadUintsBlock(int(template.GroupWidthsBits), numberOfGroups, true)
 	if err != nil {
 		return widths, err
 	}
@@ -75,12 +70,10 @@ func (template *Data2) extractGroupBitWidths(bitReader *BitReader) ([]uint64, er
 	return widths, nil
 }
 
-//
-//  Extract Each Group's length (number of values in each group)
-//
-func (template *Data2) extractGroupLengths(bitReader *BitReader) ([]uint64, error) {
+// Extract Each Group's length (number of values in each group)
+func (template *Data2) extractGroupLengths(bitReader *reader.BitReader) ([]uint64, error) {
 	numberOfGroups := int64(template.NG)
-	lengths, err := bitReader.readUintsBlock(int(template.GroupScaledLengthsBits), numberOfGroups, true)
+	lengths, err := bitReader.ReadUintsBlock(int(template.GroupScaledLengthsBits), numberOfGroups, true)
 	if err != nil {
 		return lengths, err
 	}
@@ -92,7 +85,7 @@ func (template *Data2) extractGroupLengths(bitReader *BitReader) ([]uint64, erro
 	return lengths, nil
 }
 
-func (template *Data2) extractBitGroupParameters(bitReader *BitReader) ([]bitGroupParameter, error) {
+func (template *Data2) extractBitGroupParameters(bitReader *reader.BitReader) ([]bitGroupParameter, error) {
 	result := []bitGroupParameter{}
 	//
 	//  Extract Each Group's reference value
@@ -126,7 +119,7 @@ func (template *Data2) extractBitGroupParameters(bitReader *BitReader) ([]bitGro
 		})
 	}
 
-	bitReader.resetOffset()
+	bitReader.ResetOffset()
 
 	return result, nil
 }
