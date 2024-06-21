@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-//Reduce the file in readseeker with the given options, omitting all other products and areas
+// Reduce the file in readseeker with the given options, omitting all other products and areas
 func Reduce(readSeeker io.Reader, options Options, content chan []byte, end chan bool) {
 	if options.Discipline == -1 {
 		log.Println("No disciplines defined for reduce.")
@@ -42,7 +42,14 @@ func Reduce(readSeeker io.Reader, options Options, content chan []byte, end chan
 			content <- messageSection0Bytes
 			content <- messageContentBytes
 		} else {
-			readSeeker.Read(make([]byte, int64(section0.MessageLength)-16))
+			length := int64(section0.MessageLength) - 16
+			bytesRead, err2 := readSeeker.Read(make([]byte, length))
+			if int64(bytesRead) != length {
+				log.Printf("bytesRead: %v, length: %v", bytesRead, length)
+			}
+			if err2 != nil {
+				log.Printf("read3 err: %v", err2.Error())
+			}
 		}
 
 	}

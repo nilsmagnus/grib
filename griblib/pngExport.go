@@ -18,7 +18,10 @@ func ExportMessagesAsPngs(messages []*Message) {
 		if err != nil {
 			log.Printf("Message could not be converted to image: %v\n", err)
 		} else {
-			writeImageToFilename(dataImage, imageFileName(i, message))
+			err2 := writeImageToFilename(dataImage, imageFileName(i, message))
+			if err2 != nil {
+				log.Printf("Image could not be written to file: %v\n", err2)
+			}
 		}
 	}
 }
@@ -46,9 +49,12 @@ func writeImageToFilename(img image.Image, name string) error {
 		return err
 	}
 
-	if err := png.Encode(f, img); err != nil {
-		f.Close()
-		return err
+	if err2 := png.Encode(f, img); err2 != nil {
+		err3 := f.Close()
+		if err3 != nil {
+			log.Printf("Error closing file: %v\n", err3)
+		}
+		return err2
 	}
 
 	if err := f.Close(); err != nil {
@@ -62,7 +68,7 @@ func imageFromMessage(message *Message) (image.Image, error) {
 	grid0, ok := message.Section3.Definition.(*Grid0)
 
 	if !ok {
-		err := fmt.Errorf("Currently not supporting definition of type %s ", reflect.TypeOf(message.Section3.Definition))
+		err := fmt.Errorf("currently not supporting definition of type %s ", reflect.TypeOf(message.Section3.Definition))
 		return nil, err
 	}
 
@@ -92,16 +98,6 @@ func imageFromMessage(message *Message) (image.Image, error) {
 	return rgbaImage, nil
 }
 
-// returns a number between 0 and 255
-func blueValue(value float64, maxValue float64, minValue float64) uint8 {
-	//value  = value - 273
-	if value < 0 {
-		percentOfMaxValue := (math.Abs(value) + math.Abs(minValue)) / (math.Abs(maxValue) + math.Abs(minValue))
-		return uint8(percentOfMaxValue * 255.0)
-	}
-	return 0
-}
-
 // RedValue returns a number between 0 and 255
 func RedValue(value float64, maxValue float64, minValue float64) uint8 {
 	//value  = value - 273
@@ -113,14 +109,14 @@ func RedValue(value float64, maxValue float64, minValue float64) uint8 {
 }
 
 func MaxMin(float64s []float64) (float64, float64) {
-	max, min := -9999999.0, 999999.0
+	biggest, smallest := -9999999.0, 999999.0
 	for _, v := range float64s {
-		if v > max {
-			max = v
+		if v > biggest {
+			biggest = v
 		}
-		if v < min {
-			min = v
+		if v < smallest {
+			smallest = v
 		}
 	}
-	return max, min
+	return biggest, smallest
 }

@@ -10,10 +10,18 @@ import (
 )
 
 func beforeTests(t *testing.T) func(t *testing.T) {
-	os.MkdirAll("testoutput", os.ModePerm)
+	err := os.MkdirAll("testoutput", 0750)
+	if err != nil {
+		t.Errorf("Could not create testoutput directory: %v", err)
+		t.Fail()
+	}
 
 	return func(t *testing.T) {
-		os.RemoveAll("testoutput")
+		err2 := os.RemoveAll("testoutput")
+		if err2 != nil {
+			t.Errorf("Could not remove testoutput directory: %v", err2)
+			t.Fail()
+		}
 	}
 }
 

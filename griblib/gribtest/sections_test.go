@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"io"
+	"log"
 	"testing"
 
 	"github.com/nilsmagnus/grib/griblib"
@@ -64,7 +65,10 @@ func Test_read_section1(t *testing.T) {
 func toIoReader(data interface{}) (reader io.Reader) {
 	var binBuf bytes.Buffer
 
-	binary.Write(&binBuf, binary.BigEndian, data)
+	err := binary.Write(&binBuf, binary.BigEndian, data)
+	if err != nil {
+		log.Printf("Error writing to buffer: %s", err.Error())
+	}
 
 	reader = bytes.NewReader(binBuf.Bytes())
 

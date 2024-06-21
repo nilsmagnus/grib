@@ -65,7 +65,10 @@ func export(m *Message) {
 	// json print
 	js, _ := json.Marshal(m)
 	var out bytes.Buffer
-	json.Compact(&out, js)
-	out.WriteTo(os.Stdout)
+	err := json.Compact(&out, js)
+	if err != nil {
+		log.Printf("Error compacting json: %v\n", err)
+	}
+	_, _ = out.WriteTo(os.Stdout)
 	log.Println("")
 }

@@ -17,7 +17,7 @@ type Product0 struct {
 	SecondSurface     Surface `json:"secondSurface"`
 }
 
-//Product1 http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-1.shtml
+// Product1 http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-1.shtml
 type Product1 struct {
 	Product0
 	EnsembleForecastType    uint8 `json:"ensembleForecastType"`
@@ -25,14 +25,14 @@ type Product1 struct {
 	ForecastInEnsembleCount uint8 `json:"forecastInEnsembleCount"`
 }
 
-//Product2 http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-2.shtml
+// Product2 http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-2.shtml
 type Product2 struct {
 	Product0
 	DerivedForecast         uint8 `json:"derivedForecast"`
 	ForecastInEnsembleCount uint8 `json:"forecastInEnsembleCount"`
 }
 
-//Product5 http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-5.shtml
+// Product5 http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-5.shtml
 type Product5 struct {
 	Product0
 	ForecastProbabilityNumber  uint8  `json:"forecastProbabilityNumber"`
@@ -44,18 +44,18 @@ type Product5 struct {
 	ScaleValueUpperLimit       uint32 `json:"scaleValueUpperLimit"`
 }
 
-//Product6 http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-6.shtml
+// Product6 http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-6.shtml
 type Product6 struct {
 	Product0
 	PercentileValue uint8 `json:"percentileValue"` // 0-100
 }
 
-//Product7 http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-7.shtml
+// Product7 http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-7.shtml
 type Product7 struct {
 	Product0
 }
 
-//Product8 http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-8.shtml
+// Product8 http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_temp4-8.shtml
 type Product8 struct {
 	Product0
 	Time                              Time                     `json:"time"`
@@ -66,7 +66,7 @@ type Product8 struct {
 	AdditionalTimeRangeSpecifications []TimeRangeSpecification `json:"additionalTimeRangeSpecifications"` // 71-n
 }
 
-//TimeRangeSpecification describes timerange for products
+// TimeRangeSpecification describes timerange for products
 type TimeRangeSpecification struct {
 	StatisticalFieldCalculationProcess                     uint8  `json:"statisticalFieldCalculationProcess"`                     // 47
 	IncrementBetweenSuccessiveFieldsType                   uint8  `json:"incrementBetweenSuccessiveFieldsType"`                   // 48
@@ -76,7 +76,7 @@ type TimeRangeSpecification struct {
 	TimeIncrementBetweenSuccessiveField                    uint32 `json:"timeIncrementBetweenSuccessiveField"`                    // 55-58
 }
 
-//Surface describes a surface for a product, see http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-5.shtml
+// Surface describes a surface for a product, see http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-5.shtml
 type Surface struct {
 	Type  uint8  `json:"type"` // type 220: Planetary Boundary Layer
 	Scale uint8  `json:"scale"`

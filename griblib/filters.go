@@ -13,7 +13,7 @@ import (
 // note that latitude 90 is considered lesser than latitude 85 in calculations.
 // an example for a valid filter is
 //
-// 		filter := griblib.GeoFilter{MinLong: 10_000_000, MinLat: 85_000_000, MaxLat: 70_000_000, MaxLong: 15_000_000}
+//	filter := griblib.GeoFilter{MinLong: 10_000_000, MinLat: 85_000_000, MaxLat: 70_000_000, MaxLong: 15_000_000}
 //
 // note than MinLat has higher integer value than MaxLat
 type GeoFilter struct {
