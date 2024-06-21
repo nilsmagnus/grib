@@ -38,7 +38,9 @@ const (
 func Filter(messages []*Message, options Options) []*Message {
 
 	filtered := make([]*Message, 0)
-
+	if !isEmpty(options.GeoFilter) && len(messages) > 0 {
+		log.Printf("Using GeoFilter %v\n", options.GeoFilter)
+	}
 	for _, message := range messages {
 		discipline := satisfiesDiscipline(options.Discipline, message)
 		category := satisfiesCategory(options.Category, message)
@@ -47,7 +49,6 @@ func Filter(messages []*Message, options Options) []*Message {
 			continue
 		}
 		if !isEmpty(options.GeoFilter) {
-			log.Printf("Using GeoFilter %v\n", options.GeoFilter)
 			if data, err := FilterValuesFromGeoFilter(message, options.GeoFilter); err == nil {
 				message.Section7.Data = *data
 				if grid0, ok := message.Section3.Definition.(*Grid0); ok {

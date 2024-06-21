@@ -16,11 +16,11 @@ func ExportMessagesAsPngs(messages []*Message) {
 	for i, message := range messages {
 		dataImage, err := imageFromMessage(message)
 		if err != nil {
-			log.Printf("Message could not be converted to image: %v\n", err)
+			log.Fatalf("Message could not be converted to image: %v\n", err)
 		} else {
 			err2 := writeImageToFilename(dataImage, imageFileName(i, message))
 			if err2 != nil {
-				log.Printf("Image could not be written to file: %v\n", err2)
+				log.Fatalf("Image could not be written to file: %v\n", err2)
 			}
 		}
 	}
@@ -52,13 +52,13 @@ func writeImageToFilename(img image.Image, name string) error {
 	if err2 := png.Encode(f, img); err2 != nil {
 		err3 := f.Close()
 		if err3 != nil {
-			log.Printf("Error closing file: %v\n", err3)
+			log.Fatalf("Error closing file: %v\n", err3)
 		}
 		return err2
 	}
 
-	if err := f.Close(); err != nil {
-		return err
+	if err2 := f.Close(); err2 != nil {
+		return err2
 	}
 	return nil
 }

@@ -33,7 +33,7 @@ func Export(messages []*Message, options Options) {
 	case ExportToPNG:
 		ExportMessagesAsPngs(messages)
 	default:
-		log.Printf("Error: Export type %d not supported. \n", options.ExportType)
+		log.Fatalf("Error: Export type %d not supported. \n", options.ExportType)
 	}
 }
 
@@ -67,7 +67,7 @@ func export(m *Message) {
 	var out bytes.Buffer
 	err := json.Compact(&out, js)
 	if err != nil {
-		log.Printf("Error compacting json: %v\n", err)
+		log.Fatalf("Error compacting json: %v\n", err)
 	}
 	_, _ = out.WriteTo(os.Stdout)
 	log.Println("")

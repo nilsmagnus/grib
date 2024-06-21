@@ -45,10 +45,10 @@ func Reduce(readSeeker io.Reader, options Options, content chan []byte, end chan
 			length := int64(section0.MessageLength) - 16
 			bytesRead, err2 := readSeeker.Read(make([]byte, length))
 			if int64(bytesRead) != length {
-				log.Printf("bytesRead: %v, length: %v", bytesRead, length)
+				log.Fatalf("bytesRead: %v, length: %v", bytesRead, length)
 			}
 			if err2 != nil {
-				log.Printf("read3 err: %v", err2.Error())
+				log.Fatalf("read3 err: %v", err2.Error())
 			}
 		}
 

@@ -203,7 +203,7 @@ func ParseData2(dataReader io.Reader, dataLength int, template *Data2) ([]float6
 	//
 	section7Data, ifldmiss, err := template.extractData(bitReader, bitGroups)
 	if err != nil {
-		return nil, fmt.Errorf("Data extract: %s", err.Error())
+		return nil, fmt.Errorf("data extract: %s", err.Error())
 	}
 
 	return template.scaleValues(section7Data, ifldmiss), nil
