@@ -194,8 +194,8 @@ func ParseData2(dataReader io.Reader, dataLength int, template *Data2) ([]float6
 	//  Test to see if the group widths and lengths are consistent with number of
 	//  values, and length of section 7.
 	//
-	if err := checkLengths(bitGroups, dataLength); err != nil {
-		return nil, err
+	if err2 := checkLengths(bitGroups, dataLength); err2 != nil {
+		return nil, err2
 	}
 
 	//
@@ -203,7 +203,7 @@ func ParseData2(dataReader io.Reader, dataLength int, template *Data2) ([]float6
 	//
 	section7Data, ifldmiss, err := template.extractData(bitReader, bitGroups)
 	if err != nil {
-		return nil, fmt.Errorf("Data extract: %s", err.Error())
+		return nil, fmt.Errorf("data extract: %s", err.Error())
 	}
 
 	return template.scaleValues(section7Data, ifldmiss), nil
