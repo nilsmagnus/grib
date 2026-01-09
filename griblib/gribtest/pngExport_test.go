@@ -10,10 +10,18 @@ import (
 )
 
 func beforeTests(t *testing.T) func(t *testing.T) {
-	os.MkdirAll("testoutput", os.ModePerm)
+	err := os.MkdirAll("testoutput", 0750)
+	if err != nil {
+		t.Errorf("Could not create testoutput directory: %v", err)
+		t.Fail()
+	}
 
 	return func(t *testing.T) {
-		os.RemoveAll("testoutput")
+		err2 := os.RemoveAll("testoutput")
+		if err2 != nil {
+			t.Errorf("Could not remove testoutput directory: %v", err2)
+			t.Fail()
+		}
 	}
 }
 
@@ -49,12 +57,12 @@ func Test_message_to_png(t *testing.T) {
 }
 
 func Test_maxmin(t *testing.T) {
-	max, min := griblib.MaxMin([]float64{0, -154, 54, 64, -10})
-	if max != 64.0 {
-		t.Errorf("Expected max to be 64, was %f", max)
+	biggest, smallest := griblib.MaxMin([]float64{0, -154, 54, 64, -10})
+	if biggest != 64.0 {
+		t.Errorf("Expected biggest to be 64, was %f", biggest)
 	}
-	if min != -154.0 {
-		t.Errorf("Expected min to be -154, was %f", min)
+	if smallest != -154.0 {
+		t.Errorf("Expected smallest to be -154, was %f", smallest)
 	}
 }
 
