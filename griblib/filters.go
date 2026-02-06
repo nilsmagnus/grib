@@ -89,8 +89,8 @@ func isEmpty(geoFilter GeoFilter) bool {
 	return geoFilter == GeoFilter{
 		MinLong: LongitudeStart,
 		MaxLong: LongitudeEnd,
-		MinLat:  LatitudeNorth,
-		MaxLat:  LatitudeSouth,
+		MinLat:  LatitudeSouth,
+		MaxLat:  LatitudeNorth,
 	} || geoFilter == GeoFilter{}
 }
 
