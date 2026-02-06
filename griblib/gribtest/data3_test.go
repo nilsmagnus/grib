@@ -23,22 +23,22 @@ func Test_read_integrationtest_file(t *testing.T) {
 		if surface.Type == 1 && // ground surface
 			m.Section0.Discipline == 0 && // meterology
 			m.Section4.ProductDefinitionTemplate.ParameterCategory == 0 { // temperature
-			var max float64 = 00
-			var min float64 = 1000
+			var maxTemp float64 = 00
+			var minTemp float64 = 1000
 			for _, kelvin := range m.Section7.Data {
 				if kelvin < 197 || kelvin > 350 {
 					t.Errorf("Got kelvin out of range: %f\n", kelvin)
 				}
-				if kelvin > max {
-					max = kelvin
+				if kelvin > maxTemp {
+					maxTemp = kelvin
 				}
-				if kelvin < min {
-					min = kelvin
+				if kelvin < minTemp {
+					minTemp = kelvin
 				}
 			}
 			log.Printf("category number %v,", m.Section4.ProductDefinitionTemplate.ParameterCategory)
 			log.Printf("parameter number %v,", m.Section4.ProductDefinitionTemplate.ParameterNumber)
-			log.Printf("surface type %v, surface value %v max: %f min: %f\n", surface.Type, surface.Value, max, min)
+			log.Printf("surface type %v, surface value %v maxTemp: %f minTemp: %f\n", surface.Type, surface.Value, maxTemp, minTemp)
 
 		}
 	}

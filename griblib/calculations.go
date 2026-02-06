@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-// AverageValueBasic takes a GeoFilter, Grid0 and data to calculate the average value within that area. 
+// AverageValueBasic takes a GeoFilter, Grid0 and data to calculate the average value within that area.
 // See GeoFilter for how to define an area
 func AverageValueBasic(filter GeoFilter, grid0 *Grid0, data []float64) (float64, error) {
 	startNi, stopNi, startNj, stopNj := StartStopIndexes(filter, *grid0)
@@ -23,9 +23,9 @@ func AverageValueBasic(filter GeoFilter, grid0 *Grid0, data []float64) (float64,
 
 func AverageValue(filter GeoFilter, message *Message) (float64, error) {
 	grid0, ok := message.Section3.Definition.(*Grid0)
-	data  := message.Section7.Data
+	data := message.Section7.Data
 	if ok {
 		return AverageValueBasic(filter, grid0, data)
 	}
-	return -1, fmt.Errorf("grid not of wanted type (wanted Grid0), was %v.", reflect.TypeOf(message.Section3.Definition))
+	return -1, fmt.Errorf("grid not of wanted type (wanted Grid0), was %v", reflect.TypeOf(message.Section3.Definition))
 }

@@ -14,24 +14,24 @@ func fixNegLatLon(num int32) int32 {
 	return num
 }
 
-//ScaledValue specifies the scale of a value
+// ScaledValue specifies the scale of a value
 type ScaledValue struct {
 	Scale uint8  `json:"scale"`
 	Value uint32 `json:"value"`
 }
 
-//BasicAngle specifies the angle of a grid
+// BasicAngle specifies the angle of a grid
 type BasicAngle struct {
 	BasicAngle    uint32 `json:"basicAngle"`
 	BasicAngleSub uint32 `json:"basicAngleSub"`
 }
 
-//Grid is an interface for all grids.
+// Grid is an interface for all grids.
 type Grid interface {
 	Export() map[string]string
 }
 
-//ReadGrid reads grid from binary input to the grid-number specified by templateNumber
+// ReadGrid reads grid from binary input to the grid-number specified by templateNumber
 func ReadGrid(f io.Reader, templateNumber uint16) (Grid, error) {
 	var err error
 	var g Grid
@@ -82,7 +82,7 @@ func ReadGrid(f io.Reader, templateNumber uint16) (Grid, error) {
 	return g, err
 }
 
-//GridHeader is a common header in all grids
+// GridHeader is a common header in all grids
 type GridHeader struct {
 	EarthShape      uint8       `json:"earthShape"`
 	SphericalRadius ScaledValue `json:"sphericalRadius"`
@@ -90,14 +90,14 @@ type GridHeader struct {
 	MinorAxis       ScaledValue `json:"minorAxis"`
 }
 
-//Export gridheader to a map[string]string
+// Export gridheader to a map[string]string
 func (h *GridHeader) Export() (d map[string]string) {
 	return map[string]string{
 		"earth": EarthShapeDescription(int(h.EarthShape)),
 	}
 }
 
-//Grid0 Definition Template 3.0: Latitude/longitude (or equidistant cylindrical, or Plate Carree)
+// Grid0 Definition Template 3.0: Latitude/longitude (or equidistant cylindrical, or Plate Carree)
 type Grid0 struct {
 	//Name :=  "Latitude/longitude (or equidistant cylindrical, or Plate Carree) "
 	GridHeader
@@ -114,7 +114,7 @@ type Grid0 struct {
 	ScanningMode                uint8      `json:"scanningMode"`
 }
 
-//Export Grid0 to a map[string]string
+// Export Grid0 to a map[string]string
 func (h *Grid0) Export() map[string]string {
 	return map[string]string{
 		"earth":         EarthShapeDescription(int(h.EarthShape)),
@@ -132,7 +132,7 @@ func (h *Grid0) Export() map[string]string {
 	}
 }
 
-//Grid10 Definition Template 3.10: Mercator
+// Grid10 Definition Template 3.10: Mercator
 type Grid10 struct {
 	//name :=  "Mercator"
 	GridHeader
@@ -150,7 +150,7 @@ type Grid10 struct {
 	Dj                          int32  `json:"dj"`
 }
 
-//Grid20 Definition Template 3.20: Polar stereographic projection
+// Grid20 Definition Template 3.20: Polar stereographic projection
 type Grid20 struct {
 	//name =  "Polar stereographic projection ";
 	GridHeader
@@ -167,7 +167,7 @@ type Grid20 struct {
 	ScanningMode                uint8  `json:"scanningMode"`
 }
 
-//Grid30 Definition Template 3.30: Lambert conformal
+// Grid30 Definition Template 3.30: Lambert conformal
 type Grid30 struct {
 	//name =  "Polar stereographic projection ";
 	GridHeader
@@ -207,7 +207,7 @@ type Grid40 struct {
 
 // Grid90 Definition Template 3.90: Space view perspective or orthographic
 // FIXME: implement properly
-//Grid90
+// Grid90
 type Grid90 struct {
 	//name =  "Space view perspective or orthographic ";
 	GridHeader

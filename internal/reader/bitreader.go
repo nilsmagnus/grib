@@ -88,10 +88,6 @@ func newReader(r io.ByteReader) *BitReader {
 	return &BitReader{r, 0, 0}
 }
 
-func (r *BitReader) currentBit() byte {
-	return (r.byte >> (7 - r.offset)) & 0x01
-}
-
 func (r *BitReader) readBit() (uint, error) {
 	if r.offset == 8 || r.offset == 0 {
 		r.offset = 0

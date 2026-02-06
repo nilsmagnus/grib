@@ -13,6 +13,9 @@ func BenchmarkReadMessages(b *testing.B) {
 		if err != nil {
 			b.Fatalf("Could not open test-file %v", err)
 		}
-		griblib.ReadMessages(f)
+		_, err = griblib.ReadMessages(f)
+		if err != nil {
+			b.Fatalf("Could not read messages %v", err)
+		}
 	}
 }

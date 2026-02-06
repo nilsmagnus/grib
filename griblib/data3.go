@@ -56,19 +56,19 @@ func (template *Data3) extractSpacingDifferentialValues(bitReader *reader.BitRea
 		var err error
 		ival1, err = bitReader.ReadInt(rc)
 		if err != nil {
-			return minsd, ival1, ival2, fmt.Errorf("Spacial differencing Value 1: %s", err.Error())
+			return minsd, ival1, ival2, fmt.Errorf("spacial differencing Value 1: %s", err.Error())
 		}
 
 		if template.SpatialOrderDifference == 2 {
 			ival2, err = bitReader.ReadInt(rc)
 			if err != nil {
-				return minsd, ival1, ival2, fmt.Errorf("Spacial differencing Value 2: %s", err.Error())
+				return minsd, ival1, ival2, fmt.Errorf("spacial differencing Value 2: %s", err.Error())
 			}
 		}
 
 		minsd, err = bitReader.ReadInt(rc)
 		if err != nil {
-			return minsd, ival1, ival2, fmt.Errorf("Spacial differencing Reference: %s", err.Error())
+			return minsd, ival1, ival2, fmt.Errorf("spacial differencing Reference: %s", err.Error())
 		}
 	}
 
@@ -91,7 +91,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) ([]float6
 	//
 	minsd, ival1, ival2, err := template.extractSpacingDifferentialValues(bitReader)
 	if err != nil {
-		return nil, fmt.Errorf("Spacial differencing Value 1: %s", err.Error())
+		return nil, fmt.Errorf("spacial differencing Value 1: %s", err.Error())
 	}
 
 	//
@@ -99,15 +99,15 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) ([]float6
 	//
 	bitGroups, err := template.extractBitGroupParameters(bitReader)
 	if err != nil {
-		return nil, fmt.Errorf("Groups: %s", err.Error())
+		return nil, fmt.Errorf("groups: %s", err.Error())
 	}
 
 	//
 	//  Test to see if the group widths and lengths are consistent with number of
 	//  values, and length of section 7.
 	//
-	if err := checkLengths(bitGroups, dataLength); err != nil {
-		return nil, fmt.Errorf("Check length: %s", err.Error())
+	if err2 := checkLengths(bitGroups, dataLength); err2 != nil {
+		return nil, fmt.Errorf("check length: %s", err2.Error())
 	}
 
 	//
@@ -115,7 +115,7 @@ func ParseData3(dataReader io.Reader, dataLength int, template *Data3) ([]float6
 	//
 	section7Data, ifldmiss, err := template.extractData(bitReader, bitGroups)
 	if err != nil {
-		return nil, fmt.Errorf("Data extract: %s", err.Error())
+		return nil, fmt.Errorf("data extract: %s", err.Error())
 	}
 
 	//

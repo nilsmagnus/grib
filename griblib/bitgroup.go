@@ -19,13 +19,13 @@ func (bitGroup *bitGroupParameter) zeroGroup() []int64 {
 func (bitGroup *bitGroupParameter) readData(bitReader *reader.BitReader) ([]int64, error) {
 	var err error
 	if bitGroup.Width != 0 {
-		uintArray, err := bitReader.ReadUintsBlock(int(bitGroup.Width), int64(bitGroup.Length), false)
+		uintArray, err2 := bitReader.ReadUintsBlock(int(bitGroup.Width), int64(bitGroup.Length), false)
 		output := make([]int64, len(uintArray))
 		for idx, val := range uintArray {
 			output[idx] = int64(val)
 		}
 
-		return output, err
+		return output, err2
 	}
 
 	return bitGroup.zeroGroup(), err
@@ -43,7 +43,7 @@ func checkLengths(bitGroups []bitGroupParameter, dataLength int) error {
 	}
 
 	if totBit/8 > int(dataLength) {
-		return fmt.Errorf("Checksum err %d - %d", dataLength, totBit/8)
+		return fmt.Errorf("checksum err %d - %d", dataLength, totBit/8)
 	}
 
 	return nil

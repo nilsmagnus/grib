@@ -4,7 +4,7 @@ import "fmt"
 
 // translated from https://github.com/ArtemisiaSolutions/grib2js/blob/master/lib/grib/Grib2Spec.js
 
-//DisciplineDescription  DisciplineDescription(Code table 0.0)
+// DisciplineDescription  DisciplineDescription(Code table 0.0)
 func DisciplineDescription(value uint8) string {
 	switch value {
 	case 0:
@@ -26,7 +26,7 @@ func DisciplineDescription(value uint8) string {
 	}
 }
 
-//MasterTableDescription  MasterTableDescription version number (Code table 1.0)
+// MasterTableDescription  MasterTableDescription version number (Code table 1.0)
 func MasterTableDescription(value int) string {
 	switch value {
 	case 0:
@@ -56,7 +56,7 @@ func MasterTableDescription(value int) string {
 	}
 }
 
-//LocalTableVersionNumber  LocalTableVersionNumber (Code table 1.1)
+// LocalTableVersionNumber  LocalTableVersionNumber (Code table 1.1)
 func LocalTableVersionNumber(value int) string {
 	switch value {
 	case 0:
@@ -68,7 +68,7 @@ func LocalTableVersionNumber(value int) string {
 	}
 }
 
-//ReadReferenceTimeSignificance  Significance of reference time (Code table 1.2)
+// ReadReferenceTimeSignificance  Significance of reference time (Code table 1.2)
 func ReadReferenceTimeSignificance(value int) string {
 	switch value {
 	case 0:
@@ -86,7 +86,7 @@ func ReadReferenceTimeSignificance(value int) string {
 	}
 }
 
-//ReadProductionStatus  Production status of data(Code table 1.3)
+// ReadProductionStatus  Production status of data(Code table 1.3)
 func ReadProductionStatus(value int) string {
 	switch value {
 	case 0:
@@ -108,7 +108,7 @@ func ReadProductionStatus(value int) string {
 	}
 }
 
-//ReadDataType  Type of data (Code table 1.4)
+// ReadDataType  Type of data (Code table 1.4)
 func ReadDataType(value uint8) string {
 	switch value {
 	case 0:
@@ -136,7 +136,7 @@ func ReadDataType(value uint8) string {
 	}
 }
 
-//GridDefinitionSourceDescription GridDefinitionSourceDescription Source of Grid Definition (Code table 3.0)
+// GridDefinitionSourceDescription GridDefinitionSourceDescription Source of Grid Definition (Code table 3.0)
 func GridDefinitionSourceDescription(value int) string {
 	switch value {
 	case 0:
@@ -150,7 +150,7 @@ func GridDefinitionSourceDescription(value int) string {
 	}
 }
 
-//GridDefinitionTemplateDescription  GridDefinitionTemplateDescription Grid Definition Template Number (Code table 3.1)
+// GridDefinitionTemplateDescription  GridDefinitionTemplateDescription Grid Definition Template Number (Code table 3.1)
 func GridDefinitionTemplateDescription(value int) string {
 	switch value {
 	case 0:
@@ -218,7 +218,7 @@ func GridDefinitionTemplateDescription(value int) string {
 	}
 }
 
-//EarthShapeDescription EarthShapeDescription Shape of the earth (Code table 3.2)
+// EarthShapeDescription EarthShapeDescription Shape of the earth (Code table 3.2)
 func EarthShapeDescription(value int) string {
 	switch value {
 	case 0:
@@ -312,7 +312,7 @@ return flags
 }
 */
 
-//SpectralDataRepresentationTypeDescription SpectralDataRepresentationTypeDescription Spectral data representation type (Code table 3.6)
+// SpectralDataRepresentationTypeDescription SpectralDataRepresentationTypeDescription Spectral data representation type (Code table 3.6)
 func SpectralDataRepresentationTypeDescription(value int) string {
 	switch value {
 	case 1:
@@ -322,7 +322,7 @@ func SpectralDataRepresentationTypeDescription(value int) string {
 	}
 }
 
-//ReadSpectralDataRepresentationMode SpectralDataRepresentationModeDescription Spectral data representation mode (Code table 3.7)
+// ReadSpectralDataRepresentationMode SpectralDataRepresentationModeDescription Spectral data representation mode (Code table 3.7)
 func ReadSpectralDataRepresentationMode(value int) string {
 	switch value {
 	case 1:
@@ -334,7 +334,7 @@ func ReadSpectralDataRepresentationMode(value int) string {
 	}
 }
 
-//GridPointPositionDescription  Grid point position (code table 3.8)
+// GridPointPositionDescription  Grid point position (code table 3.8)
 func GridPointPositionDescription(value int) string {
 	switch value {
 	case 0:
@@ -383,7 +383,7 @@ return flags
 }
 */
 
-//ReadListInterpretation  Interpretation of list of numbers defining number of points (Code table 3.11)
+// ReadListInterpretation  Interpretation of list of numbers defining number of points (Code table 3.11)
 func ReadListInterpretation(value int) string {
 	switch value {
 	case 0:
@@ -401,7 +401,7 @@ func ReadListInterpretation(value int) string {
 	}
 }
 
-//ReadVerticalCoordinatePhysicalMeaning  Physical meaning of vertical coordinate (Code table 3.15)
+// ReadVerticalCoordinatePhysicalMeaning  Physical meaning of vertical coordinate (Code table 3.15)
 func ReadVerticalCoordinatePhysicalMeaning(value int) string {
 	switch value {
 	case 20:
@@ -443,7 +443,7 @@ func ReadVerticalCoordinatePhysicalMeaning(value int) string {
 	}
 }
 
-//ReadHorizontalLineType  Type of horizontal line (Code table 3.20)
+// ReadHorizontalLineType  Type of horizontal line (Code table 3.20)
 func ReadHorizontalLineType(value int) string {
 	switch value {
 	case 0:
@@ -459,7 +459,7 @@ func ReadHorizontalLineType(value int) string {
 	}
 }
 
-//ReadVerticalDimensionCoordinateValuesDefinition  Vertical dimension coordinate values definition (Code table 3.21)
+// ReadVerticalDimensionCoordinateValuesDefinition  Vertical dimension coordinate values definition (Code table 3.21)
 func ReadVerticalDimensionCoordinateValuesDefinition(value int) string {
 	switch value {
 	case 0:
@@ -475,7 +475,7 @@ func ReadVerticalDimensionCoordinateValuesDefinition(value int) string {
 	}
 }
 
-//ReadProductDefinitionTemplateNumber  Category Definition Template Number (Code table 4.0)
+// ReadProductDefinitionTemplateNumber  Category Definition Template Number (Code table 4.0)
 func ReadProductDefinitionTemplateNumber(value uint16) string {
 	switch value {
 	case 0:
@@ -563,7 +563,7 @@ func ReadProductDefinitionTemplateNumber(value uint16) string {
 	}
 }
 
-//ReadProductDisciplineParameters  Discipline of parameters by product discipline (Code table 4.1)
+// ReadProductDisciplineParameters  Discipline of parameters by product discipline (Code table 4.1)
 func ReadProductDisciplineParameters(discipline uint8, category uint8) string {
 	switch discipline {
 	//Meteorological Products
@@ -721,7 +721,7 @@ func ReadProductDisciplineParameters(discipline uint8, category uint8) string {
 	}
 }
 
-//ReadProductDisciplineCategoryParameters  Parameter number by product discipline and parameter category (code table 4.2)
+// ReadProductDisciplineCategoryParameters  Parameter number by product discipline and parameter category (code table 4.2)
 func ReadProductDisciplineCategoryParameters(discipline uint16, category uint8, number uint8) string {
 	switch discipline {
 	//Category Discipline 0: Meteorological products
@@ -2935,7 +2935,7 @@ func ReadProductDisciplineCategoryParameters(discipline uint16, category uint8, 
 	}
 }
 
-//ReadGeneratingProcessType  Type of generating process (code table 4.3)
+// ReadGeneratingProcessType  Type of generating process (code table 4.3)
 func ReadGeneratingProcessType(value int) string {
 	switch value {
 	case 0:
@@ -2971,7 +2971,7 @@ func ReadGeneratingProcessType(value int) string {
 	}
 }
 
-//ReadTimeRangeUnitIndicator  Indicator of unit of time range (code table 4.4)
+// ReadTimeRangeUnitIndicator  Indicator of unit of time range (code table 4.4)
 func ReadTimeRangeUnitIndicator(value int) string {
 	switch value {
 	case 0:
@@ -3005,7 +3005,7 @@ func ReadTimeRangeUnitIndicator(value int) string {
 	}
 }
 
-//ReadSurfaceTypesUnits  Fixed surface types and units (code table 4.5)
+// ReadSurfaceTypesUnits  Fixed surface types and units (code table 4.5)
 func ReadSurfaceTypesUnits(value int) string {
 	switch value {
 	case 1:
@@ -3173,7 +3173,7 @@ func ReadSurfaceTypesUnits(value int) string {
 	}
 }
 
-//ReadEnsembleForecastType  Type of ensemble forecast (code table 4.6)
+// ReadEnsembleForecastType  Type of ensemble forecast (code table 4.6)
 func ReadEnsembleForecastType(value int) string {
 	switch value {
 	case 0:
@@ -3195,7 +3195,7 @@ func ReadEnsembleForecastType(value int) string {
 	}
 }
 
-//ReadDerivedForecast   Derived forecast (code table 4.7)
+// ReadDerivedForecast   Derived forecast (code table 4.7)
 func ReadDerivedForecast(value int) string {
 	switch value {
 	case 0:
@@ -3233,7 +3233,7 @@ func ReadDerivedForecast(value int) string {
 	}
 }
 
-//ReadClusteringMethod  Clustering Method (code table 4.8)
+// ReadClusteringMethod  Clustering Method (code table 4.8)
 func ReadClusteringMethod(value int) string {
 	switch value {
 	case 0:
@@ -3247,7 +3247,7 @@ func ReadClusteringMethod(value int) string {
 	}
 }
 
-//ReadProbabilityType  Probability Type (code table 4.9)
+// ReadProbabilityType  Probability Type (code table 4.9)
 func ReadProbabilityType(value int) string {
 	switch value {
 	case 0:
@@ -3267,7 +3267,7 @@ func ReadProbabilityType(value int) string {
 	}
 }
 
-//ReadStatisticalProcessingType  Type of statistical processing (code table 4.10)
+// ReadStatisticalProcessingType  Type of statistical processing (code table 4.10)
 func ReadStatisticalProcessingType(value int) string {
 	switch value {
 	case 0:
@@ -3331,7 +3331,7 @@ func ReadStatisticalProcessingType(value int) string {
 	}
 }
 
-//ReadTimeIntervalsType  Type of time intervals (code table 4.11)
+// ReadTimeIntervalsType  Type of time intervals (code table 4.11)
 func ReadTimeIntervalsType(value int) string {
 	switch value {
 	case 1:
@@ -3351,7 +3351,7 @@ func ReadTimeIntervalsType(value int) string {
 	}
 }
 
-//ReadOperatingMode  Operating Mode (code table 4.12)
+// ReadOperatingMode  Operating Mode (code table 4.12)
 func ReadOperatingMode(value int) string {
 	switch value {
 	case 0:
@@ -3367,7 +3367,7 @@ func ReadOperatingMode(value int) string {
 	}
 }
 
-//ReadQualityControlIndicator  Quality Control Indicator (code table 4.13)
+// ReadQualityControlIndicator  Quality Control Indicator (code table 4.13)
 func ReadQualityControlIndicator(value int) string {
 	switch value {
 	case 0:
@@ -3381,7 +3381,7 @@ func ReadQualityControlIndicator(value int) string {
 	}
 }
 
-//ReadClutterFillerIndicator  Clutter Filter Indicator (code table 4.14)
+// ReadClutterFillerIndicator  Clutter Filter Indicator (code table 4.14)
 func ReadClutterFillerIndicator(value int) string {
 	switch value {
 	case 0:
@@ -3395,7 +3395,7 @@ func ReadClutterFillerIndicator(value int) string {
 	}
 }
 
-//ReadSpatialProcessingType  TYPE OF SPATIAL PROCESSING USED TO ARRIVE AT A GIVEN DATA VALUE FROM THE SOURCE DATA (code table 4.15)
+// ReadSpatialProcessingType  TYPE OF SPATIAL PROCESSING USED TO ARRIVE AT A GIVEN DATA VALUE FROM THE SOURCE DATA (code table 4.15)
 func ReadSpatialProcessingType(value int) string {
 	switch value {
 	case 0:
@@ -3419,7 +3419,7 @@ func ReadSpatialProcessingType(value int) string {
 	}
 }
 
-//ReadIntervalType Type of interval
+// ReadIntervalType Type of interval
 func ReadIntervalType(value int) string {
 	switch value {
 	case 0:
@@ -3453,7 +3453,7 @@ func ReadIntervalType(value int) string {
 	}
 }
 
-//ReadPrecipitationType  Precipitation Type (code table 4.201)
+// ReadPrecipitationType  Precipitation Type (code table 4.201)
 func ReadPrecipitationType(value int) string {
 	switch value {
 	case 1:
@@ -3473,7 +3473,7 @@ func ReadPrecipitationType(value int) string {
 	}
 }
 
-//ReadPrecipitableWaterCategory  Precipitable water category (code table 4.202)
+// ReadPrecipitableWaterCategory  Precipitable water category (code table 4.202)
 func ReadPrecipitableWaterCategory(value int) string {
 	switch value {
 	case 255:
@@ -3483,7 +3483,7 @@ func ReadPrecipitableWaterCategory(value int) string {
 	}
 }
 
-//ReadCloudType  Cloud type (code table 4.203)
+// ReadCloudType  Cloud type (code table 4.203)
 func ReadCloudType(value int) string {
 	switch value {
 	case 0:
@@ -3537,7 +3537,7 @@ func ReadCloudType(value int) string {
 	}
 }
 
-//ReadThunderstormCoverage  Thunderstorm coverage (code table 4.204)
+// ReadThunderstormCoverage  Thunderstorm coverage (code table 4.204)
 func ReadThunderstormCoverage(value int) string {
 	switch value {
 	case 0:
@@ -3557,7 +3557,7 @@ func ReadThunderstormCoverage(value int) string {
 	}
 }
 
-//ReadAerosolPresence  Aerosol presence (code table 4.205)
+// ReadAerosolPresence  Aerosol presence (code table 4.205)
 func ReadAerosolPresence(value int) string {
 	switch value {
 	case 0:
@@ -3571,7 +3571,7 @@ func ReadAerosolPresence(value int) string {
 	}
 }
 
-//ReadVolcanicAsh  Volcanic ash (code table 4.206)
+// ReadVolcanicAsh  Volcanic ash (code table 4.206)
 func ReadVolcanicAsh(value int) string {
 	switch value {
 	case 0:
@@ -3585,7 +3585,7 @@ func ReadVolcanicAsh(value int) string {
 	}
 }
 
-//ReadIcing  Icing (code table 4.207)
+// ReadIcing  Icing (code table 4.207)
 func ReadIcing(value int) string {
 	switch value {
 	case 0:
@@ -3607,7 +3607,7 @@ func ReadIcing(value int) string {
 	}
 }
 
-//ReadTurbulence  Turbulence (code table 4.208)
+// ReadTurbulence  Turbulence (code table 4.208)
 func ReadTurbulence(value int) string {
 	switch value {
 	case 0:
@@ -3627,7 +3627,7 @@ func ReadTurbulence(value int) string {
 	}
 }
 
-//ReadPlanetaryBoundaryLayerRegime  Planetary boundary layer regime (code table 4.209)
+// ReadPlanetaryBoundaryLayerRegime  Planetary boundary layer regime (code table 4.209)
 func ReadPlanetaryBoundaryLayerRegime(value int) string {
 	switch value {
 	case 1:
@@ -3645,7 +3645,7 @@ func ReadPlanetaryBoundaryLayerRegime(value int) string {
 	}
 }
 
-//ReadContrailIntensity  Contrail intensity (code table 4.210)
+// ReadContrailIntensity  Contrail intensity (code table 4.210)
 func ReadContrailIntensity(value int) string {
 	switch value {
 	case 0:
@@ -3659,7 +3659,7 @@ func ReadContrailIntensity(value int) string {
 	}
 }
 
-//ReadContrailEngineType  Contrail engine type (code table 4.211)
+// ReadContrailEngineType  Contrail engine type (code table 4.211)
 func ReadContrailEngineType(value int) string {
 	switch value {
 	case 0:
@@ -3675,7 +3675,7 @@ func ReadContrailEngineType(value int) string {
 	}
 }
 
-//ReadLandUse  Land use (code table 4.212)
+// ReadLandUse  Land use (code table 4.212)
 func ReadLandUse(value int) string {
 	switch value {
 	case 1:
@@ -3711,7 +3711,7 @@ func ReadLandUse(value int) string {
 	}
 }
 
-//ReadSoilType  Soil type (code table 4.213)
+// ReadSoilType  Soil type (code table 4.213)
 func ReadSoilType(value int) string {
 	switch value {
 	case 1:
@@ -3753,7 +3753,7 @@ func ReadSoilType(value int) string {
 	}
 }
 
-//ReadRemotelySensedSnowCoverage  Remotely Sensed Snow Coverage (code table 4.215)
+// ReadRemotelySensedSnowCoverage  Remotely Sensed Snow Coverage (code table 4.215)
 func ReadRemotelySensedSnowCoverage(value int) string {
 	switch value {
 	case 50:
@@ -3769,7 +3769,7 @@ func ReadRemotelySensedSnowCoverage(value int) string {
 	}
 }
 
-//ReadSnowCoveredTerrainElevation  Elevation of Snow Covered Terrain (code table 4.216)
+// ReadSnowCoveredTerrainElevation  Elevation of Snow Covered Terrain (code table 4.216)
 func ReadSnowCoveredTerrainElevation(value int) string {
 	if value >= 0 && value <= 90 {
 		return "Elevation in increments of 100 m"
@@ -3781,7 +3781,7 @@ func ReadSnowCoveredTerrainElevation(value int) string {
 	return fmt.Sprint("Unknown ", value)
 }
 
-//ReadCloudMaskType  Cloud mask type (code table 4.217)
+// ReadCloudMaskType  Cloud mask type (code table 4.217)
 func ReadCloudMaskType(value int) string {
 	switch value {
 	case 0:
@@ -3799,7 +3799,7 @@ func ReadCloudMaskType(value int) string {
 	}
 }
 
-//ReadPixelSceneType  Pixel scene type (code table 4.218)
+// ReadPixelSceneType  Pixel scene type (code table 4.218)
 func ReadPixelSceneType(value int) string {
 	switch value {
 	case 0:
@@ -3875,7 +3875,7 @@ func ReadPixelSceneType(value int) string {
 	}
 }
 
-//ReadCloudTopHeightQuality  Cloud top height quality indicator (code table 4.219)
+// ReadCloudTopHeightQuality  Cloud top height quality indicator (code table 4.219)
 func ReadCloudTopHeightQuality(value int) string {
 	switch value {
 	case 0:
@@ -3893,7 +3893,7 @@ func ReadCloudTopHeightQuality(value int) string {
 	}
 }
 
-//ReadHorizontalDimensionProcessed  Horizontal dimension processed (code table 4.220)
+// ReadHorizontalDimensionProcessed  Horizontal dimension processed (code table 4.220)
 func ReadHorizontalDimensionProcessed(value int) string {
 	switch value {
 	case 0:
@@ -3907,7 +3907,7 @@ func ReadHorizontalDimensionProcessed(value int) string {
 	}
 }
 
-//ReadMissingDataTreatment  Treatment of missing data (code table 4.221)
+// ReadMissingDataTreatment  Treatment of missing data (code table 4.221)
 func ReadMissingDataTreatment(value int) string {
 	switch value {
 	case 0:
@@ -3921,7 +3921,7 @@ func ReadMissingDataTreatment(value int) string {
 	}
 }
 
-//ReadCategoricalResult  Categorical Result (code table 4.222)
+// ReadCategoricalResult  Categorical Result (code table 4.222)
 func ReadCategoricalResult(value int) string {
 	switch value {
 	case 0:
@@ -3941,7 +3941,7 @@ func ReadCategoricalResult(value int) string {
 	}
 }
 
-//ReadFireDetection  Fire Detection Indicator (code table 4.223)
+// ReadFireDetection  Fire Detection Indicator (code table 4.223)
 func ReadFireDetection(value int) string {
 	switch value {
 	case 0:
@@ -3959,7 +3959,7 @@ func ReadFireDetection(value int) string {
 	}
 }
 
-//ReadCategoricalOutlook  Categorical Outlook (code table 4.224)
+// ReadCategoricalOutlook  Categorical Outlook (code table 4.224)
 func ReadCategoricalOutlook(value int) string {
 	switch value {
 	case 0:
@@ -3985,7 +3985,7 @@ func ReadCategoricalOutlook(value int) string {
 	}
 }
 
-//ReadAerosolType  Aerosol Type (code table 4.233)
+// ReadAerosolType  Aerosol Type (code table 4.233)
 func ReadAerosolType(value int) string {
 	switch value {
 	case 0:
@@ -4226,7 +4226,7 @@ func ReadAerosolType(value int) string {
 // Atmospheric chemical or physical constituent type (code table 4.230)
 //func ReadAtmosphericChemicalOrPhysicalConstituentType = func ReadAerosolType
 
-//ReadWindGeneratedWaveSpectralDescription  Wind-Generated Wave Sectral Description (code table 4.235)
+// ReadWindGeneratedWaveSpectralDescription  Wind-Generated Wave Sectral Description (code table 4.235)
 func ReadWindGeneratedWaveSpectralDescription(value int) string {
 	switch value {
 	case 0:
@@ -4240,7 +4240,7 @@ func ReadWindGeneratedWaveSpectralDescription(value int) string {
 	}
 }
 
-//ReadDataRepresentationTemplateNumber  Data Representation Template Number (code table 5.0)
+// ReadDataRepresentationTemplateNumber  Data Representation Template Number (code table 5.0)
 func ReadDataRepresentationTemplateNumber(value int) string {
 	switch value {
 	case 0:
@@ -4270,7 +4270,7 @@ func ReadDataRepresentationTemplateNumber(value int) string {
 	}
 }
 
-//ReadOriginalFieldValuesType  Type of original field values (code table 5.1)
+// ReadOriginalFieldValuesType  Type of original field values (code table 5.1)
 func ReadOriginalFieldValuesType(value int) string {
 	switch value {
 	case 0:
@@ -4284,7 +4284,7 @@ func ReadOriginalFieldValuesType(value int) string {
 	}
 }
 
-//ReadMatrixCoordinateValueFunctionDefinition  Matrix coordinate value function definition (code table 5.2)
+// ReadMatrixCoordinateValueFunctionDefinition  Matrix coordinate value function definition (code table 5.2)
 func ReadMatrixCoordinateValueFunctionDefinition(value int) string {
 	switch value {
 	case 0:
@@ -4300,7 +4300,7 @@ func ReadMatrixCoordinateValueFunctionDefinition(value int) string {
 	}
 }
 
-//ReadMatrixCoordinateParameter  Matrix coordinate parameter (code table 5.3)
+// ReadMatrixCoordinateParameter  Matrix coordinate parameter (code table 5.3)
 func ReadMatrixCoordinateParameter(value int) string {
 	switch value {
 	case 1:
@@ -4316,7 +4316,7 @@ func ReadMatrixCoordinateParameter(value int) string {
 	}
 }
 
-//ReadGroupSplittingMethod  ReadGroupSplittingMethod - Group Splitting Method (code table 5.4)
+// ReadGroupSplittingMethod  ReadGroupSplittingMethod - Group Splitting Method (code table 5.4)
 func ReadGroupSplittingMethod(value int) string {
 	switch value {
 	case 0:
@@ -4330,7 +4330,7 @@ func ReadGroupSplittingMethod(value int) string {
 	}
 }
 
-//ReadMissingValueManagement  ReadMissingValueManagement - Missing Value Management for Complex Packing (code table 5.5)
+// ReadMissingValueManagement  ReadMissingValueManagement - Missing Value Management for Complex Packing (code table 5.5)
 func ReadMissingValueManagement(value int) string {
 	switch value {
 	case 0:
@@ -4346,7 +4346,7 @@ func ReadMissingValueManagement(value int) string {
 	}
 }
 
-//ReadSpatialDifferencingOrder  ReadSpatialDifferencingOrder Order of Spatial Differencing (code table 5.6)
+// ReadSpatialDifferencingOrder  ReadSpatialDifferencingOrder Order of Spatial Differencing (code table 5.6)
 func ReadSpatialDifferencingOrder(value int) string {
 	switch value {
 	case 1:
@@ -4360,7 +4360,7 @@ func ReadSpatialDifferencingOrder(value int) string {
 	}
 }
 
-//ReadFloatingPointNumbersPrecision  ReadFloatingPointNumbersPrecision maps Precision of floating-point numbers to a string (code table 5.7)
+// ReadFloatingPointNumbersPrecision  ReadFloatingPointNumbersPrecision maps Precision of floating-point numbers to a string (code table 5.7)
 func ReadFloatingPointNumbersPrecision(value int) string {
 	switch value {
 	case 1:
@@ -4376,7 +4376,7 @@ func ReadFloatingPointNumbersPrecision(value int) string {
 	}
 }
 
-//ReadCompressionType  ReadCompressionType maps Type of compression (code table 5.40)
+// ReadCompressionType  ReadCompressionType maps Type of compression (code table 5.40)
 func ReadCompressionType(value int) string {
 	switch value {
 	case 0:
@@ -4390,7 +4390,7 @@ func ReadCompressionType(value int) string {
 	}
 }
 
-//ReadBitMapIndicator  ReadBitMapIndicator is a Bit Map Indicator (code table 6.0)
+// ReadBitMapIndicator  ReadBitMapIndicator is a Bit Map Indicator (code table 6.0)
 func ReadBitMapIndicator(value int) string {
 	if value == 0 {
 		return "A bit map applies to this product and is specified in this Section"

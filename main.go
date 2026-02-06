@@ -65,7 +65,12 @@ func main() {
 		log.Printf("\nFile [%s] not found.\n", options.Filepath)
 		os.Exit(1)
 	}
-	defer gribFile.Close()
+	defer func(gribFile *os.File) {
+		err2 := gribFile.Close()
+		if err2 != nil {
+			log.Fatalf("Error closing gribFile: %s\n", err2.Error())
+		}
+	}(gribFile)
 
 	switch options.Operation {
 	case "parse":
@@ -73,7 +78,7 @@ func main() {
 	case "reduce":
 		reduceToFile(gribFile, options)
 	default:
-		log.Printf("Operation '%s' not supported. Valid values are 'parse' and 'reduce'.", options.Operation)
+		log.Printf("Operation '%s' not supported. Valid values are 'parse' and 'reduce'.\n", options.Operation)
 		os.Exit(1)
 	}
 }
@@ -91,7 +96,12 @@ func reduceToFile(gribFile io.Reader, options griblib.Options) {
 		os.Exit(1)
 	}
 
-	defer reduceFile.Close()
+	defer func(reduceFile *os.File) {
+		err2 := reduceFile.Close()
+		if err2 != nil {
+			log.Fatalf("Error closing reduceFile: %s", err2.Error())
+		}
+	}(reduceFile)
 
 	end := make(chan bool)
 	content := make(chan []byte)
@@ -104,7 +114,13 @@ func reduceToFile(gribFile io.Reader, options griblib.Options) {
 			log.Printf("reduce done to file '%s'. \n", options.ReduceFilePath)
 			return
 		case bytesRead := <-content:
-			reduceFile.Write(bytesRead)
+			written, err2 := reduceFile.Write(bytesRead)
+			if written != len(bytesRead) {
+				log.Fatalf("written: %d, len: %d", written, len(bytesRead))
+			}
+			if err2 != nil {
+				log.Fatalf("Error writing to reduceFile: %s", err2.Error())
+			}
 		}
 	}
 

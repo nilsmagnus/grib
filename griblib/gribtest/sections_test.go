@@ -19,7 +19,12 @@ func Test_read_section0(t *testing.T) {
 		Reserved:      6,
 	}
 
-	section0, readError := griblib.ReadSection0(toIoReader(testData))
+	ioReader, err := toIoReader(testData)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	section0, readError := griblib.ReadSection0(ioReader)
 
 	if readError != nil {
 		t.Fatal(readError)
@@ -49,7 +54,12 @@ func Test_read_section1(t *testing.T) {
 		Type:                      8,
 	}
 
-	section1, readError := griblib.ReadSection1(toIoReader(testData), binary.Size(testData))
+	ioReader, err := toIoReader(testData)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	section1, readError := griblib.ReadSection1(ioReader, binary.Size(testData))
 
 	if readError != nil {
 		t.Fatal(readError)
@@ -57,17 +67,20 @@ func Test_read_section1(t *testing.T) {
 
 	if testData != section1 {
 		t.Error("Deserialized section1 struct is not equal to original struct")
+		t.Fail()
 	}
 }
 
 // create a reader from a struct for testing purposes
-func toIoReader(data interface{}) (reader io.Reader) {
+func toIoReader(data interface{}) (reader io.Reader, err error) {
 	var binBuf bytes.Buffer
 
-	binary.Write(&binBuf, binary.BigEndian, data)
+	err = binary.Write(&binBuf, binary.BigEndian, data)
+	if err != nil {
+		return
+	}
 
 	reader = bytes.NewReader(binBuf.Bytes())
 
 	return
-
 }
