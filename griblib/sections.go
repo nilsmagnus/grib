@@ -553,7 +553,7 @@ func ReadSection7(f io.Reader, length int, section5 Section5) (section Section7,
 
 		switch x := data.(type) {
 		case Data0:
-			section.Data, sectionError = ParseData0(f, length, &x)
+			section.Data, sectionError = ParseData0(f, length, &x, section5.PointsNumber)
 		case Data2:
 			section.Data, sectionError = ParseData2(f, length, &x)
 		case Data3:

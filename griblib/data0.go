@@ -52,7 +52,7 @@ func (template Data0) scaleFunc() func(uintValue int64) float64 {
 }
 
 // ParseData0 parses data0 struct from the reader into the an array of floating-point values
-func ParseData0(dataReader io.Reader, dataLength int, template *Data0) ([]float64, error) {
+func ParseData0(dataReader io.Reader, dataLength int, template *Data0, numPoints uint32) ([]float64, error) {
 
 	fld := []float64{}
 
@@ -67,9 +67,15 @@ func ParseData0(dataReader io.Reader, dataLength int, template *Data0) ([]float6
 		return fld, err
 	}
 
-	dataSize := int64(math.Floor(
+	// Calculate max values that fit in the data, but limit to expected point count
+	// to avoid reading padding bits as spurious values
+	maxFromBytes := int64(math.Floor(
 		float64(8*dataLength) / float64(template.Bits),
 	))
+	dataSize := int64(numPoints)
+	if maxFromBytes < dataSize {
+		dataSize = maxFromBytes
+	}
 
 	uintDataSlice, errRead := bitReader.ReadUintsBlock(int(template.Bits), dataSize, false)
 	if errRead != nil {
